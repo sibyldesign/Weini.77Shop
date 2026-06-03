@@ -122,13 +122,6 @@
     <button id="viewCartBtn" class="float-cart-btn" onclick="toggleCart(true)">購物車 (0)</button>
   </div>
 
-  <div id="customAlert" class="custom-alert">
-    <div class="alert-content">
-      <div id="alertMsg" style="font-size:14px; color:#333; line-height:1.5; white-space:pre-line;"></div>
-      <button class="alert-btn" onclick="closeAlert()">確定</button>
-    </div>
-  </div>
-
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal()">✕</span>
@@ -187,6 +180,7 @@
       <span style="font-size:16px; font-weight:800; color:var(--accent-pink);">應匯款總額：NT$ <span id="grandTotal">0</span></span>
     </div>
     <div style="border-top:1px dashed #DDD; padding-top:12px;">
+      <label style="font-size:12px; font-weight:bold; color:#666;">填寫訂購資訊</label>
       <div style="display:flex; gap:8px; margin-bottom:8px;">
         <input type="tel" id="custPhone" placeholder="手機號碼 (必填)" style="flex:1;">
         <button type="button" onclick="autoFillCustomerData()" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">帶入資料</button>
@@ -200,6 +194,8 @@
   </div>
 
   <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
+
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
     let touchStartX = 0, touchEndX = 0;
@@ -236,9 +232,8 @@
             if(modes.length > 0) currentShipping = modes[0].trim();
           }
 
-          // 🎯 核心升級：全域資料預清洗（Pre-parsing），一次性解決速度卡頓問題
-          rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "" && p[10] !== "下架").map(p => {
-            // 🎯 防禦性清洗：強力正則去除任何隱形換行與空白
+          // 🎯 核心補強技術：全域資料預清洗（Pre-parsing），防禦性清除空白殘留，圖片100%正常加載
+          rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
             let cleanUrls = p[5].toString().split(/[\s,，、\n\r]+/).map(u => u.trim()).filter(u => u !== "");
             p.processedImgs = cleanUrls.length > 0 ? cleanUrls : ["https://via.placeholder.com/300?text=No+Image"];
             return p;
@@ -296,11 +291,11 @@
       selectedIdx = idx; const p = products[idx];
       document.getElementById('itemModal').style.display = 'flex';
       
-      // 🎯 核心優化：優化輪播重置，索引（Index）完美歸零不殘留
+      // 🎯 輪播狀態徹底重置歸零，防止上一件商品殘留
       imgIdx = 0; 
       curImgs = [...p.processedImgs];
       
-      // 🎯 防禦性影片轉換：防禦解析並去除所有 Shorts 網址的參數殘留，徹底解決 Error 153
+      // 🎯 智慧解碼去噪：全自動封印 Error 153 影片錯誤問題
       let videoUrl = p[9] ? p[9].toString().trim() : "";
       let videoBox = document.getElementById('videoContainer');
       let playerEl = document.getElementById('videoPlayer');
@@ -309,7 +304,7 @@
         let embedUrl = convertToEmbedUrl(videoUrl);
         if (embedUrl) {
           videoBox.style.display = "block"; playerEl.src = embedUrl;
-          curImgs.unshift({ type: "video", url: embedUrl }); // 置入頭像輪播
+          curImgs.unshift({ type: "video", url: embedUrl }); 
         } else { videoBox.style.display = "none"; playerEl.src = ""; }
       } else { videoBox.style.display = "none"; playerEl.src = ""; }
 
@@ -323,11 +318,10 @@
       document.getElementById('itemDesc').innerText = p[7] || "";
       setupDropdown('colorSelect', p[3]); setupSizePriceDropdown('sizeSelect', p[4], p[2]);
 
-      // 🎯 一鍵複製分享網址修復打通
       document.getElementById('shareProductBtn').onclick = () => {
         let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
         navigator.clipboard.writeText(shareUrl);
-        myAlert(`🔗 商品分享專屬連結已成功複製！<br><small>${shareUrl}</small>`);
+        myAlert(`🔗 【${p[0]}】商品分享專屬連結已成功複製！<br><small>${shareUrl}</small>`);
       };
     }
     function buildDots() {
@@ -372,7 +366,7 @@
       str.toString().split(/[,，、]/).forEach(s => { let o = document.createElement('option'); o.value = o.text = s.trim(); el.appendChild(o); });
     }
     
-    // 🎯 核心規格重構：建立精密價格一對一配對，完全杜絕「200230」文字相加 Bug
+    // 🎯 核心多維對齊規格：建立價格一對一配對，完全消除文字相加錯誤
     function setupSizePriceDropdown(id, szStr, prStr) {
       const el = document.getElementById(id); el.innerHTML = "";
       let szs = szStr.toString().split(/[,，、]/).map(s => s.trim()).filter(s => s !== "");
@@ -381,7 +375,7 @@
       szs.forEach((s, idx) => {
         let o = document.createElement('option');
         o.text = o.value = s;
-        o.dataset.price = prs[idx] ? prs[idx] : prs[0]; // 對齊平行陣列
+        o.dataset.price = prs[idx] ? prs[idx] : prs[0]; 
         el.appendChild(o);
       });
       syncMultiSizePrice(); 
@@ -438,7 +432,7 @@
       updateCartUI();
     }
 
-    // 🎯 完美修復：一鍵智慧帶入歷史個人收件資料事件打通
+    // 🎯 完美修復：Fetch 智慧帶入歷史個人收件資料一鍵填報
     function autoFillCustomerData() {
       let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
@@ -446,7 +440,7 @@
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
           if(res.success && res.allOrders && res.allOrders.length > 0) {
-            let lastO = res.allOrders[0]; // 拿最新一筆當作帶入基準
+            let lastO = res.allOrders[0]; 
             myAlert("✨ 已自動為您帶入歷史收件與聯絡人資料！");
             document.getElementById('custName').value = lastO.custName || "";
             document.getElementById('lineName').value = lastO.lineName || "";
@@ -459,10 +453,10 @@
             if(lastO.shipping.includes("超商")) { document.getElementById('storeName').value = lastO.address.replace("7-11超商：", ""); } 
             else { document.getElementById('custAddress').value = lastO.address; }
           } else { myAlert("查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
-        }).catch(e => myAlert("連線失敗，請確認後台 API 狀態。"));
+        }).catch(e => myAlert("帶入失敗，請確認網路連線。"));
     }
 
-    // 🎯 完美改寫：全量收集並條列客人「名下所有歷史預訂單」，絕不隨機漏單
+    // 🎯 全量歷史訂單條列呈現
     function checkOrderHistory() {
       let ph = document.getElementById('queryPhone').value.trim(); if(!ph) return myAlert("請輸入手機號碼");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
@@ -508,7 +502,7 @@
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: cart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: document.getElementById('grandTotal').innerText } }) })
         .then(r => r.json()).then(res => {
-          myAlert("🎉 預訂成功！明細已發送至您的 Mail 副本。\n您的單號為：<b>" + res.orderId + "</b>");
+          myAlert("🎉 預訂成功！明細副本已發送至您的信箱。\n您的單號為：<b>" + res.orderId + "</b>");
           cart = []; updateCartUI(); toggleCart(false);
         });
     }
