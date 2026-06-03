@@ -16,7 +16,6 @@
     body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 20px; }
     .admin-container { max-width: 1200px; margin: 0 auto; }
     
-    /* 專業頁籤導覽列 (Tabs) */
     .tab-nav { display: flex; gap: 8px; border-bottom: 3px solid #CBD5E1; padding-bottom: 0; margin-bottom: 20px; overflow-x: auto; }
     .tab-btn { background: #E2E8F0; color: #64748B; border: none; padding: 12px 24px; border-radius: 12px 12px 0 0; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
     .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
@@ -39,6 +38,7 @@
     .primary-btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; transition: 0.2s; }
     .primary-btn:hover { background: var(--primary-dark); }
     .danger-btn { background: var(--accent-red); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+    .row-btn { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; margin-right: 4px; }
     
     table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; background: white; }
     th, td { padding: 12px; border-bottom: 1px solid #E2E8F0; text-align: left; }
@@ -48,10 +48,18 @@
     .bg-unpaid { background: #FFEAEA; color: var(--accent-red); }
     .bg-paid { background: #E6F4EA; color: #137333; }
     
-    /* 質感爆棚的自訂提示視窗 (取代變醜的試算表ID視窗) */
     .custom-alert { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.5); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
     .alert-content { background:white; padding:24px; border-radius:20px; width:85%; max-width:340px; text-align:center; box-shadow:0 15px 35px rgba(0,0,0,0.15); border:1px solid #E2E8F0; }
     .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
+
+    /* 🖨️ 列印控制專用 CSS（列印時自動隱藏後台背景，只秀出漂亮出貨單） */
+    @media print {
+      body { background: white; color: black; padding: 0; }
+      .admin-container, .tab-nav, h2, .float-controls, button, select { display: none !important; }
+      .print-invoice-area { display: block !important; width: 100%; font-family: sans-serif; }
+      .invoice-box { border: 2px solid black; padding: 20px; border-radius: 12px; margin-bottom: 20px; page-break-after: always; }
+    }
+    .print-invoice-area { display: none; }
   </style>
 </head>
 <body>
@@ -59,10 +67,9 @@
   <div class="admin-container">
     <div style="text-align:center; margin-bottom:25px;">
       <h1 style="color:var(--primary); margin:0; font-size: 28px; font-weight: 900;">Weini.77 Shop 管理後台</h1>
-      <p style="color:#64748B; margin:6px 0 0 0; font-weight: 500;">Jamstack 極速穩定排版 $\cdot$ 專屬獨立分頁主控台</p>
+      <p style="color:#64748B; margin:6px 0 0 0; font-weight: 500;">頂級功能面板 $\cdot$ 獨立分頁主控台</p>
     </div>
 
-    <!-- 頂部切換頁籤 -->
     <div class="tab-nav">
       <button class="tab-btn active" onclick="switchTab('uploadTab')">✨ 商品快速上架</button>
       <button class="tab-btn" onclick="switchTab('listTab')">📦 商品清單總覽</button>
@@ -70,13 +77,13 @@
       <button class="tab-btn" onclick="switchTab('customTab')">💐 客製專屬通道編輯</button>
     </div>
 
-    <!-- 分頁一：商品快速上架 -->
+    <!-- 商品快速上架 / 編輯區 -->
     <div id="uploadTab" class="tab-content active card">
-      <h2>✨ 商品快速上架</h2>
+      <h2 id="formActionTitle">✨ 傻瓜式商品快速上架</h2>
       <div class="form-grid">
-        <div><label>商品貨號 (必填)</label><input type="text" id="pSku" placeholder="例如: W9112#"></div>
+        <div><label>商品貨號 (必填，不可隨意修改)</label><input type="text" id="pSku" placeholder="例如: W9112#"></div>
         <div><label>商品品名 (必填)</label><input type="text" id="pName" placeholder="例如: 韓系圍巾領襯衫"></div>
-        <div><label>單價 (例如: 340 或多規格用逗號隔開 340,360)</label><input type="text" id="pPrice" placeholder="請對齊尺寸數量"></div>
+        <div><label>單價 (例如: 340 或多規格逗號隔開 340,360)</label><input type="text" id="pPrice" placeholder="請精確對齊尺寸數量"></div>
         <div><label>商品狀態</label>
           <select id="pStatusConfig">
             <option value="上架">上架</option>
@@ -101,19 +108,20 @@
 
       <div class="upload-box" onclick="document.getElementById('fileInput').click()">
         <span style="font-size:24px;">➕</span>
-        <p style="margin:5px 0 0 0; font-weight:bold; font-size:14px; color:var(--primary);">點擊此處選取照片（自動秒速空投至無限容量安全圖床）</p>
+        <p style="margin:5px 0 0 0; font-weight:bold; font-size:14px; color:var(--primary);">點擊此處選取照片（自動秒速上傳至圖床）</p>
         <input type="file" id="fileInput" multiple accept="image/*" style="display:none;" onchange="uploadToImgur(this.files)">
         <div class="preview-container" id="previewBox"></div>
       </div>
 
       <div style="margin-bottom:20px;">
-        <label>已打包的圖床網址紀錄欄</label>
-        <textarea id="pImgs" rows="2" placeholder="自動生成圖片網址清單區域..."></textarea>
+        <label>已上傳的圖床網址欄</label>
+        <textarea id="pImgs" rows="2" placeholder="自動打包網址區域..."></textarea>
       </div>
-      <button class="primary-btn" onclick="submitProduct()">一鍵確認商品網頁上架</button>
+      <button class="primary-btn" id="submitProductBtn" onclick="submitProduct()">一鍵確認商品網頁上架</button>
+      <button class="primary-btn" id="cancelEditBtn" onclick="resetProductForm()" style="background:#64748B; margin-top:8px; display:none;">取消編輯狀態</button>
     </div>
 
-    <!-- 分頁二：商品清單總覽 -->
+    <!-- 商品清單總覽 -->
     <div id="listTab" class="tab-content card">
       <h2>📦 目前架上所有商品清單</h2>
       <div style="overflow-x:auto;">
@@ -137,10 +145,10 @@
       </div>
     </div>
 
-    <!-- 分頁三：訂單管理看板 -->
+    <!-- 訂單管理看板 -->
     <div id="orderTab" class="tab-content card">
       <div style="display:flex; justify-content:between; align-items:center; border-bottom:2px solid #E2E8F0; padding-bottom:10px; margin-bottom:15px;">
-        <h2 style="margin:0; border:none;">📋 實時訂單追蹤管理看板 (依下單時間排序)</h2>
+        <h2>📋 實時訂單追蹤管理看板 (依下單時間從新到舊排序)</h2>
         <button onclick="loadOrders()" style="background:#64748B; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:12px; margin-left:auto;">🔄 刷新訂單資料</button>
       </div>
       <div style="overflow-x:auto;">
@@ -155,19 +163,19 @@
               <th>配送地址/門市</th>
               <th>付款狀態</th>
               <th>訂單狀態</th>
+              <th>列印管理</th>
             </tr>
           </thead>
           <tbody id="orderTableBody">
-            <tr><td colspan="8" style="text-align:center; padding:20px; color:#94A3B8;">點擊整理按鈕加載即時訂單資料...</td></tr>
+            <tr><td colspan="9" style="text-align:center; padding:20px; color:#94A3B8;">加載訂單資料中...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- 分頁四：客製專屬通道編輯 -->
+    <!-- 客製化專屬編輯區 -->
     <div id="customTab" class="tab-content card">
       <h2>💐 Weini.77 Shop | 客製專屬下單通道編輯器</h2>
-      <p style="font-size:13px; color:#64748B; margin-top:-5px;">在這裡幫特定客人創立好單號與專屬討論金額，再將連結複製給客人填寫收件資料。</p>
       <div class="form-grid" style="margin-top:20px;">
         <div><label>手動創立專屬單號 (必填)</label><input type="text" id="cOrderId" placeholder="例如: W77-CUSTOM-01"></div>
         <div><label>客製討論品名細節</label><input type="text" id="cProdName" value="粉櫻浪漫客製大花束"></div>
@@ -178,7 +186,9 @@
     </div>
   </div>
 
-  <!-- 高質感自訂提示視窗 -->
+  <!-- 🖨️ 實體自動生成 PDF 列印區域（平時隱藏，點擊列印自動啟動） -->
+  <div id="printArea" class="print-invoice-area"></div>
+
   <div id="customAlert" class="custom-alert">
     <div class="alert-content">
       <div id="alertMsg" style="font-size:14px; color:#333; line-height:1.5; white-space:pre-line;"></div>
@@ -187,13 +197,10 @@
   </div>
 
   <script>
-    // 🎯 核心更換：請在此更換為妳全新部署的 GAS API 網址
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
-    
-    // 💡 建議去 Imgur 官網申請替換成妳獨立綁定的 Client ID
     const IMGUR_CLIENT_ID = '6f8615db8bc953e'; 
 
-    let globalProducts = [], majorList = [], subList = [];
+    let globalProducts = [], isEditMode = false;
 
     function myAlert(msg) { document.getElementById('alertMsg').innerHTML = msg; document.getElementById('customAlert').style.display = 'flex'; }
     function closeAlert() { document.getElementById('customAlert').style.display = 'none'; }
@@ -203,176 +210,147 @@
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       event.target.classList.add('active');
-      
       if(tabId === 'listTab') loadProductInventory();
       if(tabId === 'orderTab') loadOrders();
     }
 
     window.onload = () => {
-      // 網頁一開，立刻去後台公告設定把分類下拉選單完全連動加載過來
-      fetch(API_URL)
-        .then(r => r.json())
-        .then(res => {
-          if(res.majorCategories) {
-            const majEl = document.getElementById('pMajorSelect'); majEl.innerHTML = "";
-            res.majorCategories.split(/[,，]/).forEach(c => {
-              let o = document.createElement('option'); o.value = o.text = c.trim(); majEl.appendChild(o);
-            });
-          }
-          // 同步支援副分類拉取寫入
-          if(res.subCategories) {
-            const subEl = document.getElementById('pSubSelect'); subEl.innerHTML = "<option value='無'>無副分類</option>";
-            res.subCategories.split(/[,，]/).forEach(c => {
-              let o = document.createElement('option'); o.value = o.text = c.trim(); subEl.appendChild(o);
-            });
-          }
-          globalProducts = res.products;
-        });
+      fetch(API_URL).then(r => r.json()).then(res => {
+        if(res.majorCategories) {
+          const majEl = document.getElementById('pMajorSelect'); majEl.innerHTML = "";
+          res.majorCategories.split(/[,，]/).forEach(c => { let o = document.createElement('option'); o.value = o.text = c.trim(); majEl.appendChild(o); });
+        }
+        if(res.subCategories) {
+          const subEl = document.getElementById('pSubSelect'); subEl.innerHTML = "<option value='無'>無副分類</option>";
+          res.subCategories.split(/[,，]/).forEach(c => { let o = document.createElement('option'); o.value = o.text = c.trim(); subEl.appendChild(o); });
+        }
+        globalProducts = res.products;
+      });
     };
 
-    // 免費圖床多圖批次自動打包機制
     async function uploadToImgur(files) {
       if(files.length === 0) return;
       const previewBox = document.getElementById('previewBox');
       const pImgs = document.getElementById('pImgs');
-      previewBox.innerHTML = "";
-      let uploadedUrls = [];
+      previewBox.innerHTML = ""; let uploadedUrls = [];
 
       for(let file of files) {
-        let reader = new FileReader();
-        reader.onload = e => {
-          let img = document.createElement('img'); img.className = 'preview-img'; img.src = e.target.result; previewBox.appendChild(img);
-        };
+        let reader = new FileReader(); reader.onload = e => { let img = document.createElement('img'); img.className = 'preview-img'; img.src = e.target.result; previewBox.appendChild(img); };
         reader.readAsDataURL(file);
 
         let formData = new FormData(); formData.append('image', file);
         try {
-          let response = await fetch('https://api.imgur.com/3/image', {
-            method: 'POST',
-            headers: { 'Authorization': 'Client-ID ' + IMGUR_CLIENT_ID },
-            body: formData
-          });
-          let resJson = await response.json();
-          if(resJson.success) { uploadedUrls.push(resJson.data.link); }
-        } catch(err) { console.error("圖床連線異常", err); }
+          let response = await fetch('https://api.imgur.com/3/image', { method: 'POST', headers: { 'Authorization': 'Client-ID ' + IMGUR_CLIENT_ID }, body: formData });
+          let resJson = await response.json(); if(resJson.success) { uploadedUrls.push(resJson.data.link); }
+        } catch(err) {}
       }
 
-      if(uploadedUrls.length > 0) {
-        pImgs.value = uploadedUrls.join('\n');
-        myAlert(`🎉 多圖空投成功！共有 ${uploadedUrls.length} 張照片已自動存入圖床並打包網址完畢！`);
-      } else {
-        myAlert("❌ 圖片上傳失敗，這通常是匿名圖床當日流量達到限制，建議於程式碼中填寫註冊帳號拿到的專屬 Client ID 唷！");
-      }
+      if(uploadedUrls.length > 0) { pImgs.value = uploadedUrls.join('\n'); myAlert(`🎉 照片已成功存入圖床並打包完畢！`); }
     }
 
-    // 新增商品上架
     function submitProduct() {
       const sku = document.getElementById('pSku').value.trim();
       const name = document.getElementById('pName').value.trim();
-      if(!sku || !name) return myAlert("請務必填寫【商品貨號】與【商品品名】項目。");
+      if(!sku || !name) return myAlert("請填寫貨號與品名！");
 
       let prodObj = {
-        sku: sku, name: name,
-        price: document.getElementById('pPrice').value.trim(),
-        color: document.getElementById('pColor').value.trim(),
-        size: document.getElementById('pSize').value.trim(),
+        sku: sku, name: name, price: document.getElementById('pPrice').value.trim(),
+        color: document.getElementById('pColor').value.trim(), size: document.getElementById('pSize').value.trim(),
         category: document.getElementById('pMajorSelect').value + (document.getElementById('pSubSelect').value !== '無' ? ' / ' + document.getElementById('pSubSelect').value : ''),
-        desc: document.getElementById('pDesc').value.trim(),
-        progress: document.getElementById('pProgress').value.trim(),
-        video: document.getElementById('pVideo').value.trim(),
-        imgs: document.getElementById('pImgs').value.trim(),
+        desc: document.getElementById('pDesc').value.trim(), progress: document.getElementById('pProgress').value.trim(),
+        video: document.getElementById('pVideo').value.trim(), imgs: document.getElementById('pImgs').value.trim(),
         status: document.getElementById('pStatusConfig').value
       };
 
-      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "addNewProduct", product: prodObj }) })
+      let targetMethod = isEditMode ? "editProduct" : "addNewProduct";
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: targetMethod, product: prodObj }) })
         .then(r => r.json()).then(res => {
-          if(res.success) {
-            myAlert(res.message);
-            document.getElementById('pSku').value = ""; document.getElementById('pName').value = "";
-            document.getElementById('pImgs').value = ""; document.getElementById('previewBox').innerHTML = "";
-          }
+          myAlert(res.message); resetProductForm();
         });
     }
 
-    // 讀取加載商品清單
+    function startEditProduct(sku) {
+      let p = globalProducts.find(item => item[0].toString().trim() === sku.toString().trim());
+      if(!p) return;
+      isEditMode = true;
+      document.getElementById('formActionTitle').innerText = `📝 編輯商品內容 - 貨號：${sku}`;
+      document.getElementById('submitProductBtn').innerText = "儲存修改商品內容";
+      document.getElementById('cancelEditBtn').style.display = "block";
+      document.getElementById('pSku').value = p[0]; document.getElementById('pSku').disabled = true;
+      document.getElementById('pName').value = p[1]; document.getElementById('pPrice').value = p[2];
+      document.getElementById('pColor').value = p[3]; document.getElementById('pSize').value = p[4];
+      document.getElementById('pImgs').value = p[5]; document.getElementById('pDesc').value = p[7];
+      document.getElementById('pProgress').value = p[8]; document.getElementById('pVideo').value = p[9];
+      document.getElementById('pStatusConfig').value = p[10] || "上架";
+      
+      switchTab('uploadTab');
+    }
+
+    function resetProductForm() {
+      isEditMode = false;
+      document.getElementById('formActionTitle').innerText = "✨ 傻瓜式商品快速上架";
+      document.getElementById('submitProductBtn').innerText = "一鍵確認商品網頁上架";
+      document.getElementById('cancelEditBtn').style.display = "none";
+      document.getElementById('pSku').disabled = false;
+      document.getElementById('pSku').value = ""; document.getElementById('pName').value = "";
+      document.getElementById('pPrice').value = ""; document.getElementById('pColor').value = "";
+      document.getElementById('pSize').value = ""; document.getElementById('pImgs').value = "";
+      document.getElementById('pDesc').value = ""; document.getElementById('pProgress').value = "";
+      document.getElementById('pVideo').value = ""; document.getElementById('previewBox').innerHTML = "";
+    }
+
+    function deleteProductItem(sku) {
+      if(!confirm(`確定要徹底刪除貨號 [${sku}] 的商品嗎？此操作不可復原唷。`)) return;
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "deleteProduct", sku: sku }) })
+        .then(r => r.json()).then(res => { myAlert(res.message); loadProductInventory(); });
+    }
+
     function loadProductInventory() {
       const tbody = document.getElementById('productTableBody');
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">載入即時商品庫存中...</td></tr>`;
-      
-      fetch(API_URL)
-        .then(r => r.json()).then(res => {
-          globalProducts = res.products;
-          tbody.innerHTML = "";
-          if(globalProducts.length === 0) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">資料庫目前空空如也。</td></tr>`; return; }
-          
-          globalProducts.forEach((p, idx) => {
-            let tr = document.createElement('tr');
-            let urls = p[5].toString().split(/[\s,，、\n\r]+/);
-            let firstImg = urls[0] ? urls[0].trim() : "https://via.placeholder.com/100?text=No+Image";
-            let statusVal = p[10] || "上架"; // 假設試算表第11欄控制狀態
-            
-            tr.innerHTML = `
-              <td><img src="${firstImg}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;"></td>
-              <td><b>${p[0]}</b></td>
-              <td>${p[1]}</td>
-              <td><small>${p[6]}</small></td>
-              <td><span style="color:var(--accent-pink); font-weight:bold;">$${p[2]}</span></td>
-              <td><small>色:${p[3]}<br>碼:${p[4]}</small></td>
-              <td>
-                <select class="table-select" onchange="updateProductStatus('${p[0]}', this.value)">
-                  <option value="上架" ${statusVal==='上架'?'selected':''}>上架</option>
-                  <option value="下架" ${statusVal==='下架'?'selected':''}>下架</option>
-                </select>
-              </td>
-              <td><button class="danger-btn" onclick="deleteProductItem('${p[0]}')">刪除商品</button></td>
-            `;
-            tbody.appendChild(tr);
-          });
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">載入即時庫存中...</td></tr>`;
+      fetch(API_URL).then(r => r.json()).then(res => {
+        globalProducts = res.products; tbody.innerHTML = "";
+        globalProducts.forEach(p => {
+          let tr = document.createElement('tr');
+          let urls = p[5].toString().split(/[\s,，、\n\r]+/);
+          let img = urls[0] ? urls[0].trim() : "https://via.placeholder.com/100?text=No+Image";
+          tr.innerHTML = `
+            <td><img src="${img}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;"></td>
+            <td><b>${p[0]}</b></td><td>${p[1]}</td><td><small>${p[6]}</small></td>
+            <td><span style="color:var(--accent-pink); font-weight:bold;">$${p[2]}</span></td><td><small>色:${p[3]}<br>碼:${p[4]}</small></td>
+            <td><span class="badge" style="background:${p[10]==='下架'?'#E2E8F0':'#E6F4EA'}; color:${p[10]==='下架'?'#64748B':'#137333'};">${p[10]||'上架'}</span></td>
+            <td>
+              <button class="row-btn" onclick="startEditProduct('${p[0]}')">編輯</button>
+              <button class="danger-btn" onclick="deleteProductItem('${p[0]}')">刪除</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
         });
+      });
     }
 
-    // 撈取實時訂單並依下單時間正確排序
+    let rawOrdersCache = [];
     function loadOrders() {
       const tbody = document.getElementById('orderTableBody');
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">正在讀取實時訂單管理看板...</td></tr>`;
-      
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">讀取實時訂單中...</td></tr>`;
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "getAllOrders" }) })
         .then(r => r.json()).then(res => {
-          if(!res.success || res.orders.length === 0) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">目前尚無客人提交任何預訂單。</td></tr>`; return; }
-          tbody.innerHTML = "";
-          
-          // 後端已完成依時間最新往舊排序
-          res.orders.forEach(o => {
+          if(!res.success || res.orders.length === 0) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">目前尚無客人提交預訂單。</td></tr>`; return; }
+          rawOrdersCache = res.orders; tbody.innerHTML = "";
+          rawOrdersCache.forEach(o => {
             let tr = document.createElement('tr');
             let payBadge = o.payStatus === "已匯款" ? `<span class="badge bg-paid">已匯款 (${o.lastFive})</span>` : `<span class="badge bg-unpaid">未付款</span>`;
-            
             tr.innerHTML = `
-              <td><small>${o.time}</small></td>
-              <td><b>${o.orderId}</b></td>
+              <td><small>${o.time}</small></td><td><b>${o.orderId}</b></td>
               <td>[${o.sku}] ${o.prodName}<br><small style="color:#64748B;">${o.specs}</small></td>
               <td style="color:var(--accent-pink); font-weight:bold;">$${o.total}</td>
               <td>${o.custName}<br><small style="color:#64748B;">Line:${o.lineName}<br>Tel:${o.phone}</small></td>
               <td><small>${o.shipping}<br>${o.address}</small></td>
+              <td>${payBadge}<br><select class="table-select" onchange="updateOrderRow(${o.rowIdx}, null, this.value)"><option value="">變更...</option><option value="未付款">未付款</option><option value="已匯款">已匯款</option></select></td>
+              <td><span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br><select class="table-select" onchange="updateOrderRow(${o.rowIdx}, this.value, null)"><option value="">變更...</option><option value="已收到訂單">已收到訂單</option><option value="已確認訂單">已確認訂單</option><option value="已叫貨追加中">已叫貨追加中</option><option value="已到貨">已到貨</option><option value="已出貨">已出貨</option><option value="取貨完成">取貨完成</option><option value="已取消">已取消</option></select></td>
               <td>
-                ${payBadge}<br>
-                <select class="table-select" onchange="updateOrderRow(${o.rowIdx}, null, this.value)" style="margin-top:5px;">
-                  <option value="">變更付款...</option>
-                  <option value="未付款">未付款</option>
-                  <option value="已匯款">已匯款</option>
-                </select>
-              </td>
-              <td>
-                <span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br>
-                <select class="table-select" onchange="updateOrderRow(${o.rowIdx}, this.value, null)" style="margin-top:5px;">
-                  <option value="">變更訂單狀態...</option>
-                  <option value="已收到訂單">已收到訂單</option>
-                  <option value="已確認訂單">已確認訂單</option>
-                  <option value="已叫貨追加中">已叫貨追加中</option>
-                  <option value="已到貨">已到貨</option>
-                  <option value="已出貨">已出貨</option>
-                  <option value="取貨完成">取貨完成</option>
-                  <option value="已取消">已取消</option>
-                </select>
+                <button class="row-btn" style="background:#64748B; margin-bottom:4px;" onclick="copyOrderText('${o.orderId}')">複製資料</button>
+                <button class="row-btn" style="background:var(--accent-pink);" onclick="printSingleInvoice('${o.orderId}')">🖨️ 列印</button>
               </td>
             `;
             tbody.appendChild(tr);
@@ -385,22 +363,49 @@
         .then(r => r.json()).then(res => { if(res.success) loadOrders(); });
     }
 
-    // 生成客製化專屬連結一鍵複製
+    // 🎯 複製明細文字
+    function copyOrderText(orderId) {
+      let o = rawOrdersCache.find(item => item.orderId === orderId); if(!o) return;
+      let text = `單號:${o.orderId}\n明細:${o.prodName} ${o.specs}\n總額:${o.total}\n客戶:${o.custName} (Line:${o.lineName} / Tel:${o.phone})\n地址:${o.shipping} ${o.address}`;
+      navigator.clipboard.writeText(text); myAlert("📋 該筆訂購資料已成功複製到剪貼簿！");
+    }
+
+    // 🎯 🖨️ 列印出貨單（自動渲染成精美 PDF 列印版）
+    function printSingleInvoice(orderId) {
+      let o = rawOrdersCache.find(item => item.orderId === orderId); if(!o) return;
+      const printBox = document.getElementById('printArea');
+      printBox.innerHTML = `
+        <div class="invoice-box">
+          <h2 style="text-align:center; border:none; padding:0; margin-bottom:15px;">Weini.77 Shop 出貨揀貨單</h2>
+          <hr style="border:1px solid black;">
+          <p><b>訂單單號：</b> ${o.orderId} (${o.time})</p>
+          <p><b>訂購明細：</b> ${o.prodName} ${o.specs}</p>
+          <p><b>應匯金額：</b> NT$ ${o.total} 元</p>
+          <p><b>客戶資訊：</b> 訂購人:${o.custName} | LINE:${o.lineName} | 手機:${o.phone}</p>
+          <p><b>配送地址/門市：</b> 【${o.shipping}】 ${o.address}</p>
+          <hr style="border:1px dashed black; margin-top:30px;">
+          <div style="text-align:right; font-size:12px;">Sibyl數位管家 系統自動生成單據</div>
+        </div>
+      `;
+      window.print(); // 喚醒瀏覽器出貨單列印
+    }
+
     function createCustomOrderLink() {
       let id = document.getElementById('cOrderId').value.trim();
       let price = document.getElementById('cAmount').value.trim();
       let name = document.getElementById('cProdName').value.trim();
-      if(!id || !price) return myAlert("請確實填寫專屬客製單號與協定金額項目！");
+      if(!id || !price) return myAlert("請填寫專屬客製單號與協定金額！");
 
-      // 這裡的網址會自動尋找妳上傳 GitHub Pages 部署出來的 custom.html 路徑
-      let currentLoc = window.location.href.replace('admin.html', 'custom.html');
-      let finalLink = `${currentLoc}?id=${id}`;
-      
-      document.getElementById('linkOutput').innerText = finalLink;
-      navigator.clipboard.writeText(finalLink);
-      myAlert("🎉 專屬客製單建立完成！<br>客製通道下單連結已自動複製到妳的剪貼簿囉，可以直接傳給特定客人填寫資料！");
+      // 🎯 自動串接新試算表 M 欄寫入專屬客製總額與明細品名
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: [{ sku: "CUSTOM", prodName: name, color: "客製", size: "專屬", qty: 1, price: Number(price) }], userInfo: { phone: "0000", name: "客製保留", lineName: "客製", shipName: "客製", email: "custom@weini77.com", shipping: "未填", address: "未填", grandTotal: Number(price) } }) })
+        .then(r => r.json()).then(res => {
+          let currentLoc = window.location.href.replace('admin.html', 'custom.html');
+          let finalLink = `${currentLoc}?id=${res.orderId}`; // 改由系統高安全性自動綁定單號發出
+          document.getElementById('linkOutput').innerText = finalLink;
+          navigator.clipboard.writeText(finalLink);
+          myAlert("💐 客製專屬單建立成功！連結已自動複製至剪貼簿！");
+        });
     }
   </script>
 </body>
 </html>
-
