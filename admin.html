@@ -125,6 +125,10 @@
     <!-- 商品清單總覽 -->
     <div id="listTab" class="tab-content card">
       <h2>目前架上所有商品清單</h2>
+<div style="display:flex; justify-content:flex-end; margin-bottom:15px;">
+  <input type="text" id="inventorySearchInput" placeholder="🔍 輸入貨號或關鍵字搜尋庫存..." oninput="searchInventoryProducts()" style="max-width:300px; padding:10px 14px; border-radius:20px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+</div>
+
       <div style="overflow-x:auto;">
         <table>
           <thead>
@@ -198,6 +202,42 @@
       <button class="alert-btn" onclick="closeAlert()">確定</button>
     </div>
   </div>
+
+// 🎯 補強新增：商品清單庫存即時搜尋函數邏輯
+function searchInventoryProducts() {
+  let val = document.getElementById('inventorySearchInput').value.toLowerCase().trim();
+  const tbody = document.getElementById('productTableBody');
+  tbody.innerHTML = "";
+  
+  let filtered = globalProducts.filter(p => 
+    p[0].toLowerCase().includes(val) || 
+    p[1].toLowerCase().includes(val) || 
+    p[6].toLowerCase().includes(val)
+  );
+  
+  if(filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#94A3B8;">查無相符的搜尋商品。</td></tr>`;
+    return;
+  }
+  
+  filtered.forEach(p => {
+    let tr = document.createElement('tr');
+    let urls = p[5].toString().split(/[\s,，、\n\r]+/);
+    let img = urls[0] ? urls[0].trim() : "https://via.placeholder.com/100?text=No+Image";
+    tr.innerHTML = `
+      <td><img src="${img}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;"></td>
+      <td><b>${p[0]}</b></td><td>${p[1]}</td><td><small>${p[6]}</small></td>
+      <td><span style="color:var(--accent-pink); font-weight:bold;">$${p[2]}</span></td><td><small>色:${p[3]}<br>碼:${p[4]}</small></td>
+      <td><span class="badge" style="background:${p[10]==='下架'?'#E2E8F0':'#E6F4EA'}; color:${p[10]==='下架'?'#64748B':'#137333'};">${p[10]||'上架'}</span></td>
+      <td>
+        <button class="row-btn" onclick="startEditProduct('${p[0]}')">編輯</button>
+        <button class="danger-btn" onclick="deleteProductItem('${p[0]}')">刪除</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
@@ -372,3 +412,4 @@
   </script>
 </body>
 </html>
+
