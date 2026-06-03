@@ -1,1 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weini.77 Shop | 智慧後台管理系統</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; background: #F0F4F8; color: #334155; margin: 0; padding: 20px; }
+    .admin-container { max-width: 1100px; margin: 0 auto; }
+    .card { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
+    h2 { margin-top: 0; color: #4A6283; border-bottom: 2px solid #E2E8F0; padding-bottom: 10px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
+    label { font-size: 13px; font-weight: bold; color: #64748B; display: block; margin-bottom: 4px; }
+    input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #CBD5E1; box-sizing: border-box; font-size: 14px; }
+    .upload-box { border: 2px dashed #83A6D4; padding: 20px; text-align: center; border-radius: 12px; background: #F8FAFC; cursor: pointer; margin-bottom: 15px; }
+    .preview-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .preview-img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; }
+    .primary-btn { background: #4A6283; color: white; border: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; }
+    .primary-btn:hover { background: #384E6C; }
+    
+    /* 訂單管理看版樣式 */
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+    th, td { padding: 12px; border-bottom: 1px solid #E2E8F0; text-align: left; }
+    th { background: #E2E8F4; color: #4A6283; }
+    .badge { padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 11px; }
+    .bg-unpaid { background: #FFEAEA; color: #EF4444; }
+    .bg-paid { background: #E6F4EA; color: #137333; }
+    select.table-select { padding: 6px; font-size: 12px; width: auto; }
+  </style>
+</head>
+<body>
+
+  <div class="admin-container">
+    <div style="text-align:center; margin-bottom:25px;">
+      <h1 style="color:#4A6283; margin:0;">Weini.77 Shop 管理後台</h1>
+      <p style="color:#64748B; margin:5px 0 0 0;">Jamstack 架構 $\cdot$ 穩定零風險上架與訂單管理看板</p>
+    </div>
+
+    <div class="card">
+      <h2>✨ 傻瓜式商品快速上架</h2>
+      <div class="form-grid">
+        <div><label>商品貨號 (必填)</label><input type="text" id="pSku" placeholder="例如: W9112#"></div>
+        <div><label>商品品名 (必填)</label><input type="text" id="pName" placeholder="例如: 韓系圍巾領襯衫"></div>
+        <div><label>單價 (例如: 340,300)</label><input type="text" id="pPrice" placeholder="多規格價格用逗號隔開"></div>
+        <div><label>主分類</label><input type="text" id="pCategory" placeholder="客製花束/香水/精選衣物 等"></div>
+      </div>
+      <div class="form-grid">
+        <div><label>可選顏色</label><input type="text" id="pColor" placeholder="例如: 黃色,粉色,白色"></div>
+        <div><label>可選尺碼</label><input type="text" id="pSize" placeholder="例如: S,M,L"></div>
+        <div><label>進度顯示 (選填)</label><input type="text" id="pProgress" placeholder="例如: W日常! 高 CP 值"></div>
+        <div><label>YouTube Shorts 影片網址</label><input type="text" id="pVideo" placeholder="貼上短影音分享網址"></div>
+      </div>
+      <div style="margin-bottom:15px;">
+        <label>商品敘述短文</label>
+        <textarea id="pDesc" rows="2" placeholder="填寫衣服材質、特點細節描述..."></textarea>
+      </div>
+
+      <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+        <span style="font-size:24px;">➕</span>
+        <p style="margin:5px 0 0 0; font-weight:bold; font-size:14px; color:#4A6283;">點擊此處選擇照片（可一次選多張，系統自動秒速上傳至圖床）</p>
+        <input type="file" id="fileInput" multiple accept="image/*" style="display:none;" onchange="uploadToImgur(this.files)">
+        <div class="preview-container" id="previewBox"></div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label>已打包的圖床網址紀錄欄 (上傳後會自動生成，亦可手動調整)</label>
+        <textarea id="pImgs" rows="3" placeholder="圖片網址陣列區域..."></textarea>
+      </div>
+
+      <button class="primary-btn" onclick="submitProduct()">一鍵確認商品網頁上架</button>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #E2E8F0; padding-bottom:10px; margin-bottom:15px;">
+        <h2 style="margin:0; border:none;">📋 實時訂單追蹤管理看板</h2>
+        <button onclick="loadOrders()" style="background:#64748B; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">🔄 整理最新訂單</button>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>下單時間</th>
+              <th>訂單編號</th>
+              <th>訂購明細</th>
+              <th>總額</th>
+              <th>客戶資訊</th>
+              <th>配送地址/門市</th>
+              <th>付款狀態</th>
+              <th>訂單狀態</th>
+            </tr>
+          </thead>
+          <tbody id="orderTableBody">
+            <tr><td colspan="8" style="text-align:center; padding:30px; color:#94A3B8;">點擊整理按鈕加載即時訂單資料...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 🎯 請將下方 API 網址換成妳的 GAS 部署網址
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
+    // Imgur 匿名免費無限上傳金鑰 (Sibyl 專用匿名 Client ID，免登入、空間無限)
+    const IMGUR_CLIENT_ID = '6f8615db8bc953e'; 
+
+    // 處理免費圖床多圖批次非同步上傳
+    async function uploadToImgur(files) {
+      if(files.length === 0) return;
+      const previewBox = document.getElementById('previewBox');
+      const pImgs = document.getElementById('pImgs');
+      
+      previewBox.innerHTML = "";
+      let uploadedUrls = [];
+
+      for(let file of files) {
+        // 先在本機秀出待上傳縮圖，使用者體驗極佳
+        let reader = new FileReader();
+        reader.onload = function(e) {
+          let img = document.createElement('img');
+          img.className = 'preview-img';
+          img.src = e.target.result;
+          previewBox.appendChild(img);
+        }
+        reader.readAsDataURL(file);
+
+        // 呼叫 Imgur API 進行匿名空投
+        let formData = new FormData();
+        formData.append('image', file);
+
+        try {
+          let response = await fetch('https://api.imgur.com/3/image', {
+            method: 'POST',
+            headers: { 'Authorization': 'Client-ID ' + IMGUR_CLIENT_ID },
+            body: formData
+          });
+          let resJson = await response.json();
+          if(resJson.success) {
+            uploadedUrls.push(resJson.data.link);
+          }
+        } catch(err) { console.error("圖床連線失敗", err); }
+      }
+
+      // 自動用換行符號串接網址，精準對齊妳的 F 欄讀取設計！
+      if(uploadedUrls.length > 0) {
+        pImgs.value = uploadedUrls.join('\n');
+        alert(`成功！共有 ${uploadedUrls.length} 張照片已自動空投至圖床並打包完畢！`);
+      }
+    }
+
+    // 發送商品資料回到 GAS 上架
+    function submitProduct() {
+      const sku = document.getElementById('pSku').value.trim();
+      const name = document.getElementById('pName').value.trim();
+      if(!sku || !name) return alert("請填寫貨號與品名！");
+
+      let prodObj = {
+        sku: sku, name: name,
+        price: document.getElementById('pPrice').value.trim(),
+        color: document.getElementById('pColor').value.trim(),
+        size: document.getElementById('pSize').value.trim(),
+        category: document.getElementById('pCategory').value.trim(),
+        desc: document.getElementById('pDesc').value.trim(),
+        progress: document.getElementById('pProgress').value.trim(),
+        video: document.getElementById('pVideo').value.trim(),
+        imgs: document.getElementById('pImgs').value.trim()
+      };
+
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "addNewProduct", product: prodObj }) })
+        .then(r => r.json()).then(res => {
+          if(res.success) {
+            alert(res.message);
+            // 成功後清空欄位
+            document.getElementById('pSku').value = ""; document.getElementById('pName').value = "";
+            document.getElementById('pImgs').value = ""; document.getElementById('previewBox').innerHTML = "";
+          } else { alert("上架失敗: " + res.message); }
+        });
+    }
+
+    // 撈取即時訂單看板
+    function loadOrders() {
+      const tbody = document.getElementById('orderTableBody');
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px;">正在深入雲端資料庫撈取實時訂單中...</td></tr>`;
+      
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "getAllOrders" }) })
+        .then(r => r.json()).then(res => {
+          if(!res.success || res.orders.length === 0) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px;">目前尚無任何客人提交訂單紀錄。</td></tr>`; return; }
+          tbody.innerHTML = "";
+          res.orders.forEach(o => {
+            let tr = document.createElement('tr');
+            let payBadge = o.payStatus === "已匯款" ? `<span class="badge bg-paid">已匯款 (${o.lastFive})</span>` : `<span class="badge bg-unpaid">未付款</span>`;
+            
+            tr.innerHTML = `
+              <td>${o.time}</td>
+              <td><b>${o.orderId}</b></td>
+              <td>[${o.sku}] ${o.prodName}<br><small style="color:#64748B;">${o.specs}</small></td>
+              <td style="color:#EF4444; font-weight:bold;">$${o.total}</td>
+              <td>${o.custName}<br><small style="color:#64748B;">Line:${o.lineName}<br>Tel:${o.phone}</small></td>
+              <td><small>${o.shipping}<br>${o.address}</small></td>
+              <td>
+                ${payBadge}<br>
+                <select class="table-select" onchange="updateRow(${o.rowIdx}, null, this.value)" style="margin-top:5px;">
+                  <option value="">變更付款...</option>
+                  <option value="未付款">未付款</option>
+                  <option value="已匯款">已匯款</option>
+                </select>
+              </td>
+              <td>
+                <span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br>
+                <select class="table-select" onchange="updateRow(${o.rowIdx}, this.value, null)" style="margin-top:5px;">
+                  <option value="">變更訂單狀態...</option>
+                  <option value="已收到訂單">已收到訂單</option>
+                  <option value="已確認訂單">已確認訂單</option>
+                  <option value="已叫貨追加中">已叫貨追加中</option>
+                  <option value="已到貨">已到貨</option>
+                  <option value="已出貨">已出貨</option>
+                  <option value="取貨完成">取貨完成</option>
+                  <option value="已取消">已取消</option>
+                </select>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    // 在網頁看板直接同步修改試算表格子 (對齊對帳下拉選單需求)
+    function updateRow(rowIdx, status, payStatus) {
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updateOrderStatus", rowIdx: rowIdx, status: status, payStatus: payStatus }) })
+        .then(r => r.json()).then(res => { if(res.success) { loadOrders(); } });
+    }
+  </script>
+</body>
+</html>
 
