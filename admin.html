@@ -17,6 +17,7 @@
     body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 20px; }
     .admin-container { max-width: 1200px; margin: 0 auto; }
     
+    /* 🎯 移除分頁標籤上的 Emoji */
     .tab-nav { display: flex; gap: 8px; border-bottom: 3px solid #CBD5E1; padding-bottom: 0; margin-bottom: 20px; overflow-x: auto; }
     .tab-btn { background: #E2E8F0; color: #64748B; border: none; padding: 12px 24px; border-radius: 12px 12px 0 0; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
     .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
@@ -68,9 +69,10 @@
   <div class="admin-container">
     <div style="text-align:center; margin-bottom:25px;">
       <h1 style="color:var(--primary); margin:0; font-size: 28px; font-weight: 900;">Weini.77 Shop 管理後台</h1>
-      <p style="color:#64748B; margin:6px 0 0 0; font-weight: 500;">頂級智慧分頁主控台</p>
+      <p style="color:#64748B; margin:6px 0 0 0; font-weight: 500;">頂級智慧主控台</p>
     </div>
 
+    <!-- 🎯 頁籤名稱完全移除 Emoji 圖示 -->
     <div class="tab-nav">
       <button class="tab-btn active" onclick="switchTab('uploadTab')">商品快速上架</button>
       <button class="tab-btn" onclick="switchTab('listTab')">商品清單總覽</button>
@@ -78,6 +80,7 @@
       <button class="tab-btn" onclick="switchTab('customTab')">客製專屬通道編輯</button>
     </div>
 
+    <!-- 商品快速上架區 -->
     <div id="uploadTab" class="tab-content active card">
       <h2 id="formActionTitle">商品快速上架</h2>
       <div class="form-grid">
@@ -119,6 +122,7 @@
       <button class="primary-btn" id="cancelEditBtn" onclick="resetProductForm()" style="background:#64748B; margin-top:8px; display:none;">取消編輯狀態</button>
     </div>
 
+    <!-- 商品清單總覽 -->
     <div id="listTab" class="tab-content card">
       <h2>目前架上所有商品清單</h2>
       <div style="overflow-x:auto;">
@@ -142,6 +146,7 @@
       </div>
     </div>
 
+    <!-- 訂單管理看板 -->
     <div id="orderTab" class="tab-content card">
       <div class="batch-control-panel">
         <span style="font-size:13px; font-weight:bold; color:var(--primary); margin-right:10px;">🛠️ 勾選批量管理區：</span>
@@ -172,8 +177,9 @@
       </div>
     </div>
 
+    <!-- 客製通道編輯 -->
     <div id="customTab" class="tab-content card">
-      <h2>💐 Weini.77 Shop | 客製專屬下單通道編輯器</h2>
+      <h2>Weini.77 Shop | 客製專屬下單通道編輯器</h2>
       <div class="form-grid" style="margin-top:20px;">
         <div><label>手動創立專屬單號 (必填)</label><input type="text" id="cOrderId" placeholder="例如: W77-CUSTOM-01"></div>
         <div><label>客製討論品名細節</label><input type="text" id="cProdName" value="粉櫻浪漫客製大花束"></div>
@@ -298,18 +304,16 @@
           rawOrdersCache.forEach(o => {
             let tr = document.createElement('tr'); 
             
-            // 🎯 對帳下拉狀態優化：新增「已確認匯款」選項
             let payBadgeStyle = "bg-unpaid";
             if(o.payStatus === "已匯款") payBadgeStyle = "bg-paid";
-            if(o.payStatus === "已確認匯款") payBadgeStyle = "badge"; // 自訂特色高亮
-            
+            if(o.payStatus === "已確認匯款") payBadgeStyle = "badge"; 
             let payBadge = `<span class="badge ${payBadgeStyle}" style="${o.payStatus==='已確認匯款'?'background:#10B981; color:white;':''}">${o.payStatus} ${o.lastFive?'('+o.lastFive+')':''}</span>`;
             
             tr.innerHTML = `
               <td><input type="checkbox" class="order-chk" value="${o.orderId}"></td>
               <td><small>${o.time}</small></td><td><b>${o.orderId}</b></td><td>[${o.sku}] ${o.prodName}<br><small style="color:#64748B;">${o.specs}</small></td><td style="color:var(--accent-pink); font-weight:bold;">$${o.total}</td><td>${o.custName}<br><small style="color:#64748B;">Line:${o.lineName}<br>Tel:${o.phone}</small></td><td><small>${o.shipping}<br>${o.address}</small></td>
               <td>${payBadge}<br><select class="table-select" onchange="updateOrderRow(${o.rowIdx}, null, this.value)"><option value="">變更...</option><option value="未付款">未付款</option><option value="已匯款">已匯款</option><option value="已確認匯款">已確認匯款</option></select></td>
-              <td><span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br><select class="table-select" onchange="updateOrderRow(${o.rowIdx}, this.value, null)"><option value="">變更...</option><option value="已收到訂單">已收到訂單</option><option value="Ref">已確認訂單</option><option value="已叫貨追加中">已叫貨追加中</option><option value="已到貨">已到貨</option><option value="Ref">已出貨</option><option value="取貨完成">取貨完成</option><option value="已取消">已取消</option></select></td>
+              <td><span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br><select class="table-select" onchange="updateOrderRow(${o.rowIdx}, this.value, null)"><option value="">變更...</option><option value="已收到訂單">已收到訂單</option><option value="已確認訂單">已確認訂單</option><option value="已叫貨追加中">已叫貨追加中</option><option value="已到貨">已到貨</option><option value="已出貨">已出貨</option><option value="取貨完成">取貨完成</option><option value="已取消">已取消</option></select></td>
             `;
             tbody.appendChild(tr);
           });
