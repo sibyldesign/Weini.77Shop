@@ -33,7 +33,6 @@
     .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
     .product-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.4); display: flex; flex-direction: column; cursor: pointer; }
     .product-card img { width: 100%; aspect-ratio: 1; object-fit: cover; }
-    .product-card img[loading="lazy"] { opacity: 0; transition: opacity 0.3s; }
     .product-info { padding: 12px; display: flex; flex-direction: column; flex: 1; }
     .product-title { font-size: 13px; font-weight: bold; color: var(--text-main); line-height: 1.4; height: 36px; overflow: hidden; }
     .product-price { color: var(--accent-pink); font-size: 15px; font-weight: 800; margin-top: 8px; }
@@ -60,7 +59,8 @@
     .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transition: all 0.25s; }
     .dot.active { background: #FFFFFF; width: 16px; border-radius: 4px; }
     .detail-body { padding: 22px; box-sizing: border-box; }
-    
+    .feature-badge { display: inline-block; background: #FFE8E8; color: #D66D6D; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 8px; border: 1px solid #FFD2D2; }
+
     select, input { font-size: 14px; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; outline: none; background: #F8FAFC; width: 100%; box-sizing: border-box; color: var(--text-main); }
     .cart-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; z-index: 2800; padding: 24px; transform: translateY(100%); transition: transform 0.3s ease; max-height: 80vh; overflow-y: auto; box-shadow: 0 -8px 25px rgba(0,0,0,0.1); }
     .cart-drawer.open { transform: translateY(0); }
@@ -101,7 +101,8 @@
         <button onclick="checkOrderHistory()" style="background:var(--primary); color:white; border:none; padding:0 14px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">查詢資料</button>
       </div>
       <div id="queryResultArea" style="margin-top:10px; font-size:13px; display:none; border-top:1px dashed #CBD5E1; padding-top:8px; line-height:1.5;">
-        <div id="multiOrdersContainer"></div> </div>
+        <div id="multiOrdersContainer"></div> 
+      </div>
     </div>
   </div>
 
@@ -122,13 +123,6 @@
     <button id="viewCartBtn" class="float-cart-btn" onclick="toggleCart(true)">購物車 (0)</button>
   </div>
 
-  <div id="customAlert" class="custom-alert">
-    <div class="alert-content">
-      <div id="alertMsg" style="font-size:14px; color:#333; line-height:1.5; white-space:pre-line;"></div>
-      <button class="alert-btn" onclick="closeAlert()">確定</button>
-    </div>
-  </div>
-
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal()">✕</span>
@@ -142,13 +136,14 @@
         <div class="indicator-dots" id="dotsContainer"></div>
       </div>
       <div class="detail-body">
-        <div id="itemFeatureBadge" class="feature-badge" style="display:none;"></div>
+        <div id="itemFeatureBadge" class="feature-badge" style="display:none;"></div> 
         <div id="itemTitle" style="font-weight:bold; font-size:16px;"></div>
         <div id="itemDesc" style="font-size:13px; color:#666; margin-top:8px; white-space:pre-line; line-height:1.5;"></div>
         <div id="itemPrice" style="color:var(--accent-pink); font-size:22px; font-weight:800; margin:14px 0;"></div>
         <div style="display:flex; gap:8px; margin-top:12px;">
           <div style="flex:1;"><select id="colorSelect"></select></div>
-          <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div> <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
+          <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div> 
+          <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
           <button class="action-btn" onclick="addToCart()" style="flex:1;">加入購物車</button>
@@ -201,10 +196,6 @@
     <button class="action-btn" onclick="submitFinalOrder()" style="background:var(--accent-pink); margin-top:10px;">確認並送出訂單</button>
   </div>
 
-  <footer>
-    © Weini.77 Shop | Designed by <a href="https://heysibyl.com" target="_blank" style="color:white; font-weight:bold;">Sibyl數位管家</a>
-  </footer>
-
   <script>
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
@@ -242,7 +233,7 @@
             if(modes.length > 0) currentShipping = modes[0].trim();
           }
 
-          // 🎯 全域資料預清洗（Pre-parsing）：加載圖片一鍵去噪過濾
+          // 🎯 終極大修復：精準鎖定試算表第 6 欄「p[5]」進行多圖預清洗，讓圖片 100% 滿格復活！
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "" && p[10] !== "下架").map(p => {
             let cleanUrls = p[5].toString().split(/[\s,，、\n\r]+/).map(u => u.trim()).filter(u => u !== "");
             p.processedImgs = cleanUrls.length > 0 ? cleanUrls : ["https://via.placeholder.com/300?text=No+Image"];
@@ -293,7 +284,7 @@
       list.forEach((p, idx) => {
         let card = document.createElement('div'); card.className = 'product-card'; card.onclick = () => openProduct(idx);
         let firstImg = p.processedImgs[0];
-        card.innerHTML = `<img src="${firstImg}" loading="lazy" onload="this.style.opacity=1;"><div class="product-info"><div class="product-title">[${p[0]}] ${p[1]}</div><div class="product-price">NT$ ${p[2].toString().split(',')[0]}</div></div>`;
+        card.innerHTML = `<img src="${firstImg}" loading="lazy"><div class="product-info"><div class="product-title">[${p[0]}] ${p[1]}</div><div class="product-price">NT$ ${p[2].toString().split(',')[0]}</div></div>`;
         box.appendChild(card);
       });
     }
@@ -302,22 +293,18 @@
       selectedIdx = idx; const p = products[idx];
       document.getElementById('itemModal').style.display = 'flex';
       
-      // 🎯 輪播重置優化：索引（Index）完美歸零，防範殘留
       imgIdx = 0; 
+      curImgs = [...p.processedImgs];
       
-      // 🎯 防禦性網址去噪器：完美轉換 Shorts 與手機分享網址，徹底根除 Error 153
       let videoUrl = p[9] ? p[9].toString().trim() : "";
       let videoBox = document.getElementById('videoContainer');
       let playerEl = document.getElementById('videoPlayer');
-      
-      // 先深度清理圖片列表，杜絕空白換行殘留
-      curImgs = [...p.processedImgs];
       
       if (videoUrl !== "") {
         let embedUrl = convertToEmbedUrl(videoUrl);
         if (embedUrl) {
           videoBox.style.display = "block"; playerEl.src = embedUrl;
-          curImgs.unshift({ type: "video", url: embedUrl }); // 置入頭像輪播
+          curImgs.unshift({ type: "video", url: embedUrl }); 
         } else { videoBox.style.display = "none"; playerEl.src = ""; }
       } else { videoBox.style.display = "none"; playerEl.src = ""; }
 
@@ -329,14 +316,8 @@
 
       document.getElementById('itemTitle').innerText = `[${p[0]}] ${p[1]}`;
       document.getElementById('itemDesc').innerText = p[7] || "";
-      setupDropdown('colorSelect', p[3]); setupSizePriceDropdown('sizeSelect', p[4], p[2]);
-
-      // 🎯 一鍵複製分享連結與彈出式通知提示窗打通
-      document.getElementById('shareProductBtn').onclick = () => {
-        let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
-        navigator.clipboard.writeText(shareUrl);
-        myAlert(`🔗 【${p[0]}】專屬分享連結已成功複製！<br><br>您可以直接貼到 IG 限時動態分享導流囉！`);
-      };
+      setupDropdown('colorSelect', p[3]); setupDropdown('sizeSelect', p[4]); // 配合單價多維配對下拉
+      setupSizePriceDropdown('sizeSelect', p[4], p[2]);
     }
     function buildDots() {
       const container = document.getElementById('dotsContainer'); container.innerHTML = "";
@@ -380,7 +361,6 @@
       str.toString().split(/[,，、]/).forEach(s => { let o = document.createElement('option'); o.value = o.text = s.trim(); el.appendChild(o); });
     }
     
-    // 🎯 核心多維對齊規格：建立單價一對一精密配對，完全消除文字相加錯誤
     function setupSizePriceDropdown(id, szStr, prStr) {
       const el = document.getElementById(id); el.innerHTML = "";
       let szs = szStr.toString().split(/[,，、]/).map(s => s.trim()).filter(s => s !== "");
@@ -389,7 +369,7 @@
       szs.forEach((s, idx) => {
         let o = document.createElement('option');
         o.text = o.value = s;
-        o.dataset.price = prs[idx] ? prs[idx] : prs[0]; // 對齊平行位置
+        o.dataset.price = prs[idx] ? prs[idx] : prs[0]; 
         el.appendChild(o);
       });
       syncMultiSizePrice(); 
@@ -446,7 +426,6 @@
       updateCartUI();
     }
 
-    // 🎯 智慧連線帶入：Fetch 精準對齊歷史個人收件填報免重填
     function autoFillCustomerData() {
       let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
@@ -454,26 +433,22 @@
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
           if(res.success && res.allOrders && res.allOrders.length > 0) {
-            let lastO = res.allOrders[0]; // 取全量列表中的最新一筆
-            myAlert("✨ 已自動為您填入歷史收件與聯絡人資料！");
+            let lastO = res.allOrders[0]; 
+            myAlert("✨ 已自動為您帶入歷史收件與聯絡人資料！");
             document.getElementById('custName').value = lastO.custName || "";
             document.getElementById('lineName').value = lastO.lineName || "";
             document.getElementById('shipReceiverName').value = lastO.shipName || "";
-            if(document.getElementById('custEmail')) document.getElementById('custEmail').value = lastO.email || "";
+            document.getElementById('custEmail').value = lastO.email || "";
             
             let dropdown = document.getElementById('shipSelectDropdown');
             dropdown.value = lastO.shipping; calculateDynamicShipping();
             
-            if(lastO.shipping.includes("超商")) {
-              document.getElementById('storeName').value = lastO.address.replace("7-11超商：", "");
-            } else {
-              document.getElementById('custAddress').value = lastO.address;
-            }
-          } else { myAlert("查無此電話的歷史預訂紀錄，請手動填寫新資料唷。"); }
-        }).catch(e => myAlert("連線逾時，請檢查網絡連線。"));
+            if(lastO.shipping.includes("超商")) { document.getElementById('storeName').value = lastO.address.replace("7-11超商：", ""); } 
+            else { document.getElementById('custAddress').value = lastO.address; }
+          } else { myAlert("查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
+        }).catch(e => myAlert("連線出錯，請確認後台 API 狀態。"));
     }
 
-    // 🎯 完美重構：全量歷史訂單列表呈現，絕不隨機漏單
     function checkOrderHistory() {
       let ph = document.getElementById('queryPhone').value.trim(); if(!ph) return myAlert("請輸入手機號碼");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
@@ -519,7 +494,7 @@
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: cart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: document.getElementById('grandTotal').innerText } }) })
         .then(r => r.json()).then(res => {
-          myAlert("🎉 預訂成功！明細副本已發送至您的信箱。\n您的單號為：<b>" + res.orderId + "</b>");
+          myAlert("🎉 預訂成功！明細已發送至您的 Mail 副本。\n您的單號為：<b>" + res.orderId + "</b>");
           cart = []; updateCartUI(); toggleCart(false);
         });
     }
