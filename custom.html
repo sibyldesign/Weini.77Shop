@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Weini.77 Shop | 客製專屬下單通道</title>
+  <style>
+    :root { --bg: #83A6D4; --primary: #4A6283; --text-main: #2C3E50; --accent-pink: #E19898; }
+    body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 15px; }
+    .app-card { background: white; padding: 24px; border-radius: 24px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); max-width: 420px; margin: 20px auto; }
+    .brand-logo { width: 70px; height: 70px; border-radius: 50%; display: block; margin: 0 auto 10px; border: 2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .title { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; color: var(--primary); }
+    .price-box { background: #F4F7FA; border: 1px solid #E2E8F0; padding: 16px; border-radius: 16px; text-align: center; margin-bottom: 15px; }
+    .price-num { font-size: 26px; font-weight: 800; color: var(--accent-pink); margin-top: 4px; }
+    .btn-group { display: flex; gap: 10px; margin: 8px 0 15px 0; }
+    .toggle-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; background: #F8FAFC; font-weight: 600; cursor: pointer; text-align: center; font-size:13px; }
+    .toggle-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    input { font-size: 14px; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; outline: none; background: #F8FAFC; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+    .action-btn { background: var(--accent-pink); color: white; border: none; padding: 15px; border-radius: 14px; font-weight: bold; font-size: 16px; width: 100%; cursor: pointer; }
+    .custom-alert { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; }
+    .alert-content { background:white; padding:24px; border-radius:20px; width:80%; max-width:300px; text-align:center; }
+  </style>
+</head>
+<body>
+
+  <div class="app-card">
+    <img src="https://i.postimg.cc/qBskp62d/6500d65a-71fe-4827-a080-e9b8534bbecd.jpg" class="brand-logo">
+    <div class="title">Weini.77 Shop | 客製專屬下單通道</div>
+    <div class="price-box">
+      <div style="font-size: 13px; color: #555;" id="prodNameText">讀取中...</div>
+      <div style="font-size: 11px; color:#888; margin-top:3px;">專屬單號：<span id="showOrderId"></span></div>
+      <div class="price-num">NT$ <span id="baseAmount">0</span></div>
+    </div>
+    <div>
+      <label style="font-size:12px; font-weight:bold; color:#666;">選擇客製花束出貨方式</label>
+      <div class="btn-group">
+        <button class="toggle-btn active" id="shipStoreBtn" onclick="setShipping('花束超商')">大型花束超商出貨 ($130)</button>
+        <button class="toggle-btn" id="shipShipBtn" onclick="setShipping('花束宅配')">花束宅配運費 ($250)</button>
+      </div>
+    </div>
+    <div id="shippingStoreBlock"><input type="text" id="storeName" placeholder="請填寫超商門市名稱"></div>
+    <div id="shippingAddressBlock" style="display:none;">
+      <input type="text" id="custZip" placeholder="郵遞區號" style="width:28%; display:inline-block; margin-right:4%;"><input type="text" id="custAddress" placeholder="完整收件地址" style="width:68%; display:inline-block;">
+    </div>
+    <div style="background:#FFF9F9; padding:12px; border-radius:12px; border:1px solid #FFEBEB; font-size:13px; margin-bottom:15px; text-align:right;">
+      物流運費：$<span id="shipFeeText">130</span> 元<br><b style="color:var(--accent-pink); font-size:15px;">應匯款總金額：NT$ <span id="finalGrandTotal">0</span> 元</b>
+    </div>
+    <div style="border-top:1px dashed #E2E8F0; padding-top:12px;">
+      <input type="tel" id="custPhone" placeholder="手機號碼 (必填)">
+      <input type="text" id="custName" placeholder="訂購人姓名 (必填)">
+      <input type="text" id="lineName" placeholder="LINE 名稱 (必填)">
+      <input type="text" id="shipReceiverName" placeholder="收件人姓名 (必填)">
+      <input type="email" id="custEmail" placeholder="mail (必填) 將寄送訂單資料至mail">
+    </div>
+    <button class="action-btn" onclick="submitCustomOrder()">確認並送出專屬訂單</button>
+  </div>
+
+  <div id="customAlert" class="custom-alert">
+    <div class="alert-content">
+      <div id="alertMsg" style="font-size:14px; color:#333; line-height:1.4;"></div>
+      <button style="background:var(--primary); color:white; border:none; width:100%; padding:10px; border-radius:10px; margin-top:15px; font-weight:bold;" onclick="closeAlert()">確定</button>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('id');
+    let basePrice = 0, currentShipping = '花束超商';
+
+    function myAlert(msg) { document.getElementById('alertMsg').innerHTML = msg; document.getElementById('customAlert').style.display = 'flex'; }
+    function closeAlert() { document.getElementById('customAlert').style.display = 'none'; }
+
+    window.onload = () => {
+      if(!orderId) return myAlert("網址無效，缺少專屬單號。");
+      document.getElementById('showOrderId').innerText = orderId;
+      fetch(`${API_URL}?action=getCustomOrder&id=${orderId}`)
+        .then(r => r.json()).then(res => {
+          if(res.success) { basePrice = Number(res.amount); document.getElementById('baseAmount').innerText = basePrice; document.getElementById('prodNameText').innerText = res.prodName; updateCustomTotal(); } 
+          else { myAlert(res.message); }
+        });
+    };
+    function setShipping(mode) {
+      currentShipping = mode;
+      document.getElementById('shipStoreBtn').classList.toggle('active', mode === '花束超商');
+      document.getElementById('shipShipBtn').classList.toggle('active', mode === '花束宅配');
+      document.getElementById('shippingStoreBlock').style.display = mode === '花束超商' ? 'block' : 'none';
+      document.getElementById('shippingAddressBlock').style.display = mode === '花束宅配' ? 'block' : 'none';
+      updateCustomTotal();
+    }
+    function updateCustomTotal() {
+      let shipFee = (currentShipping === '花束超商') ? 130 : 250;
+      document.getElementById('shipFeeText').innerText = shipFee;
+      document.getElementById('finalGrandTotal').innerText = basePrice + shipFee;
+    }
+    function submitCustomOrder() {
+      let phone = document.getElementById('custPhone').value.trim(), name = document.getElementById('custName').value.trim(), line = document.getElementById('lineName').value.trim(), rxName = document.getElementById('shipReceiverName').value.trim(), email = document.getElementById('custEmail').value.trim();
+      if(!phone || !name || !line || !rxName || !email) return myAlert("請確認填寫所有必填項目。");
+      let addr = (currentShipping === '花束超商') ? document.getElementById('storeName').value.trim() : document.getElementById('custAddress').value.trim();
+      if(!addr) return myAlert((currentShipping === '花束超商') ? "請填寫超商門市" : "請填寫完整地址");
+      let finalAddr = (currentShipping === '花束超商') ? `7-11超商：${addr}` : `(${document.getElementById('custZip').value}) ${addr}`;
+
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "submitCustomOrderDetails", userInfo: { orderId: orderId, phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: (currentShipping === '花束超商') ? '超商取貨' : '宅配', address: finalAddr, grandTotal: document.getElementById('finalGrandTotal').innerText } }) })
+        .then(r => r.json()).then(res => { if(res.success) { myAlert("🎉 專屬訂單完成！請依合計金額轉帳即可。"); setTimeout(() => window.location.reload(), 3000); } else { myAlert(res.message); } });
+    }
+  </script>
+</body>
+</html>
 
