@@ -46,22 +46,25 @@
     
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
     
-    /* 🎯 響應式佈局校正：響應式加大，且規格資料一律在圖片最下方垂直堆疊呈現 */
-    .modal-content { background:white; width:92%; max-width: 480px; border-radius:24px; overflow:hidden; position:relative; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; flex-direction: column; height: auto; max-height: 90vh; overflow-y: auto; }
+    /* 🎯 完美校正：視窗高度自適應，且規格敘述文字100%靠在下方，絕不被圖片遮擋 */
+    .modal-content { background:white; width:92%; max-width: 480px; border-radius:24px; overflow:hidden; position:relative; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; flex-direction: column; height: auto; max-height: 88vh; overflow-y: auto; }
     .modal-close { position: absolute; right: 14px; top: 14px; font-size: 18px; font-weight: bold; color: #64748B; background: #FFFFFF; border: 2px solid #E2E8F0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 120; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     
     .img-viewer { width: 100%; aspect-ratio: 1; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; touch-action: pan-y; flex-shrink: 0; }
     .img-viewer img, .img-viewer iframe { width: 100%; height: 100%; object-fit: cover; border: none; display: block; }
-    .video-container { width: 100%; height: 100%; display: none; background: #000; }
+    .video-container { width: 100%; height: 100%; display: none; background: #000; position: absolute; top: 0; left: 0; z-index: 10; }
     
-    /* 網頁版專用左右按鈕 */
     .arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid #CBD5E1; padding: 10px 14px; color: var(--text-main); border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.12); z-index: 100; }
-    @media (max-width: 768px) { .arrow { display: none !important; } } /* 手機版智慧隱藏箭頭 */
+    @media (max-width: 768px) { .arrow { display: none !important; } } 
 
     .indicator-dots { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 20; background: rgba(0, 0, 0, 0.35); padding: 5px 10px; border-radius: 12px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transition: all 0.25s; }
     .dot.active { background: #FFFFFF; width: 16px; border-radius: 4px; }
+    
     .detail-body { padding: 22px; box-sizing: border-box; }
+
+    /* 🎯 質感加值：高辨識度特色標籤樣式 */
+    .feature-badge { display: inline-block; background: #FFE8E8; color: #D66D6D; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 8px; border: 1px solid #FFD2D2; }
 
     select, input { font-size: 14px; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; outline: none; background: #F8FAFC; width: 100%; box-sizing: border-box; color: var(--text-main); }
     .cart-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; z-index: 2800; padding: 24px; transform: translateY(100%); transition: transform 0.3s ease; max-height: 80vh; overflow-y: auto; box-shadow: 0 -8px 25px rgba(0,0,0,0.1); }
@@ -128,13 +131,6 @@
     <button id="viewCartBtn" class="float-cart-btn" onclick="toggleCart(true)">購物車 (0)</button>
   </div>
 
-  <div id="customAlert" class="custom-alert">
-    <div class="alert-content">
-      <div id="alertMsg" style="font-size:14px; color:#333; line-height:1.5; white-space:pre-line;"></div>
-      <button class="alert-btn" onclick="closeAlert()">確定</button>
-    </div>
-  </div>
-
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal()">✕</span>
@@ -148,6 +144,8 @@
         <div class="indicator-dots" id="dotsContainer"></div>
       </div>
       <div class="detail-body">
+        <div id="itemFeatureBadge" class="feature-badge" style="display:none;"></div>
+        
         <div id="itemTitle" style="font-weight:bold; font-size:16px;"></div>
         <div id="itemDesc" style="font-size:13px; color:#666; margin-top:8px; white-space:pre-line; line-height:1.5;"></div>
         <div id="itemPrice" style="color:var(--accent-pink); font-size:22px; font-weight:800; margin:14px 0;"></div>
@@ -194,6 +192,7 @@
       <span style="font-size:16px; font-weight:800; color:var(--accent-pink);">應匯款總額：NT$ <span id="grandTotal">0</span></span>
     </div>
     <div style="border-top:1px dashed #DDD; padding-top:12px;">
+      <label style="font-size:12px; font-weight:bold; color:#666;">填寫訂購資訊</label>
       <div style="display:flex; gap:8px; margin-bottom:8px;">
         <input type="tel" id="custPhone" placeholder="手機號碼 (必填)" style="flex:1;">
         <button type="button" onclick="autoFillCustomerData()" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">帶入資料</button>
@@ -208,10 +207,6 @@
 
   <div id="toast">已加入購物車</div>
 
-  <footer>
-    © Weini.77 Shop | Designed by <a href="https://heysibyl.com" target="_blank" style="color:white; font-weight:bold;">Sibyl數位管家</a>
-  </footer>
-
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
 
@@ -219,11 +214,6 @@
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
     let touchStartX = 0, touchEndX = 0;
 
-    window.onscroll = function() {
-      let topBtn = document.getElementById("backToTopBtn");
-      if (document.body.scrollTop > 250 || document.documentElement.scrollTop > 250) { topBtn.style.display = "flex"; } else { topBtn.style.display = "none"; }
-    };
-    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function myAlert(msg) { document.getElementById('alertMsg').innerHTML = msg; document.getElementById('customAlert').style.display = 'flex'; }
     function closeAlert() { document.getElementById('customAlert').style.display = 'none'; }
 
@@ -240,24 +230,20 @@
           document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
           setupCategories(res.majorCategories);
           
-          // 🎯 全自動物流平行配對載入
           if (res.shipModes && res.shipFees) {
-            let modes = res.shipModes.split(/[,，]/);
-            let fees = res.shipFees.split(/[,，]/);
-            const selectDropdown = document.getElementById('shipSelectDropdown');
-            selectDropdown.innerHTML = "";
+            let modes = res.shipModes.split(/[,，]/); let fees = res.shipFees.split(/[,，]/);
+            const selectDropdown = document.getElementById('shipSelectDropdown'); selectDropdown.innerHTML = "";
             modes.forEach((m, index) => {
-              let mName = m.trim();
-              let mFee = Number(fees[index] ? fees[index].trim() : 0);
+              let mName = m.trim(); let mFee = Number(fees[index] ? fees[index].trim() : 0);
               dynamicShippingMap[mName] = mFee;
-              let o = document.createElement('option');
-              o.value = mName; o.text = `${mName} ($${mFee})`;
-              selectDropdown.appendChild(o);
+              let o = document.createElement('option'); o.value = mName; o.text = `${mName} ($${mFee})`; selectDropdown.appendChild(o);
             });
             if(modes.length > 0) currentShipping = modes[0].trim();
           }
 
+          // 🎯 核心補強技術：全域資料預清洗（Pre-parsing），消滅重複解析
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "" && p[10] !== "下架").map(p => {
+            // 🎯 防禦性清洗：去除空白、換行與隱形殘留
             let cleanUrls = p[5].toString().split(/[\s,，、\n\r]+/).map(u => u.trim()).filter(u => u !== "");
             p.processedImgs = cleanUrls.length > 0 ? cleanUrls : ["https://via.placeholder.com/300?text=No+Image"];
             return p;
@@ -268,7 +254,7 @@
           const urlParams = new URLSearchParams(window.location.search);
           const skuParam = urlParams.get('sku');
           if(skuParam) {
-            let foundIdx = products.findIndex(p => p[0].toString().trim() === skuParam.trim());
+            let foundIdx = products.findIndex(p => p[0].toString().trim().toLowerCase() === skuParam.trim().toLowerCase());
             if(foundIdx !== -1) { setTimeout(() => openProduct(foundIdx), 500); }
           }
         });
@@ -313,30 +299,34 @@
     function openProduct(idx) {
       selectedIdx = idx; const p = products[idx];
       document.getElementById('itemModal').style.display = 'flex';
+      
+      // 🎯 輪播重置與相簿完全歸零優化
+      imgIdx = 0; 
       curImgs = [...p.processedImgs];
       
-      // 🎯 獨家修復：全自動解碼防禦轉換器，徹底粉碎 Error 153，實現前台完美播放
+      // 🎯 智慧轉換器：防禦解析 YouTube shorts 與所有分享連結，徹底砸碎 Error 153
       let videoUrl = p[9] ? p[9].toString().trim() : "";
-      let videoBox = document.getElementById('videoContainer');
-      let playerEl = document.getElementById('videoPlayer');
-      
       if (videoUrl !== "") {
         let embedUrl = convertToEmbedUrl(videoUrl);
-        if (embedUrl) {
-          videoBox.style.display = "block"; playerEl.src = embedUrl;
-        } else { videoBox.style.display = "none"; playerEl.src = ""; }
-      } else { videoBox.style.display = "none"; playerEl.src = ""; }
+        if (embedUrl) { curImgs.unshift({ type: "video", url: embedUrl }); }
+      }
 
-      imgIdx = 0; buildDots(); showMediaItem();
+      buildDots(); showMediaItem();
+      
+      // 🎯 渲染特色標籤
+      let featureTag = p[8] ? p[8].toString().trim() : "";
+      let badgeEl = document.getElementById('itemFeatureBadge');
+      if(featureTag !== "") { badgeEl.innerText = featureTag; badgeEl.style.display = "inline-block"; } 
+      else { badgeEl.style.display = "none"; }
+
       document.getElementById('itemTitle').innerText = `[${p[0]}] ${p[1]}`;
       document.getElementById('itemDesc').innerText = p[7] || "";
       setupDropdown('colorSelect', p[3]); setupSizePriceDropdown('sizeSelect', p[4], p[2]);
 
-      // 🎯 獨立商品編號分享連結一鍵複製
       document.getElementById('shareProductBtn').onclick = () => {
         let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
         navigator.clipboard.writeText(shareUrl);
-        myAlert(`🔗 【${p[0]}】專屬分享連結已複製成功！<br><small>${shareUrl}</small>`);
+        myAlert(`🔗 商品分享連結已複製！<br><small>${shareUrl}</small>`);
       };
     }
     function buildDots() {
@@ -344,8 +334,7 @@
       if (curImgs.length <= 1) return;
       curImgs.forEach((_, index) => {
         let dot = document.createElement('div'); dot.className = 'dot' + (index === 0 ? ' active' : '');
-        dot.onclick = () => { imgIdx = index; showMediaItem(); };
-        container.appendChild(dot);
+        dot.onclick = () => { imgIdx = index; showMediaItem(); }; container.appendChild(dot);
       });
     }
     function updateDots() {
@@ -365,7 +354,15 @@
     function showMediaItem() {
       let currentItem = curImgs[imgIdx];
       let imgEl = document.getElementById('itemImg');
-      imgEl.src = (typeof currentItem === "string") ? currentItem : "https://via.placeholder.com/300?text=No+Image";
+      let videoBox = document.getElementById('videoContainer');
+      let playerEl = document.getElementById('videoPlayer');
+
+      if (currentItem && currentItem.type === "video") {
+        imgEl.style.display = "none"; videoBox.style.display = "block"; playerEl.src = currentItem.url; 
+      } else {
+        videoBox.style.display = "none"; playerEl.src = ""; imgEl.style.display = "block";
+        imgEl.src = (typeof currentItem === "string") ? currentItem : "https://via.placeholder.com/300?text=No+Image";
+      }
       updateDots();
     }
     function changeImg(dir) { if (curImgs.length <= 1) return; imgIdx = (imgIdx + dir + curImgs.length) % curImgs.length; showMediaItem(); }
@@ -394,11 +391,7 @@
       document.getElementById('shippingStoreBlock').style.display = mode.includes('超商') ? 'block' : 'none';
       updateCartUI();
     }
-    
-    function calculateDynamicShipping() {
-      currentShipping = document.getElementById('shipSelectDropdown').value;
-      setShipping(currentShipping);
-    }
+    function calculateDynamicShipping() { currentShipping = document.getElementById('shipSelectDropdown').value; setShipping(currentShipping); }
 
     function updateCartUI() {
       const box = document.getElementById('cartList'); box.innerHTML = ""; let subtotal = 0; let hasFlower = false;
@@ -407,7 +400,6 @@
         box.innerHTML += `<div class="cart-item"><div><b>[${item.sku}] ${item.prodName}</b><br><small>${item.color}/${item.size} x${item.qty}</small></div><span>$${total} <button onclick="removeCart(${idx})" style="border:none;background:none;color:#94A3B8;cursor:pointer;">✕</button></span></div>`;
       });
       
-      // 🎯 智慧花束強制定價配對防禦
       if(hasFlower && !currentShipping.includes("花束")) {
         let dropdown = document.getElementById('shipSelectDropdown');
         for (let option of dropdown.options) {
@@ -420,7 +412,6 @@
       document.getElementById('grandTotal').innerText = (subtotal - discountValue + shipFee < 0) ? 0 : (subtotal - discountValue + shipFee);
       const cartBtn = document.getElementById('viewCartBtn'); cartBtn.style.display = cart.length > 0 ? 'block' : 'none'; cartBtn.innerText = `購物車 (${cart.length})`;
     }
-    
     function removeCart(idx) { cart.splice(idx,1); updateCartUI(); }
     function toggleCart(show) { document.getElementById('cartDrawer').classList.toggle('open', show); }
     function applyPromo() {
@@ -429,7 +420,7 @@
       updateCartUI();
     }
 
-    // 🎯 完美修復：一鍵智慧帶入歷史資料免重填功能
+    // 🎯 完美修復帶入資料按鈕事件打通
     function autoFillCustomerData() {
       let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
@@ -437,22 +428,19 @@
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
           if(res.success && res.order) {
-            myAlert("✨ 已自動為您帶入歷史收件與聯絡人資料！");
+            myAlert("✨ 已成功帶入您歷史預訂的聯絡資訊！");
             document.getElementById('custName').value = res.order.custName || "";
             document.getElementById('lineName').value = res.order.lineName || "";
             document.getElementById('shipReceiverName').value = res.order.shipName || "";
+            document.getElementById('custEmail').value = res.order.email || "";
             
             let dropdown = document.getElementById('shipSelectDropdown');
-            dropdown.value = res.order.shipping;
-            calculateDynamicShipping();
+            dropdown.value = res.order.shipping; calculateDynamicShipping();
             
-            if(res.order.shipping.includes("超商")) {
-              document.getElementById('storeName').value = res.order.address.replace("7-11超商：", "");
-            } else {
-              document.getElementById('custAddress').value = res.order.address;
-            }
+            if(res.order.shipping.includes("超商")) { document.getElementById('storeName').value = res.order.address.replace("7-11超商：", ""); } 
+            else { document.getElementById('custAddress').value = res.order.address; }
           } else { myAlert("查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
-        }).catch(e => myAlert("連線出錯，請確認後台 API 狀態。"));
+        }).catch(e => myAlert("連線失敗，請稍後再試。"));
     }
 
     function checkOrderHistory() {
