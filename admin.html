@@ -15,9 +15,19 @@
       --accent-green: #10B981;
     }
     body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 20px; }
-    .admin-container { max-width: 1200px; margin: 0 auto; }
+    .admin-container { max-width: 1200px; margin: 0 auto; position: relative; }
     
-    /* 🎯 移除分頁標籤上的 Emoji */
+    /* 🎯 頂部右上方官方商城連結通道 */
+    .top-right-link {
+      position: absolute; right: 0; top: 10px;
+      background: var(--primary); color: white;
+      text-decoration: none; font-size: 13px; font-weight: bold;
+      padding: 10px 18px; border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: 0.2s; z-index: 500;
+    }
+    .top-right-link:hover { background: var(--primary-dark); transform: scale(1.03); }
+
     .tab-nav { display: flex; gap: 8px; border-bottom: 3px solid #CBD5E1; padding-bottom: 0; margin-bottom: 20px; overflow-x: auto; }
     .tab-btn { background: #E2E8F0; color: #64748B; border: none; padding: 12px 24px; border-radius: 12px 12px 0 0; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
     .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
@@ -57,7 +67,7 @@
 
     @media print {
       body { background: white; color: black; padding: 0; }
-      .admin-container, .tab-nav, h2, button, select { display: none !important; }
+      .admin-container, .tab-nav, h2, button, select, .top-right-link { display: none !important; }
       .print-invoice-area { display: block !important; width: 100%; }
       .invoice-box { border: 2px solid black; padding: 24px; border-radius: 12px; margin-bottom: 30px; page-break-after: always; font-size: 15px; line-height: 1.6; }
     }
@@ -67,12 +77,13 @@
 <body>
 
   <div class="admin-container">
+    <a href="https://sibyldesign.github.io/Weini.77Shop/index.html" target="_blank" class="top-right-link">🌐 前往官方商城</a>
+
     <div style="text-align:center; margin-bottom:25px;">
       <h1 style="color:var(--primary); margin:0; font-size: 28px; font-weight: 900;">Weini.77 Shop 管理後台</h1>
       <p style="color:#64748B; margin:6px 0 0 0; font-weight: 500;">頂級智慧主控台</p>
     </div>
 
-    <!-- 🎯 頁籤名稱完全移除 Emoji 圖示 -->
     <div class="tab-nav">
       <button class="tab-btn active" onclick="switchTab('uploadTab')">商品快速上架</button>
       <button class="tab-btn" onclick="switchTab('listTab')">商品清單總覽</button>
@@ -80,7 +91,6 @@
       <button class="tab-btn" onclick="switchTab('customTab')">客製專屬通道編輯</button>
     </div>
 
-    <!-- 商品快速上架區 -->
     <div id="uploadTab" class="tab-content active card">
       <h2 id="formActionTitle">商品快速上架</h2>
       <div class="form-grid">
@@ -122,12 +132,11 @@
       <button class="primary-btn" id="cancelEditBtn" onclick="resetProductForm()" style="background:#64748B; margin-top:8px; display:none;">取消編輯狀態</button>
     </div>
 
-    <!-- 商品清單總覽 -->
     <div id="listTab" class="tab-content card">
       <h2>目前架上所有商品清單</h2>
-<div style="display:flex; justify-content:flex-end; margin-bottom:15px;">
-  <input type="text" id="inventorySearchInput" placeholder="🔍 輸入貨號或關鍵字搜尋庫存..." oninput="searchInventoryProducts()" style="max-width:300px; padding:10px 14px; border-radius:20px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
-</div>
+      <div style="display:flex; justify-content:flex-end; margin-bottom:15px;">
+        <input type="text" id="inventorySearchInput" placeholder="🔍 輸入貨號或關鍵字搜尋庫存..." oninput="searchInventoryProducts()" style="max-width:300px; padding:10px 14px; border-radius:20px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+      </div>
 
       <div style="overflow-x:auto;">
         <table>
@@ -150,7 +159,6 @@
       </div>
     </div>
 
-    <!-- 訂單管理看板 -->
     <div id="orderTab" class="tab-content card">
       <div class="batch-control-panel">
         <span style="font-size:13px; font-weight:bold; color:var(--primary); margin-right:10px;">🛠️ 勾選批量管理區：</span>
@@ -181,7 +189,6 @@
       </div>
     </div>
 
-    <!-- 客製通道編輯 -->
     <div id="customTab" class="tab-content card">
       <h2>Weini.77 Shop | 客製專屬下單通道編輯器</h2>
       <div class="form-grid" style="margin-top:20px;">
@@ -195,48 +202,6 @@
   </div>
 
   <div id="printArea" class="print-invoice-area"></div>
-
-  <div id="customAlert" class="custom-alert">
-    <div class="alert-content">
-      <div id="alertMsg" style="font-size:14px; color:#333; line-height:1.5; white-space:pre-line;"></div>
-      <button class="alert-btn" onclick="closeAlert()">確定</button>
-    </div>
-  </div>
-
-// 🎯 補強新增：商品清單庫存即時搜尋函數邏輯
-function searchInventoryProducts() {
-  let val = document.getElementById('inventorySearchInput').value.toLowerCase().trim();
-  const tbody = document.getElementById('productTableBody');
-  tbody.innerHTML = "";
-  
-  let filtered = globalProducts.filter(p => 
-    p[0].toLowerCase().includes(val) || 
-    p[1].toLowerCase().includes(val) || 
-    p[6].toLowerCase().includes(val)
-  );
-  
-  if(filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#94A3B8;">查無相符的搜尋商品。</td></tr>`;
-    return;
-  }
-  
-  filtered.forEach(p => {
-    let tr = document.createElement('tr');
-    let urls = p[5].toString().split(/[\s,，、\n\r]+/);
-    let img = urls[0] ? urls[0].trim() : "https://via.placeholder.com/100?text=No+Image";
-    tr.innerHTML = `
-      <td><img src="${img}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;"></td>
-      <td><b>${p[0]}</b></td><td>${p[1]}</td><td><small>${p[6]}</small></td>
-      <td><span style="color:var(--accent-pink); font-weight:bold;">$${p[2]}</span></td><td><small>色:${p[3]}<br>碼:${p[4]}</small></td>
-      <td><span class="badge" style="background:${p[10]==='下架'?'#E2E8F0':'#E6F4EA'}; color:${p[10]==='下架'?'#64748B':'#137333'};">${p[10]||'上架'}</span></td>
-      <td>
-        <button class="row-btn" onclick="startEditProduct('${p[0]}')">編輯</button>
-        <button class="danger-btn" onclick="deleteProductItem('${p[0]}')">刪除</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
@@ -269,6 +234,40 @@ function searchInventoryProducts() {
         globalProducts = res.products;
       });
     };
+
+    function searchInventoryProducts() {
+      let val = document.getElementById('inventorySearchInput').value.toLowerCase().trim();
+      const tbody = document.getElementById('productTableBody');
+      tbody.innerHTML = "";
+      
+      let filtered = globalProducts.filter(p => 
+        p[0].toLowerCase().includes(val) || 
+        p[1].toLowerCase().includes(val) || 
+        p[6].toLowerCase().includes(val)
+      );
+      
+      if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#94A3B8;">查無相符的搜尋商品。</td></tr>`;
+        return;
+      }
+      
+      filtered.forEach(p => {
+        let tr = document.createElement('tr');
+        let urls = p[5].toString().split(/[\s,，、\n\r]+/);
+        let img = urls[0] ? urls[0].trim() : "https://via.placeholder.com/100?text=No+Image";
+        tr.innerHTML = `
+          <td><img src="${img}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;"></td>
+          <td><b>${p[0]}</b></td><td>${p[1]}</td><td><small>${p[6]}</small></td>
+          <td><span style="color:var(--accent-pink); font-weight:bold;">$${p[2]}</span></td><td><small>色:${p[3]}<br>碼:${p[4]}</small></td>
+          <td><span class="badge" style="background:${p[10]==='下架'?'#E2E8F0':'#E6F4EA'}; color:${p[10]==='下架'?'#64748B':'#137333'};">${p[10]||'上架'}</span></td>
+          <td>
+            <button class="row-btn" onclick="startEditProduct('${p[0]}')">編輯</button>
+            <button class="danger-btn" onclick="deleteProductItem('${p[0]}')">刪除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
 
     async function uploadToImgur(files) {
       if(files.length === 0) return;
@@ -342,7 +341,6 @@ function searchInventoryProducts() {
           rawOrdersCache = res.orders; tbody.innerHTML = "";
           rawOrdersCache.forEach(o => {
             let tr = document.createElement('tr'); 
-            
             let payBadgeStyle = "bg-unpaid";
             if(o.payStatus === "已匯款") payBadgeStyle = "bg-paid";
             if(o.payStatus === "已確認匯款") payBadgeStyle = "badge"; 
@@ -411,4 +409,3 @@ function searchInventoryProducts() {
   </script>
 </body>
 </html>
-
