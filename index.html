@@ -39,24 +39,29 @@
     .float-controls { position: fixed; right: 16px; bottom: 24px; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; z-index: 2500; }
     .float-cart-btn { background: var(--primary); color: white; padding: 14px 24px; border-radius: 30px; border: none; font-weight: bold; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; display: none; }
     .float-top-btn { background: rgba(255,255,255,0.95); color: var(--primary); width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CBD5E1; font-size: 22px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: none; align-items: center; justify-content: center; }
+    
     .custom-alert { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
     .alert-content { background:white; padding:24px; border-radius:20px; width:85%; max-width:320px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2); }
     .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
     
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
     
-    /* 🎯 響應式優化：不論電腦還是手機，商品資訊一律在圖片下方垂直排列，永不重疊遮擋 */
-    .modal-content { background:white; width:92%; max-width: 460px; border-radius:24px; overflow:hidden; position:relative; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; flex-direction: column; height: auto; max-height: 90vh; overflow-y: auto; }
+    /* 🎯 響應式佈局校正：響應式加大，且規格資料一律在圖片最下方垂直堆疊呈現 */
+    .modal-content { background:white; width:92%; max-width: 480px; border-radius:24px; overflow:hidden; position:relative; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; flex-direction: column; height: auto; max-height: 90vh; overflow-y: auto; }
     .modal-close { position: absolute; right: 14px; top: 14px; font-size: 18px; font-weight: bold; color: #64748B; background: #FFFFFF; border: 2px solid #E2E8F0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 120; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    
     .img-viewer { width: 100%; aspect-ratio: 1; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; touch-action: pan-y; flex-shrink: 0; }
-    .img-viewer img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .img-viewer img, .img-viewer iframe { width: 100%; height: 100%; object-fit: cover; border: none; display: block; }
+    .video-container { width: 100%; height: 100%; display: none; background: #000; }
+    
+    /* 網頁版專用左右按鈕 */
+    .arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid #CBD5E1; padding: 10px 14px; color: var(--text-main); border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.12); z-index: 100; }
+    @media (max-width: 768px) { .arrow { display: none !important; } } /* 手機版智慧隱藏箭頭 */
+
     .indicator-dots { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 20; background: rgba(0, 0, 0, 0.35); padding: 5px 10px; border-radius: 12px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transition: all 0.25s; }
     .dot.active { background: #FFFFFF; width: 16px; border-radius: 4px; }
-    .detail-body { padding: 20px; box-sizing: border-box; }
-
-    /* 🎬 直式安全導流觀看按鈕 */
-    .video-guide-btn { display: none; background: #FF0000; color: white; padding: 10px; text-align: center; border-radius: 12px; font-weight: bold; font-size: 13px; text-decoration: none; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(255,0,0,0.2); }
+    .detail-body { padding: 22px; box-sizing: border-box; }
 
     select, input { font-size: 14px; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; outline: none; background: #F8FAFC; width: 100%; box-sizing: border-box; color: var(--text-main); }
     .cart-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; z-index: 2800; padding: 24px; transform: translateY(100%); transition: transform 0.3s ease; max-height: 80vh; overflow-y: auto; box-shadow: 0 -8px 25px rgba(0,0,0,0.1); }
@@ -130,18 +135,19 @@
     </div>
   </div>
 
-  <!-- 商品詳情小視窗 -->
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal()">✕</span>
       <div class="img-viewer" id="swiperArea">
+        <button class="arrow" id="prevBtn" style="left:10px;" onclick="changeImg(-1)">❮</button>
         <img id="itemImg" src="">
+        <div id="videoContainer" class="video-container">
+          <iframe id="videoPlayer" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <button class="arrow" id="nextBtn" style="right:10px;" onclick="changeImg(1)">❯</button>
         <div class="indicator-dots" id="dotsContainer"></div>
       </div>
       <div class="detail-body">
-        <!-- 🎬 觀看短影音導流按鈕 -->
-        <a href="" target="_blank" id="videoGuideBtn" class="video-guide-btn">🎬 觀看產品穿搭短影音 (前往 YouTube)</a>
-        
         <div id="itemTitle" style="font-weight:bold; font-size:16px;"></div>
         <div id="itemDesc" style="font-size:13px; color:#666; margin-top:8px; white-space:pre-line; line-height:1.5;"></div>
         <div id="itemPrice" style="color:var(--accent-pink); font-size:22px; font-weight:800; margin:14px 0;"></div>
@@ -158,17 +164,13 @@
     </div>
   </div>
 
-  <!-- 購物車抽屜 -->
   <div id="cartDrawer" class="cart-drawer">
     <div style="text-align:right; font-size:20px; cursor:pointer; color:#94A3B8;" onclick="toggleCart(false)">✕</div>
     <h3 style="text-align:center; margin-top:0;">🛒 購物車明細</h3>
     <div id="cartList"></div>
     <div style="margin-top:15px;">
       <label style="font-size:12px; font-weight:bold; color:#666;">配送方式</label>
-      <div class="btn-group">
-        <button class="toggle-btn active" id="shipShipBtn" onclick="setShipping('宅配')">宅配</button>
-        <button class="toggle-btn" id="shipStoreBtn" onclick="setShipping('超商取貨')">7-11 超商取貨</button>
-      </div>
+      <select id="shipSelectDropdown" onchange="calculateDynamicShipping()"></select>
     </div>
     <div id="shippingAddressBlock" style="margin-top:10px;">
       <input type="text" id="custZip" placeholder="郵遞區號" style="width:28%; display:inline-block; margin-right:4%;">
@@ -192,11 +194,9 @@
       <span style="font-size:16px; font-weight:800; color:var(--accent-pink);">應匯款總額：NT$ <span id="grandTotal">0</span></span>
     </div>
     <div style="border-top:1px dashed #DDD; padding-top:12px;">
-      <!-- 🎯 UX 優化：輸入電話旁新增「帶入資料」按鈕 -->
-      <label style="font-size:12px; font-weight:bold; color:#666;">填寫訂購資訊</label>
       <div style="display:flex; gap:8px; margin-bottom:8px;">
         <input type="tel" id="custPhone" placeholder="手機號碼 (必填)" style="flex:1;">
-        <button onclick="autoFillCustomerData()" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">帶入資料</button>
+        <button type="button" onclick="autoFillCustomerData()" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">帶入資料</button>
       </div>
       <input type="text" id="custName" placeholder="訂購人姓名 (必填)" style="margin-bottom:8px;">
       <input type="text" id="lineName" placeholder="LINE 名稱 (必填)" style="margin-bottom:8px;">
@@ -216,8 +216,16 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
 
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
-    let curImgs = [], imgIdx = 0, currentShipping = '宅配';
+    let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
     let touchStartX = 0, touchEndX = 0;
+
+    window.onscroll = function() {
+      let topBtn = document.getElementById("backToTopBtn");
+      if (document.body.scrollTop > 250 || document.documentElement.scrollTop > 250) { topBtn.style.display = "flex"; } else { topBtn.style.display = "none"; }
+    };
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function myAlert(msg) { document.getElementById('alertMsg').innerHTML = msg; document.getElementById('customAlert').style.display = 'flex'; }
+    function closeAlert() { document.getElementById('customAlert').style.display = 'none'; }
 
     window.onload = () => {
       const swiperArea = document.getElementById('swiperArea');
@@ -232,7 +240,24 @@
           document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
           setupCategories(res.majorCategories);
           
-          rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
+          // 🎯 全自動物流平行配對載入
+          if (res.shipModes && res.shipFees) {
+            let modes = res.shipModes.split(/[,，]/);
+            let fees = res.shipFees.split(/[,，]/);
+            const selectDropdown = document.getElementById('shipSelectDropdown');
+            selectDropdown.innerHTML = "";
+            modes.forEach((m, index) => {
+              let mName = m.trim();
+              let mFee = Number(fees[index] ? fees[index].trim() : 0);
+              dynamicShippingMap[mName] = mFee;
+              let o = document.createElement('option');
+              o.value = mName; o.text = `${mName} ($${mFee})`;
+              selectDropdown.appendChild(o);
+            });
+            if(modes.length > 0) currentShipping = modes[0].trim();
+          }
+
+          rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "" && p[10] !== "下架").map(p => {
             let cleanUrls = p[5].toString().split(/[\s,，、\n\r]+/).map(u => u.trim()).filter(u => u !== "");
             p.processedImgs = cleanUrls.length > 0 ? cleanUrls : ["https://via.placeholder.com/300?text=No+Image"];
             return p;
@@ -240,7 +265,6 @@
           products = rawData;
           renderCatalog(products);
 
-          // 🎯 智慧分享連結偵測（獨立路由機制）
           const urlParams = new URLSearchParams(window.location.search);
           const skuParam = urlParams.get('sku');
           if(skuParam) {
@@ -291,23 +315,28 @@
       document.getElementById('itemModal').style.display = 'flex';
       curImgs = [...p.processedImgs];
       
-      // 🎯 修正安全導流直式短片邏輯
+      // 🎯 獨家修復：全自動解碼防禦轉換器，徹底粉碎 Error 153，實現前台完美播放
       let videoUrl = p[9] ? p[9].toString().trim() : "";
-      let videoBtn = document.getElementById('videoGuideBtn');
+      let videoBox = document.getElementById('videoContainer');
+      let playerEl = document.getElementById('videoPlayer');
+      
       if (videoUrl !== "") {
-        videoBtn.href = videoUrl; videoBtn.style.display = "block";
-      } else { videoBtn.style.display = "none"; }
+        let embedUrl = convertToEmbedUrl(videoUrl);
+        if (embedUrl) {
+          videoBox.style.display = "block"; playerEl.src = embedUrl;
+        } else { videoBox.style.display = "none"; playerEl.src = ""; }
+      } else { videoBox.style.display = "none"; playerEl.src = ""; }
 
       imgIdx = 0; buildDots(); showMediaItem();
       document.getElementById('itemTitle').innerText = `[${p[0]}] ${p[1]}`;
       document.getElementById('itemDesc').innerText = p[7] || "";
       setupDropdown('colorSelect', p[3]); setupSizePriceDropdown('sizeSelect', p[4], p[2]);
 
-      // 🎯 分享按鈕生成
+      // 🎯 獨立商品編號分享連結一鍵複製
       document.getElementById('shareProductBtn').onclick = () => {
-        let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${p[0]}`;
+        let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
         navigator.clipboard.writeText(shareUrl);
-        myAlert(`🔗 商品專屬連結已複製！<br>可以直接放入限動分享唷：<br><small>${shareUrl}</small>`);
+        myAlert(`🔗 【${p[0]}】專屬分享連結已複製成功！<br><small>${shareUrl}</small>`);
       };
     }
     function buildDots() {
@@ -322,6 +351,16 @@
     function updateDots() {
       let dots = document.querySelectorAll('#dotsContainer .dot');
       dots.forEach((dot, index) => { if (index === imgIdx) { dot.classList.add('active'); } else { dot.classList.remove('active'); } });
+      let showArrows = curImgs.length > 1 ? 'block' : 'none';
+      if (document.getElementById('prevBtn')) document.getElementById('prevBtn').style.display = showArrows;
+      if (document.getElementById('nextBtn')) document.getElementById('nextBtn').style.display = showArrows;
+    }
+    function convertToEmbedUrl(url) {
+      let videoId = "";
+      if (url.includes("shorts/")) { videoId = url.split("shorts/")[1].split(/[?#]/)[0]; } 
+      else if (url.includes("youtu.be/")) { videoId = url.split("youtu.be/")[1].split(/[?#]/)[0]; } 
+      else if (url.includes("v=")) { videoId = url.split("v=")[1].split("&")[0]; }
+      return videoId ? "https://www.youtube.com/embed/" + videoId + "?autoplay=1&mute=1&playlist=" + videoId + "&loop=1" : null;
     }
     function showMediaItem() {
       let currentItem = curImgs[imgIdx];
@@ -341,32 +380,47 @@
       el.onchange = () => { document.getElementById('itemPrice').innerText = "NT$ " + el.options[el.selectedIndex].dataset.price; };
       if(el.options.length > 0) document.getElementById('itemPrice').innerText = "NT$ " + el.options[0].dataset.price;
     }
-    function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
+    function closeModal() { document.getElementById('itemModal').style.display = 'none'; document.getElementById('videoPlayer').src = ""; }
     function addToCart() {
       const sz = document.getElementById('sizeSelect'); if(!sz.options[sz.selectedIndex]) return;
       cart.push({ sku: products[selectedIdx][0], prodName: products[selectedIdx][1], color: document.getElementById('colorSelect').value, size: sz.value, price: Number(sz.options[sz.selectedIndex].dataset.price), qty: Number(document.getElementById('qtyInput').value), category: products[selectedIdx][6] ? products[selectedIdx][6].toString().trim() : "" });
       closeModal(); updateCartUI();
       let t = document.getElementById('toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000);
     }
+    
     function setShipping(mode) {
       currentShipping = mode;
-      document.getElementById('shipShipBtn').classList.toggle('active', mode === '宅配');
-      document.getElementById('shipStoreBtn').classList.toggle('active', mode === '超商取貨');
-      document.getElementById('shippingAddressBlock').style.display = mode === '宅配' ? 'block' : 'none';
-      document.getElementById('shippingStoreBlock').style.display = mode === '超商取貨' ? 'block' : 'none';
+      document.getElementById('shippingAddressBlock').style.display = mode.includes('宅配') ? 'block' : 'none';
+      document.getElementById('shippingStoreBlock').style.display = mode.includes('超商') ? 'block' : 'none';
       updateCartUI();
     }
+    
+    function calculateDynamicShipping() {
+      currentShipping = document.getElementById('shipSelectDropdown').value;
+      setShipping(currentShipping);
+    }
+
     function updateCartUI() {
       const box = document.getElementById('cartList'); box.innerHTML = ""; let subtotal = 0; let hasFlower = false;
       cart.forEach((item, idx) => {
         let total = item.price * item.qty; subtotal += total; if(item.category.includes("花束")) hasFlower = true;
         box.innerHTML += `<div class="cart-item"><div><b>[${item.sku}] ${item.prodName}</b><br><small>${item.color}/${item.size} x${item.qty}</small></div><span>$${total} <button onclick="removeCart(${idx})" style="border:none;background:none;color:#94A3B8;cursor:pointer;">✕</button></span></div>`;
       });
-      let shipFee = cart.length > 0 ? ((currentShipping === '超商取貨') ? (hasFlower ? 130 : 60) : (hasFlower ? 250 : 80)) : 0;
+      
+      // 🎯 智慧花束強制定價配對防禦
+      if(hasFlower && !currentShipping.includes("花束")) {
+        let dropdown = document.getElementById('shipSelectDropdown');
+        for (let option of dropdown.options) {
+          if (option.value.includes("花束")) { dropdown.value = option.value; currentShipping = option.value; setShipping(currentShipping); break; }
+        }
+      }
+
+      let shipFee = cart.length > 0 ? (dynamicShippingMap[currentShipping] || 0) : 0;
       document.getElementById('subTotal').innerText = subtotal; document.getElementById('discountAmt').innerText = discountValue; document.getElementById('shipFee').innerText = shipFee;
       document.getElementById('grandTotal').innerText = (subtotal - discountValue + shipFee < 0) ? 0 : (subtotal - discountValue + shipFee);
       const cartBtn = document.getElementById('viewCartBtn'); cartBtn.style.display = cart.length > 0 ? 'block' : 'none'; cartBtn.innerText = `購物車 (${cart.length})`;
     }
+    
     function removeCart(idx) { cart.splice(idx,1); updateCartUI(); }
     function toggleCart(show) { document.getElementById('cartDrawer').classList.toggle('open', show); }
     function applyPromo() {
@@ -375,20 +429,30 @@
       updateCartUI();
     }
 
-    // 🎯 UX 補強：一鍵智慧帶入歷史個人收件資料
+    // 🎯 完美修復：一鍵智慧帶入歷史資料免重填功能
     function autoFillCustomerData() {
-      let ph = document.getElementById('custPhone').value.trim(); if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
+      let ph = document.getElementById('custPhone').value.trim(); 
+      if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
+      
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
-          if(res.success) {
-            myAlert("已自動為您帶入歷史收件聯絡資訊！");
-            document.getElementById('custName').value = res.order.custName;
-            document.getElementById('lineName').value = res.order.lineName;
-            document.getElementById('shipReceiverName').value = res.order.shipName;
-            if(res.order.shipping.includes("超商")) { setShipping('超商取貨'); document.getElementById('storeName').value = res.order.address.replace("7-11超商：", ""); } 
-            else { setShipping('宅配'); document.getElementById('custAddress').value = res.order.address; }
+          if(res.success && res.order) {
+            myAlert("✨ 已自動為您帶入歷史收件與聯絡人資料！");
+            document.getElementById('custName').value = res.order.custName || "";
+            document.getElementById('lineName').value = res.order.lineName || "";
+            document.getElementById('shipReceiverName').value = res.order.shipName || "";
+            
+            let dropdown = document.getElementById('shipSelectDropdown');
+            dropdown.value = res.order.shipping;
+            calculateDynamicShipping();
+            
+            if(res.order.shipping.includes("超商")) {
+              document.getElementById('storeName').value = res.order.address.replace("7-11超商：", "");
+            } else {
+              document.getElementById('custAddress').value = res.order.address;
+            }
           } else { myAlert("查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
-        });
+        }).catch(e => myAlert("連線出錯，請確認後台 API 狀態。"));
     }
 
     function checkOrderHistory() {
@@ -411,9 +475,9 @@
     function submitFinalOrder() {
       let phone = document.getElementById('custPhone').value.trim(), name = document.getElementById('custName').value.trim(), line = document.getElementById('lineName').value.trim(), rxName = document.getElementById('shipReceiverName').value.trim(), email = document.getElementById('custEmail').value.trim();
       if(!phone || !name || !line || !rxName || !email || cart.length === 0) return myAlert("請填寫所有欄位（皆為必填項目）。");
-      let addr = (currentShipping === '宅配') ? document.getElementById('custAddress').value.trim() : document.getElementById('storeName').value.trim();
-      if(!addr) return myAlert((currentShipping === '宅配') ? "請填寫完整收件地址" : "請填寫超商門市名稱");
-      let finalAddr = (currentShipping === '宅配') ? `(${document.getElementById('custZip').value}) ${addr}` : `7-11超商：${addr}`;
+      let addr = (currentShipping.includes('宅配')) ? document.getElementById('custAddress').value.trim() : document.getElementById('storeName').value.trim();
+      if(!addr) return myAlert((currentShipping.includes('宅配')) ? "請填寫完整收件地址" : "請填寫超商門市名稱");
+      let finalAddr = (currentShipping.includes('宅配')) ? `(${document.getElementById('custZip').value}) ${addr}` : `7-11超商：${addr}`;
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: cart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: document.getElementById('grandTotal').innerText } }) })
         .then(r => r.json()).then(res => {
