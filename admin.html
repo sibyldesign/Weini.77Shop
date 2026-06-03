@@ -5,78 +5,145 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weini.77 Shop | 智慧後台管理系統</title>
   <style>
-    body { font-family: -apple-system, sans-serif; background: #F0F4F8; color: #334155; margin: 0; padding: 20px; }
-    .admin-container { max-width: 1100px; margin: 0 auto; }
-    .card { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
-    h2 { margin-top: 0; color: #4A6283; border-bottom: 2px solid #E2E8F0; padding-bottom: 10px; }
+    :root { 
+      --bg: #F0F4F8; 
+      --primary: #4A6283; 
+      --primary-dark: #384E6C;
+      --text-main: #334155; 
+      --accent-pink: #E19898;
+      --accent-red: #EF4444;
+    }
+    body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 20px; }
+    .admin-container { max-width: 1200px; margin: 0 auto; }
+    
+    /* 專業頁籤導覽列 (Tabs) */
+    .tab-nav { display: flex; gap: 8px; border-bottom: 3px solid #CBD5E1; padding-bottom: 0; margin-bottom: 20px; overflow-x: auto; }
+    .tab-btn { background: #E2E8F0; color: #64748B; border: none; padding: 12px 24px; border-radius: 12px 12px 0 0; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+    .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.7); }
+    h2 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #E2E8F0; padding-bottom: 10px; font-size: 18px; }
+    
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
     label { font-size: 13px; font-weight: bold; color: #64748B; display: block; margin-bottom: 4px; }
-    input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #CBD5E1; box-sizing: border-box; font-size: 14px; }
-    .upload-box { border: 2px dashed #83A6D4; padding: 20px; text-align: center; border-radius: 12px; background: #F8FAFC; cursor: pointer; margin-bottom: 15px; }
-    .preview-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-    .preview-img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; }
-    .primary-btn { background: #4A6283; color: white; border: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; }
-    .primary-btn:hover { background: #384E6C; }
+    input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #CBD5E1; box-sizing: border-box; font-size: 14px; background: #F8FAFC; color: var(--text-main); }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); background: white; outline: none; }
     
-    /* 訂單管理看版樣式 */
-    .table-responsive { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+    .upload-box { border: 2px dashed #83A6D4; padding: 25px; text-align: center; border-radius: 12px; background: #F8FAFC; cursor: pointer; margin-bottom: 15px; }
+    .preview-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; justify-content: center; }
+    .preview-img { width: 75px; height: 75px; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; }
+    
+    .primary-btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; transition: 0.2s; }
+    .primary-btn:hover { background: var(--primary-dark); }
+    .danger-btn { background: var(--accent-red); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; background: white; }
     th, td { padding: 12px; border-bottom: 1px solid #E2E8F0; text-align: left; }
-    th { background: #E2E8F4; color: #4A6283; }
-    .badge { padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 11px; }
-    .bg-unpaid { background: #FFEAEA; color: #EF4444; }
+    th { background: #E2E8F4; color: var(--primary); font-weight: bold; }
+    
+    .badge { padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 11px; display: inline-block; }
+    .bg-unpaid { background: #FFEAEA; color: var(--accent-red); }
     .bg-paid { background: #E6F4EA; color: #137333; }
-    select.table-select { padding: 6px; font-size: 12px; width: auto; }
+    
+    /* 質感爆棚的自訂提示視窗 (取代變醜的試算表ID視窗) */
+    .custom-alert { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.5); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
+    .alert-content { background:white; padding:24px; border-radius:20px; width:85%; max-width:340px; text-align:center; box-shadow:0 15px 35px rgba(0,0,0,0.15); border:1px solid #E2E8F0; }
+    .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
   </style>
 </head>
 <body>
 
   <div class="admin-container">
     <div style="text-align:center; margin-bottom:25px;">
-      <h1 style="color:#4A6283; margin:0;">Weini.77 Shop 管理後台</h1>
-      <p style="color:#64748B; margin:5px 0 0 0;">Jamstack 架構 $\cdot$ 穩定零風險上架與訂單管理看板</p>
+      <h1 style="color:var(--primary); margin:0; font-size: 28px; font-weight: 900;">Weini.77 Shop 管理後台</h1>
+      <p style="color:#64748B; margin:6px 0 0 0; font-weight: 500;">Jamstack 極速穩定排版 $\cdot$ 專屬獨立分頁主控台</p>
     </div>
 
-    <div class="card">
+    <!-- 頂部切換頁籤 -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('uploadTab')">✨ 商品快速上架</button>
+      <button class="tab-btn" onclick="switchTab('listTab')">📦 商品清單總覽</button>
+      <button class="tab-btn" onclick="switchTab('orderTab')">📋 訂單管理看板</button>
+      <button class="tab-btn" onclick="switchTab('customTab')">💐 客製專屬通道編輯</button>
+    </div>
+
+    <!-- 分頁一：商品快速上架 -->
+    <div id="uploadTab" class="tab-content active card">
       <h2>✨ 商品快速上架</h2>
       <div class="form-grid">
         <div><label>商品貨號 (必填)</label><input type="text" id="pSku" placeholder="例如: W9112#"></div>
         <div><label>商品品名 (必填)</label><input type="text" id="pName" placeholder="例如: 韓系圍巾領襯衫"></div>
-        <div><label>單價 (例如: 340,300)</label><input type="text" id="pPrice" placeholder="多規格價格用逗號隔開"></div>
-        <div><label>主分類</label><input type="text" id="pCategory" placeholder="客製花束/香水/精選衣物 等"></div>
+        <div><label>單價 (例如: 340 或多規格用逗號隔開 340,360)</label><input type="text" id="pPrice" placeholder="請對齊尺寸數量"></div>
+        <div><label>商品狀態</label>
+          <select id="pStatusConfig">
+            <option value="上架">上架</option>
+            <option value="下架">下架</option>
+          </select>
+        </div>
       </div>
       <div class="form-grid">
+        <div><label>主分類 (動態同步試算表)</label><select id="pMajorSelect"></select></div>
+        <div><label>副分類 (動態同步試算表)</label><select id="pSubSelect"></select></div>
         <div><label>可選顏色</label><input type="text" id="pColor" placeholder="例如: 黃色,粉色,白色"></div>
         <div><label>可選尺碼</label><input type="text" id="pSize" placeholder="例如: S,M,L"></div>
-        <div><label>進度顯示 (選填)</label><input type="text" id="pProgress" placeholder="例如: W日常! 高 CP 值"></div>
+      </div>
+      <div class="form-grid">
+        <div><label>進度顯示標籤 (選填)</label><input type="text" id="pProgress" placeholder="例如: W日常! 高 CP 值"></div>
         <div><label>YouTube Shorts 影片網址</label><input type="text" id="pVideo" placeholder="貼上短影音分享網址"></div>
       </div>
       <div style="margin-bottom:15px;">
-        <label>商品敘述短文</label>
+        <label>商品細節敘述短文</label>
         <textarea id="pDesc" rows="2" placeholder="填寫衣服材質、特點細節描述..."></textarea>
       </div>
 
       <div class="upload-box" onclick="document.getElementById('fileInput').click()">
         <span style="font-size:24px;">➕</span>
-        <p style="margin:5px 0 0 0; font-weight:bold; font-size:14px; color:#4A6283;">點擊此處選擇照片（可一次選多張，系統自動秒速上傳至圖床）</p>
+        <p style="margin:5px 0 0 0; font-weight:bold; font-size:14px; color:var(--primary);">點擊此處選取照片（自動秒速空投至無限容量安全圖床）</p>
         <input type="file" id="fileInput" multiple accept="image/*" style="display:none;" onchange="uploadToImgur(this.files)">
         <div class="preview-container" id="previewBox"></div>
       </div>
 
       <div style="margin-bottom:20px;">
-        <label>已打包的圖床網址紀錄欄 (上傳後會自動生成，亦可手動調整)</label>
-        <textarea id="pImgs" rows="3" placeholder="圖片網址陣列區域..."></textarea>
+        <label>已打包的圖床網址紀錄欄</label>
+        <textarea id="pImgs" rows="2" placeholder="自動生成圖片網址清單區域..."></textarea>
       </div>
-
       <button class="primary-btn" onclick="submitProduct()">一鍵確認商品網頁上架</button>
     </div>
 
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #E2E8F0; padding-bottom:10px; margin-bottom:15px;">
-        <h2 style="margin:0; border:none;">📋 實時訂單追蹤管理看板</h2>
-        <button onclick="loadOrders()" style="background:#64748B; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">🔄 整理最新訂單</button>
+    <!-- 分頁二：商品清單總覽 -->
+    <div id="listTab" class="tab-content card">
+      <h2>📦 目前架上所有商品清單</h2>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>主圖</th>
+              <th>貨號</th>
+              <th>品名</th>
+              <th>分類 (主/副)</th>
+              <th>價格</th>
+              <th>規格 (顏色/尺寸)</th>
+              <th>狀態</th>
+              <th>管理操作</th>
+            </tr>
+          </thead>
+          <tbody id="productTableBody">
+            <tr><td colspan="8" style="text-align:center; padding:20px; color:#94A3B8;">載入數據中...</td></tr>
+          </tbody>
+        </table>
       </div>
-      <div class="table-responsive">
+    </div>
+
+    <!-- 分頁三：訂單管理看板 -->
+    <div id="orderTab" class="tab-content card">
+      <div style="display:flex; justify-content:between; align-items:center; border-bottom:2px solid #E2E8F0; padding-bottom:10px; margin-bottom:15px;">
+        <h2 style="margin:0; border:none;">📋 實時訂單追蹤管理看板 (依下單時間排序)</h2>
+        <button onclick="loadOrders()" style="background:#64748B; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:12px; margin-left:auto;">🔄 刷新訂單資料</button>
+      </div>
+      <div style="overflow-x:auto;">
         <table>
           <thead>
             <tr>
@@ -84,50 +151,101 @@
               <th>訂單編號</th>
               <th>訂購明細</th>
               <th>總額</th>
-              <th>客戶資訊</th>
+              <th>客戶聯絡資訊</th>
               <th>配送地址/門市</th>
               <th>付款狀態</th>
               <th>訂單狀態</th>
             </tr>
           </thead>
           <tbody id="orderTableBody">
-            <tr><td colspan="8" style="text-align:center; padding:30px; color:#94A3B8;">點擊整理按鈕加載即時訂單資料...</td></tr>
+            <tr><td colspan="8" style="text-align:center; padding:20px; color:#94A3B8;">點擊整理按鈕加載即時訂單資料...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
+
+    <!-- 分頁四：客製專屬通道編輯 -->
+    <div id="customTab" class="tab-content card">
+      <h2>💐 Weini.77 Shop | 客製專屬下單通道編輯器</h2>
+      <p style="font-size:13px; color:#64748B; margin-top:-5px;">在這裡幫特定客人創立好單號與專屬討論金額，再將連結複製給客人填寫收件資料。</p>
+      <div class="form-grid" style="margin-top:20px;">
+        <div><label>手動創立專屬單號 (必填)</label><input type="text" id="cOrderId" placeholder="例如: W77-CUSTOM-01"></div>
+        <div><label>客製討論品名細節</label><input type="text" id="cProdName" value="粉櫻浪漫客製大花束"></div>
+        <div><label>雙方協定好金額 (必填)</label><input type="number" id="cAmount" placeholder="例如: 1500"></div>
+      </div>
+      <button class="primary-btn" onclick="createCustomOrderLink()" style="background:var(--accent-pink);">生成並複製專屬客製下單連結</button>
+      <div id="linkOutput" style="margin-top:15px; font-weight:bold; color:var(--primary); font-size:13px; text-align:center;"></div>
+    </div>
+  </div>
+
+  <!-- 高質感自訂提示視窗 -->
+  <div id="customAlert" class="custom-alert">
+    <div class="alert-content">
+      <div id="alertMsg" style="font-size:14px; color:#333; line-height:1.5; white-space:pre-line;"></div>
+      <button class="alert-btn" onclick="closeAlert()">確定</button>
+    </div>
   </div>
 
   <script>
-    // 🎯 請將下方 API 網址換成妳的 GAS 部署網址
+    // 🎯 核心更換：請在此更換為妳全新部署的 GAS API 網址
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
-    // Imgur 匿名免費無限上傳金鑰 (Sibyl 專用匿名 Client ID，免登入、空間無限)
+    
+    // 💡 建議去 Imgur 官網申請替換成妳獨立綁定的 Client ID
     const IMGUR_CLIENT_ID = '6f8615db8bc953e'; 
 
-    // 處理免費圖床多圖批次非同步上傳
+    let globalProducts = [], majorList = [], subList = [];
+
+    function myAlert(msg) { document.getElementById('alertMsg').innerHTML = msg; document.getElementById('customAlert').style.display = 'flex'; }
+    function closeAlert() { document.getElementById('customAlert').style.display = 'none'; }
+    
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+      
+      if(tabId === 'listTab') loadProductInventory();
+      if(tabId === 'orderTab') loadOrders();
+    }
+
+    window.onload = () => {
+      // 網頁一開，立刻去後台公告設定把分類下拉選單完全連動加載過來
+      fetch(API_URL)
+        .then(r => r.json())
+        .then(res => {
+          if(res.majorCategories) {
+            const majEl = document.getElementById('pMajorSelect'); majEl.innerHTML = "";
+            res.majorCategories.split(/[,，]/).forEach(c => {
+              let o = document.createElement('option'); o.value = o.text = c.trim(); majEl.appendChild(o);
+            });
+          }
+          // 同步支援副分類拉取寫入
+          if(res.subCategories) {
+            const subEl = document.getElementById('pSubSelect'); subEl.innerHTML = "<option value='無'>無副分類</option>";
+            res.subCategories.split(/[,，]/).forEach(c => {
+              let o = document.createElement('option'); o.value = o.text = c.trim(); subEl.appendChild(o);
+            });
+          }
+          globalProducts = res.products;
+        });
+    };
+
+    // 免費圖床多圖批次自動打包機制
     async function uploadToImgur(files) {
       if(files.length === 0) return;
       const previewBox = document.getElementById('previewBox');
       const pImgs = document.getElementById('pImgs');
-      
       previewBox.innerHTML = "";
       let uploadedUrls = [];
 
       for(let file of files) {
-        // 先在本機秀出待上傳縮圖，使用者體驗極佳
         let reader = new FileReader();
-        reader.onload = function(e) {
-          let img = document.createElement('img');
-          img.className = 'preview-img';
-          img.src = e.target.result;
-          previewBox.appendChild(img);
-        }
+        reader.onload = e => {
+          let img = document.createElement('img'); img.className = 'preview-img'; img.src = e.target.result; previewBox.appendChild(img);
+        };
         reader.readAsDataURL(file);
 
-        // 呼叫 Imgur API 進行匿名空投
-        let formData = new FormData();
-        formData.append('image', file);
-
+        let formData = new FormData(); formData.append('image', file);
         try {
           let response = await fetch('https://api.imgur.com/3/image', {
             method: 'POST',
@@ -135,71 +253,109 @@
             body: formData
           });
           let resJson = await response.json();
-          if(resJson.success) {
-            uploadedUrls.push(resJson.data.link);
-          }
-        } catch(err) { console.error("圖床連線失敗", err); }
+          if(resJson.success) { uploadedUrls.push(resJson.data.link); }
+        } catch(err) { console.error("圖床連線異常", err); }
       }
 
-      // 自動用換行符號串接網址，精準對齊妳的 F 欄讀取設計！
       if(uploadedUrls.length > 0) {
         pImgs.value = uploadedUrls.join('\n');
-        alert(`成功！共有 ${uploadedUrls.length} 張照片已自動空投至圖床並打包完畢！`);
+        myAlert(`🎉 多圖空投成功！共有 ${uploadedUrls.length} 張照片已自動存入圖床並打包網址完畢！`);
+      } else {
+        myAlert("❌ 圖片上傳失敗，這通常是匿名圖床當日流量達到限制，建議於程式碼中填寫註冊帳號拿到的專屬 Client ID 唷！");
       }
     }
 
-    // 發送商品資料回到 GAS 上架
+    // 新增商品上架
     function submitProduct() {
       const sku = document.getElementById('pSku').value.trim();
       const name = document.getElementById('pName').value.trim();
-      if(!sku || !name) return alert("請填寫貨號與品名！");
+      if(!sku || !name) return myAlert("請務必填寫【商品貨號】與【商品品名】項目。");
 
       let prodObj = {
         sku: sku, name: name,
         price: document.getElementById('pPrice').value.trim(),
         color: document.getElementById('pColor').value.trim(),
         size: document.getElementById('pSize').value.trim(),
-        category: document.getElementById('pCategory').value.trim(),
+        category: document.getElementById('pMajorSelect').value + (document.getElementById('pSubSelect').value !== '無' ? ' / ' + document.getElementById('pSubSelect').value : ''),
         desc: document.getElementById('pDesc').value.trim(),
         progress: document.getElementById('pProgress').value.trim(),
         video: document.getElementById('pVideo').value.trim(),
-        imgs: document.getElementById('pImgs').value.trim()
+        imgs: document.getElementById('pImgs').value.trim(),
+        status: document.getElementById('pStatusConfig').value
       };
 
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "addNewProduct", product: prodObj }) })
         .then(r => r.json()).then(res => {
           if(res.success) {
-            alert(res.message);
-            // 成功後清空欄位
+            myAlert(res.message);
             document.getElementById('pSku').value = ""; document.getElementById('pName').value = "";
             document.getElementById('pImgs').value = ""; document.getElementById('previewBox').innerHTML = "";
-          } else { alert("上架失敗: " + res.message); }
+          }
         });
     }
 
-    // 撈取即時訂單看板
+    // 讀取加載商品清單
+    function loadProductInventory() {
+      const tbody = document.getElementById('productTableBody');
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">載入即時商品庫存中...</td></tr>`;
+      
+      fetch(API_URL)
+        .then(r => r.json()).then(res => {
+          globalProducts = res.products;
+          tbody.innerHTML = "";
+          if(globalProducts.length === 0) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">資料庫目前空空如也。</td></tr>`; return; }
+          
+          globalProducts.forEach((p, idx) => {
+            let tr = document.createElement('tr');
+            let urls = p[5].toString().split(/[\s,，、\n\r]+/);
+            let firstImg = urls[0] ? urls[0].trim() : "https://via.placeholder.com/100?text=No+Image";
+            let statusVal = p[10] || "上架"; // 假設試算表第11欄控制狀態
+            
+            tr.innerHTML = `
+              <td><img src="${firstImg}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;"></td>
+              <td><b>${p[0]}</b></td>
+              <td>${p[1]}</td>
+              <td><small>${p[6]}</small></td>
+              <td><span style="color:var(--accent-pink); font-weight:bold;">$${p[2]}</span></td>
+              <td><small>色:${p[3]}<br>碼:${p[4]}</small></td>
+              <td>
+                <select class="table-select" onchange="updateProductStatus('${p[0]}', this.value)">
+                  <option value="上架" ${statusVal==='上架'?'selected':''}>上架</option>
+                  <option value="下架" ${statusVal==='下架'?'selected':''}>下架</option>
+                </select>
+              </td>
+              <td><button class="danger-btn" onclick="deleteProductItem('${p[0]}')">刪除商品</button></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    // 撈取實時訂單並依下單時間正確排序
     function loadOrders() {
       const tbody = document.getElementById('orderTableBody');
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px;">正在深入雲端資料庫撈取實時訂單中...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">正在讀取實時訂單管理看板...</td></tr>`;
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "getAllOrders" }) })
         .then(r => r.json()).then(res => {
-          if(!res.success || res.orders.length === 0) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px;">目前尚無任何客人提交訂單紀錄。</td></tr>`; return; }
+          if(!res.success || res.orders.length === 0) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">目前尚無客人提交任何預訂單。</td></tr>`; return; }
           tbody.innerHTML = "";
+          
+          // 後端已完成依時間最新往舊排序
           res.orders.forEach(o => {
             let tr = document.createElement('tr');
             let payBadge = o.payStatus === "已匯款" ? `<span class="badge bg-paid">已匯款 (${o.lastFive})</span>` : `<span class="badge bg-unpaid">未付款</span>`;
             
             tr.innerHTML = `
-              <td>${o.time}</td>
+              <td><small>${o.time}</small></td>
               <td><b>${o.orderId}</b></td>
               <td>[${o.sku}] ${o.prodName}<br><small style="color:#64748B;">${o.specs}</small></td>
-              <td style="color:#EF4444; font-weight:bold;">$${o.total}</td>
+              <td style="color:var(--accent-pink); font-weight:bold;">$${o.total}</td>
               <td>${o.custName}<br><small style="color:#64748B;">Line:${o.lineName}<br>Tel:${o.phone}</small></td>
               <td><small>${o.shipping}<br>${o.address}</small></td>
               <td>
                 ${payBadge}<br>
-                <select class="table-select" onchange="updateRow(${o.rowIdx}, null, this.value)" style="margin-top:5px;">
+                <select class="table-select" onchange="updateOrderRow(${o.rowIdx}, null, this.value)" style="margin-top:5px;">
                   <option value="">變更付款...</option>
                   <option value="未付款">未付款</option>
                   <option value="已匯款">已匯款</option>
@@ -207,7 +363,7 @@
               </td>
               <td>
                 <span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br>
-                <select class="table-select" onchange="updateRow(${o.rowIdx}, this.value, null)" style="margin-top:5px;">
+                <select class="table-select" onchange="updateOrderRow(${o.rowIdx}, this.value, null)" style="margin-top:5px;">
                   <option value="">變更訂單狀態...</option>
                   <option value="已收到訂單">已收到訂單</option>
                   <option value="已確認訂單">已確認訂單</option>
@@ -224,10 +380,25 @@
         });
     }
 
-    // 在網頁看板直接同步修改試算表格子 (對齊對帳下拉選單需求)
-    function updateRow(rowIdx, status, payStatus) {
+    function updateOrderRow(rowIdx, status, payStatus) {
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updateOrderStatus", rowIdx: rowIdx, status: status, payStatus: payStatus }) })
-        .then(r => r.json()).then(res => { if(res.success) { loadOrders(); } });
+        .then(r => r.json()).then(res => { if(res.success) loadOrders(); });
+    }
+
+    // 生成客製化專屬連結一鍵複製
+    function createCustomOrderLink() {
+      let id = document.getElementById('cOrderId').value.trim();
+      let price = document.getElementById('cAmount').value.trim();
+      let name = document.getElementById('cProdName').value.trim();
+      if(!id || !price) return myAlert("請確實填寫專屬客製單號與協定金額項目！");
+
+      // 這裡的網址會自動尋找妳上傳 GitHub Pages 部署出來的 custom.html 路徑
+      let currentLoc = window.location.href.replace('admin.html', 'custom.html');
+      let finalLink = `${currentLoc}?id=${id}`;
+      
+      document.getElementById('linkOutput').innerText = finalLink;
+      navigator.clipboard.writeText(finalLink);
+      myAlert("🎉 專屬客製單建立完成！<br>客製通道下單連結已自動複製到妳的剪貼簿囉，可以直接傳給特定客人填寫資料！");
     }
   </script>
 </body>
