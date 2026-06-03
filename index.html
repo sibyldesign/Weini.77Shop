@@ -39,26 +39,25 @@
     .float-controls { position: fixed; right: 16px; bottom: 24px; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; z-index: 2500; }
     .float-cart-btn { background: var(--primary); color: white; padding: 14px 24px; border-radius: 30px; border: none; font-weight: bold; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; display: none; }
     .float-top-btn { background: rgba(255,255,255,0.95); color: var(--primary); width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CBD5E1; font-size: 22px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: none; align-items: center; justify-content: center; }
-    .custom-alert { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; }
+    .custom-alert { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
     .alert-content { background:white; padding:24px; border-radius:20px; width:85%; max-width:320px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2); }
     .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
+    
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
-    .modal-content { background:white; width:92%; max-width: 750px; border-radius:24px; overflow:hidden; position:relative; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; flex-direction: row; }
-    .modal-close { position: absolute; right: 14px; top: 14px; font-size: 18px; font-weight: bold; color: #64748B; background: #FFFFFF; border: 2px solid #E2E8F0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 120; }
-    .img-viewer { width: 50%; aspect-ratio: 1; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; touch-action: pan-y; flex-shrink: 0; }
-    .img-viewer img, .img-viewer iframe { width: 100%; height: 100%; object-fit: cover; border: none; display: block; }
-    .video-container { width: 100%; height: 100%; display: none; background: #000; }
-    .arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid #CBD5E1; padding: 10px 14px; color: var(--text-main); border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.12); z-index: 100; }
+    
+    /* 🎯 響應式優化：不論電腦還是手機，商品資訊一律在圖片下方垂直排列，永不重疊遮擋 */
+    .modal-content { background:white; width:92%; max-width: 460px; border-radius:24px; overflow:hidden; position:relative; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; flex-direction: column; height: auto; max-height: 90vh; overflow-y: auto; }
+    .modal-close { position: absolute; right: 14px; top: 14px; font-size: 18px; font-weight: bold; color: #64748B; background: #FFFFFF; border: 2px solid #E2E8F0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 120; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .img-viewer { width: 100%; aspect-ratio: 1; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; touch-action: pan-y; flex-shrink: 0; }
+    .img-viewer img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .indicator-dots { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 20; background: rgba(0, 0, 0, 0.35); padding: 5px 10px; border-radius: 12px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transition: all 0.25s; }
     .dot.active { background: #FFFFFF; width: 16px; border-radius: 4px; }
-    .detail-body { padding: 25px; width: 50%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; max-height: 500px; overflow-y: auto; }
-    @media (max-width: 768px) {
-      .modal-content { flex-direction: column; max-width: 400px; max-height: 85vh; overflow-y: auto; }
-      .img-viewer { width: 100% !important; display: flex !important; }
-      .detail-body { width: 100% !important; padding: 20px; max-height: none; }
-      .arrow { display: none !important; } 
-    }
+    .detail-body { padding: 20px; box-sizing: border-box; }
+
+    /* 🎬 直式安全導流觀看按鈕 */
+    .video-guide-btn { display: none; background: #FF0000; color: white; padding: 10px; text-align: center; border-radius: 12px; font-weight: bold; font-size: 13px; text-decoration: none; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(255,0,0,0.2); }
+
     select, input { font-size: 14px; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; outline: none; background: #F8FAFC; width: 100%; box-sizing: border-box; color: var(--text-main); }
     .cart-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; z-index: 2800; padding: 24px; transform: translateY(100%); transition: transform 0.3s ease; max-height: 80vh; overflow-y: auto; box-shadow: 0 -8px 25px rgba(0,0,0,0.1); }
     .cart-drawer.open { transform: translateY(0); }
@@ -131,19 +130,18 @@
     </div>
   </div>
 
+  <!-- 商品詳情小視窗 -->
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal()">✕</span>
       <div class="img-viewer" id="swiperArea">
-        <button class="arrow" id="prevBtn" style="left:10px;" onclick="changeImg(-1)">❮</button>
         <img id="itemImg" src="">
-        <div id="videoContainer" class="video-container">
-          <iframe id="videoPlayer" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-        <button class="arrow" id="nextBtn" style="right:10px;" onclick="changeImg(1)">❯</button>
         <div class="indicator-dots" id="dotsContainer"></div>
       </div>
       <div class="detail-body">
+        <!-- 🎬 觀看短影音導流按鈕 -->
+        <a href="" target="_blank" id="videoGuideBtn" class="video-guide-btn">🎬 觀看產品穿搭短影音 (前往 YouTube)</a>
+        
         <div id="itemTitle" style="font-weight:bold; font-size:16px;"></div>
         <div id="itemDesc" style="font-size:13px; color:#666; margin-top:8px; white-space:pre-line; line-height:1.5;"></div>
         <div id="itemPrice" style="color:var(--accent-pink); font-size:22px; font-weight:800; margin:14px 0;"></div>
@@ -152,11 +150,15 @@
           <div style="flex:1;"><select id="sizeSelect"></select></div>
           <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
         </div>
-        <button class="action-btn" onclick="addToCart()" style="margin-top:20px;">加入購物車</button>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+          <button class="action-btn" onclick="addToCart()" style="flex:1;">加入購物車</button>
+          <button class="action-btn" id="shareProductBtn" style="background:#64748B; width:auto; padding:0 18px;">🔗 分享</button>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- 購物車抽屜 -->
   <div id="cartDrawer" class="cart-drawer">
     <div style="text-align:right; font-size:20px; cursor:pointer; color:#94A3B8;" onclick="toggleCart(false)">✕</div>
     <h3 style="text-align:center; margin-top:0;">🛒 購物車明細</h3>
@@ -190,7 +192,12 @@
       <span style="font-size:16px; font-weight:800; color:var(--accent-pink);">應匯款總額：NT$ <span id="grandTotal">0</span></span>
     </div>
     <div style="border-top:1px dashed #DDD; padding-top:12px;">
-      <input type="tel" id="custPhone" placeholder="手機號碼 (必填)" style="margin-bottom:8px;">
+      <!-- 🎯 UX 優化：輸入電話旁新增「帶入資料」按鈕 -->
+      <label style="font-size:12px; font-weight:bold; color:#666;">填寫訂購資訊</label>
+      <div style="display:flex; gap:8px; margin-bottom:8px;">
+        <input type="tel" id="custPhone" placeholder="手機號碼 (必填)" style="flex:1;">
+        <button onclick="autoFillCustomerData()" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">帶入資料</button>
+      </div>
       <input type="text" id="custName" placeholder="訂購人姓名 (必填)" style="margin-bottom:8px;">
       <input type="text" id="lineName" placeholder="LINE 名稱 (必填)" style="margin-bottom:8px;">
       <input type="text" id="shipReceiverName" placeholder="收件人姓名 (必填)" style="margin-bottom:8px;">
@@ -206,20 +213,11 @@
   </footer>
 
   <script>
-    // 🎯 請將下方 API 網址換成妳的 GAS 部署網址
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
 
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
     let curImgs = [], imgIdx = 0, currentShipping = '宅配';
     let touchStartX = 0, touchEndX = 0;
-
-    window.onscroll = function() {
-      let topBtn = document.getElementById("backToTopBtn");
-      if (document.body.scrollTop > 250 || document.documentElement.scrollTop > 250) { topBtn.style.display = "flex"; } else { topBtn.style.display = "none"; }
-    };
-    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-    function myAlert(msg) { document.getElementById('alertMsg').innerHTML = msg; document.getElementById('customAlert').style.display = 'flex'; }
-    function closeAlert() { document.getElementById('customAlert').style.display = 'none'; }
 
     window.onload = () => {
       const swiperArea = document.getElementById('swiperArea');
@@ -227,12 +225,13 @@
       swiperArea.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }, false);
 
       fetch(API_URL)
-        .then(res => res.json())
+        .then(r => r.json())
         .then(res => {
           promoList = res.promos;
           document.getElementById('announcement').innerText = res.announcement;
           document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
           setupCategories(res.majorCategories);
+          
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
             let cleanUrls = p[5].toString().split(/[\s,，、\n\r]+/).map(u => u.trim()).filter(u => u !== "");
             p.processedImgs = cleanUrls.length > 0 ? cleanUrls : ["https://via.placeholder.com/300?text=No+Image"];
@@ -240,7 +239,15 @@
           });
           products = rawData;
           renderCatalog(products);
-        }).catch(err => myAlert("讀取資料失敗，請確認 API 設定與權限。"));
+
+          // 🎯 智慧分享連結偵測（獨立路由機制）
+          const urlParams = new URLSearchParams(window.location.search);
+          const skuParam = urlParams.get('sku');
+          if(skuParam) {
+            let foundIdx = products.findIndex(p => p[0].toString().trim() === skuParam.trim());
+            if(foundIdx !== -1) { setTimeout(() => openProduct(foundIdx), 500); }
+          }
+        });
     };
 
     function handleSwipe() {
@@ -261,7 +268,7 @@
     }
     function filterCategory(cat) {
       document.getElementById('lineNotice').style.display = (cat === '客製花束') ? 'block' : 'none';
-      products = (cat === '全部') ? rawData : rawData.filter(p => p[6] && p[6].toString().trim() === cat);
+      products = (cat === '全部') ? rawData : rawData.filter(p => p[6] && p[6].toString().trim().includes(cat));
       renderCatalog(products);
     }
     function searchProducts() {
@@ -283,15 +290,25 @@
       selectedIdx = idx; const p = products[idx];
       document.getElementById('itemModal').style.display = 'flex';
       curImgs = [...p.processedImgs];
+      
+      // 🎯 修正安全導流直式短片邏輯
       let videoUrl = p[9] ? p[9].toString().trim() : "";
+      let videoBtn = document.getElementById('videoGuideBtn');
       if (videoUrl !== "") {
-        let embedUrl = convertToEmbedUrl(videoUrl);
-        if (embedUrl) { curImgs.unshift({ type: "video", url: embedUrl }); }
-      }
+        videoBtn.href = videoUrl; videoBtn.style.display = "block";
+      } else { videoBtn.style.display = "none"; }
+
       imgIdx = 0; buildDots(); showMediaItem();
       document.getElementById('itemTitle').innerText = `[${p[0]}] ${p[1]}`;
       document.getElementById('itemDesc').innerText = p[7] || "";
       setupDropdown('colorSelect', p[3]); setupSizePriceDropdown('sizeSelect', p[4], p[2]);
+
+      // 🎯 分享按鈕生成
+      document.getElementById('shareProductBtn').onclick = () => {
+        let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${p[0]}`;
+        navigator.clipboard.writeText(shareUrl);
+        myAlert(`🔗 商品專屬連結已複製！<br>可以直接放入限動分享唷：<br><small>${shareUrl}</small>`);
+      };
     }
     function buildDots() {
       const container = document.getElementById('dotsContainer'); container.innerHTML = "";
@@ -305,24 +322,11 @@
     function updateDots() {
       let dots = document.querySelectorAll('#dotsContainer .dot');
       dots.forEach((dot, index) => { if (index === imgIdx) { dot.classList.add('active'); } else { dot.classList.remove('active'); } });
-      let showArrows = curImgs.length > 1 ? 'block' : 'none';
-      if (document.getElementById('prevBtn')) document.getElementById('prevBtn').style.display = showArrows;
-      if (document.getElementById('nextBtn')) document.getElementById('nextBtn').style.display = showArrows;
-    }
-    function convertToEmbedUrl(url) {
-      let videoId = "";
-      if (url.includes("shorts/")) { videoId = url.split("shorts/")[1].split(/[?#]/)[0]; } 
-      else if (url.includes("youtu.be/")) { videoId = url.split("youtu.be/")[1].split(/[?#]/)[0]; } 
-      else if (url.includes("v=")) { videoId = url.split("v=")[1].split("&")[0]; }
-      return videoId ? "https://www.youtube.com/embed/" + videoId + "?autoplay=1&mute=1" : null;
     }
     function showMediaItem() {
       let currentItem = curImgs[imgIdx];
       let imgEl = document.getElementById('itemImg');
-      let videoBox = document.getElementById('videoContainer');
-      let playerEl = document.getElementById('videoPlayer');
-      if (currentItem && currentItem.type === "video") { imgEl.style.display = "none"; videoBox.style.display = "block"; playerEl.src = currentItem.url; } 
-      else { videoBox.style.display = "none"; playerEl.src = ""; imgEl.style.display = "block"; imgEl.src = (typeof currentItem === "string") ? currentItem : "https://via.placeholder.com/300?text=No+Image"; }
+      imgEl.src = (typeof currentItem === "string") ? currentItem : "https://via.placeholder.com/300?text=No+Image";
       updateDots();
     }
     function changeImg(dir) { if (curImgs.length <= 1) return; imgIdx = (imgIdx + dir + curImgs.length) % curImgs.length; showMediaItem(); }
@@ -337,7 +341,7 @@
       el.onchange = () => { document.getElementById('itemPrice').innerText = "NT$ " + el.options[el.selectedIndex].dataset.price; };
       if(el.options.length > 0) document.getElementById('itemPrice').innerText = "NT$ " + el.options[0].dataset.price;
     }
-    function closeModal() { document.getElementById('itemModal').style.display = 'none'; document.getElementById('videoPlayer').src = ""; }
+    function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
     function addToCart() {
       const sz = document.getElementById('sizeSelect'); if(!sz.options[sz.selectedIndex]) return;
       cart.push({ sku: products[selectedIdx][0], prodName: products[selectedIdx][1], color: document.getElementById('colorSelect').value, size: sz.value, price: Number(sz.options[sz.selectedIndex].dataset.price), qty: Number(document.getElementById('qtyInput').value), category: products[selectedIdx][6] ? products[selectedIdx][6].toString().trim() : "" });
@@ -370,16 +374,28 @@
       if(found) { discountValue = Math.abs(Number(found[1])); myAlert("折扣碼套用成功，現折 $" + discountValue); } else { discountValue = 0; myAlert("無效的折扣碼！"); }
       updateCartUI();
     }
+
+    // 🎯 UX 補強：一鍵智慧帶入歷史個人收件資料
+    function autoFillCustomerData() {
+      let ph = document.getElementById('custPhone').value.trim(); if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
+        .then(r => r.json()).then(res => {
+          if(res.success) {
+            myAlert("已自動為您帶入歷史收件聯絡資訊！");
+            document.getElementById('custName').value = res.order.custName;
+            document.getElementById('lineName').value = res.order.lineName;
+            document.getElementById('shipReceiverName').value = res.order.shipName;
+            if(res.order.shipping.includes("超商")) { setShipping('超商取貨'); document.getElementById('storeName').value = res.order.address.replace("7-11超商：", ""); } 
+            else { setShipping('宅配'); document.getElementById('custAddress').value = res.order.address; }
+          } else { myAlert("查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
+        });
+    }
+
     function checkOrderHistory() {
       let ph = document.getElementById('queryPhone').value.trim(); if(!ph) return myAlert("請輸入手機號碼");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
           if(res.success) {
-            myAlert("已找到您的歷史紀錄，自動帶入收件資料！");
-            document.getElementById('custPhone').value = res.order.phone; document.getElementById('custName').value = res.order.custName;
-            document.getElementById('lineName').value = res.order.lineName; document.getElementById('shipReceiverName').value = res.order.shipName;
-            if(res.order.shipping.includes("超商")) { setShipping('超商取貨'); document.getElementById('storeName').value = res.order.address.replace("7-11超商：", ""); } 
-            else { setShipping('宅配'); document.getElementById('custAddress').value = res.order.address; }
             document.getElementById('queryResultArea').style.display = 'block'; document.getElementById('resOrderId').innerText = res.order.orderId;
             document.getElementById('resItems').innerHTML = res.order.itemsSummary; document.getElementById('resStatus').innerText = res.order.status + " (" + res.order.payStatus + ")";
             document.getElementById('reportReportPayRow').style.display = (res.order.payStatus === '未付款') ? 'block' : 'none';
@@ -401,11 +417,10 @@
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: cart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: document.getElementById('grandTotal').innerText } }) })
         .then(r => r.json()).then(res => {
-          myAlert("🎉 預訂成功！您的單號為：<br><b>" + res.orderId + "</b><br><br>匯款完成後，隨時可在上方輸入手機號碼「回傳付款明細」對帳唷！");
+          myAlert("🎉 預訂成功！明細已發送至您的 Mail 副本。\n您的單號為：<b>" + res.orderId + "</b>");
           cart = []; updateCartUI(); toggleCart(false);
         });
     }
   </script>
 </body>
 </html>
-
