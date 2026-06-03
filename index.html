@@ -46,7 +46,7 @@
     
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
     
-    /* 🎯 完美校正：視窗高度自適應，且規格敘述文字100%靠在下方，絕不被圖片遮擋 */
+    /* 🎯 完美校正：高度自動延展，且商品規格資料一律在圖片最下方垂直呈現，絕不重疊遮擋 */
     .modal-content { background:white; width:92%; max-width: 480px; border-radius:24px; overflow:hidden; position:relative; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; flex-direction: column; height: auto; max-height: 88vh; overflow-y: auto; }
     .modal-close { position: absolute; right: 14px; top: 14px; font-size: 18px; font-weight: bold; color: #64748B; background: #FFFFFF; border: 2px solid #E2E8F0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 120; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     
@@ -62,8 +62,6 @@
     .dot.active { background: #FFFFFF; width: 16px; border-radius: 4px; }
     
     .detail-body { padding: 22px; box-sizing: border-box; }
-
-    /* 🎯 質感加值：高辨識度特色標籤樣式 */
     .feature-badge { display: inline-block; background: #FFE8E8; color: #D66D6D; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 8px; border: 1px solid #FFD2D2; }
 
     select, input { font-size: 14px; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; outline: none; background: #F8FAFC; width: 100%; box-sizing: border-box; color: var(--text-main); }
@@ -103,13 +101,7 @@
         <button onclick="checkOrderHistory()" style="background:var(--primary); color:white; border:none; padding:0 14px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">查詢資料</button>
       </div>
       <div id="queryResultArea" style="margin-top:10px; font-size:13px; display:none; border-top:1px dashed #CBD5E1; padding-top:8px; line-height:1.5;">
-        <div><b>歷史單號：</b><span id="resOrderId"></span></div>
-        <div><b>訂單內容：</b><br><span id="resItems" style="color:#555;"></span></div>
-        <div><b>訂單狀態：</b><span id="resStatus" class="status-badge"></span></div>
-        <div style="margin-top:10px; display:none;" id="reportReportPayRow">
-          <input type="number" id="payLastFive" placeholder="請填入您的匯款後五碼" style="width:140px; padding:8px; display:inline-block; vertical-align:middle;">
-          <button onclick="submitLastFive()" style="background:var(--accent-pink); border:none; color:white; padding:9px 14px; border-radius:10px; font-weight:bold; cursor:pointer; margin-left:5px; vertical-align:middle;">回傳付款明細</button>
-        </div>
+        <div id="multiOrdersContainer"></div> <!-- 全量歷史訂單列表容器 -->
       </div>
     </div>
   </div>
@@ -131,6 +123,7 @@
     <button id="viewCartBtn" class="float-cart-btn" onclick="toggleCart(true)">購物車 (0)</button>
   </div>
 
+  <!-- 商品詳情主視窗 -->
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal()">✕</span>
@@ -145,13 +138,13 @@
       </div>
       <div class="detail-body">
         <div id="itemFeatureBadge" class="feature-badge" style="display:none;"></div>
-        
         <div id="itemTitle" style="font-weight:bold; font-size:16px;"></div>
         <div id="itemDesc" style="font-size:13px; color:#666; margin-top:8px; white-space:pre-line; line-height:1.5;"></div>
         <div id="itemPrice" style="color:var(--accent-pink); font-size:22px; font-weight:800; margin:14px 0;"></div>
         <div style="display:flex; gap:8px; margin-top:12px;">
           <div style="flex:1;"><select id="colorSelect"></select></div>
-          <div style="flex:1;"><select id="sizeSelect"></select></div>
+          <!-- 🎯 綁定連動：尺寸與價格多維連動調度器 -->
+          <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div>
           <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
@@ -162,6 +155,7 @@
     </div>
   </div>
 
+  <!-- 購物車抽屜 -->
   <div id="cartDrawer" class="cart-drawer">
     <div style="text-align:right; font-size:20px; cursor:pointer; color:#94A3B8;" onclick="toggleCart(false)">✕</div>
     <h3 style="text-align:center; margin-top:0;">🛒 購物車明細</h3>
@@ -183,7 +177,8 @@
     </div>
     <div style="margin-top:12px; display:flex; gap:6px;">
       <input type="text" id="discountInput" placeholder="輸入折扣碼" style="padding:10px;">
-      <button onclick="applyPromo()" style="background:#333; color:white; border:none; padding:0 14px; border-radius:12px; font-weight:bold; font-size:13px;">套用</button>
+      <!-- 🎯 完美修復：套用折扣碼點擊失效問題 -->
+      <button type="button" onclick="applyPromo()" style="background:#333; color:white; border:none; padding:0 14px; border-radius:12px; font-weight:bold; font-size:13px; cursor:pointer;">套用</button>
     </div>
     <div style="text-align:right; margin:15px 0; font-size:13px; line-height:1.5;">
       商品小計：$<span id="subTotal">0</span><br>
@@ -195,6 +190,7 @@
       <label style="font-size:12px; font-weight:bold; color:#666;">填寫訂購資訊</label>
       <div style="display:flex; gap:8px; margin-bottom:8px;">
         <input type="tel" id="custPhone" placeholder="手機號碼 (必填)" style="flex:1;">
+        <!-- 🎯 完美打通：一鍵歷史資料帶入按鈕事件點擊監聽 -->
         <button type="button" onclick="autoFillCustomerData()" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">帶入資料</button>
       </div>
       <input type="text" id="custName" placeholder="訂購人姓名 (必填)" style="margin-bottom:8px;">
@@ -214,6 +210,11 @@
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
     let touchStartX = 0, touchEndX = 0;
 
+    window.onscroll = function() {
+      let topBtn = document.getElementById("backToTopBtn");
+      if (document.body.scrollTop > 250 || document.documentElement.scrollTop > 250) { topBtn.style.display = "flex"; } else { topBtn.style.display = "none"; }
+    };
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function myAlert(msg) { document.getElementById('alertMsg').innerHTML = msg; document.getElementById('customAlert').style.display = 'flex'; }
     function closeAlert() { document.getElementById('customAlert').style.display = 'none'; }
 
@@ -241,9 +242,8 @@
             if(modes.length > 0) currentShipping = modes[0].trim();
           }
 
-          // 🎯 核心補強技術：全域資料預清洗（Pre-parsing），消滅重複解析
+          // 🎯 核心補強技術：全域資料預清洗（Pre-parsing），防禦性清除空白殘留
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "" && p[10] !== "下架").map(p => {
-            // 🎯 防禦性清洗：去除空白、換行與隱形殘留
             let cleanUrls = p[5].toString().split(/[\s,，、\n\r]+/).map(u => u.trim()).filter(u => u !== "");
             p.processedImgs = cleanUrls.length > 0 ? cleanUrls : ["https://via.placeholder.com/300?text=No+Image"];
             return p;
@@ -300,33 +300,38 @@
       selectedIdx = idx; const p = products[idx];
       document.getElementById('itemModal').style.display = 'flex';
       
-      // 🎯 輪播重置與相簿完全歸零優化
+      // 🎯 輪播狀態徹底重置歸零優化
       imgIdx = 0; 
       curImgs = [...p.processedImgs];
       
-      // 🎯 智慧轉換器：防禦解析 YouTube shorts 與所有分享連結，徹底砸碎 Error 153
+      // 🎯 智慧網址去噪過濾：解決 Shorts、分享連結噴出 Error 153 播放器錯誤的問題
       let videoUrl = p[9] ? p[9].toString().trim() : "";
+      let videoBox = document.getElementById('videoContainer');
+      let playerEl = document.getElementById('videoPlayer');
+      
       if (videoUrl !== "") {
         let embedUrl = convertToEmbedUrl(videoUrl);
-        if (embedUrl) { curImgs.unshift({ type: "video", url: embedUrl }); }
-      }
+        if (embedUrl) {
+          videoBox.style.display = "block"; playerEl.src = embedUrl;
+          curImgs.unshift({ type: "video", url: embedUrl }); // 同步塞入輪播陣列
+        } else { videoBox.style.display = "none"; playerEl.src = ""; }
+      } else { videoBox.style.display = "none"; playerEl.src = ""; }
 
       buildDots(); showMediaItem();
       
-      // 🎯 渲染特色標籤
       let featureTag = p[8] ? p[8].toString().trim() : "";
       let badgeEl = document.getElementById('itemFeatureBadge');
-      if(featureTag !== "") { badgeEl.innerText = featureTag; badgeEl.style.display = "inline-block"; } 
-      else { badgeEl.style.display = "none"; }
+      if(featureTag !== "") { badgeEl.innerText = featureTag; badgeEl.style.display = "inline-block"; } else { badgeEl.style.display = "none"; }
 
       document.getElementById('itemTitle').innerText = `[${p[0]}] ${p[1]}`;
       document.getElementById('itemDesc').innerText = p[7] || "";
       setupDropdown('colorSelect', p[3]); setupSizePriceDropdown('sizeSelect', p[4], p[2]);
 
+      // 🎯 一鍵複製分享連結復活
       document.getElementById('shareProductBtn').onclick = () => {
         let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
         navigator.clipboard.writeText(shareUrl);
-        myAlert(`🔗 商品分享連結已複製！<br><small>${shareUrl}</small>`);
+        myAlert(`🔗 【${p[0]}】專屬分享連結已成功複製！<br>可以直接放入限動分享唷：<br><small>${shareUrl}</small>`);
       };
     }
     function buildDots() {
@@ -370,13 +375,31 @@
       const el = document.getElementById(id); el.innerHTML = ""; if(!str) return;
       str.toString().split(/[,，、]/).forEach(s => { let o = document.createElement('option'); o.value = o.text = s.trim(); el.appendChild(o); });
     }
+    
+    // 🎯 核心規格重構：建立多維規格尺寸、價格一對一精密配對引擎
     function setupSizePriceDropdown(id, szStr, prStr) {
       const el = document.getElementById(id); el.innerHTML = "";
-      let szs = szStr.toString().split(/[,，、]/), prs = prStr.toString().split(/[,，、]/);
-      szs.forEach((s, idx) => { let o = document.createElement('option'); o.text = o.value = s.trim(); o.dataset.price = prs[idx] ? prs[idx].trim() : prs[0].trim(); el.appendChild(o); });
-      el.onchange = () => { document.getElementById('itemPrice').innerText = "NT$ " + el.options[el.selectedIndex].dataset.price; };
-      if(el.options.length > 0) document.getElementById('itemPrice').innerText = "NT$ " + el.options[0].dataset.price;
+      let szs = szStr.toString().split(/[,，、]/).map(s => s.trim()).filter(s => s !== "");
+      let prs = prStr.toString().split(/[,，、]/).map(p => p.trim()).filter(p => p !== "");
+      
+      szs.forEach((s, idx) => {
+        let o = document.createElement('option');
+        o.text = o.value = s;
+        // 如果規格價格不夠，自動遞補第一種價格，防範消零出錯
+        o.dataset.price = prs[idx] ? prs[idx] : prs[0];
+        el.appendChild(o);
+      });
+      syncMultiSizePrice(); // 即時發動同步
     }
+    
+    function syncMultiSizePrice() {
+      const el = document.getElementById('sizeSelect');
+      if(el.options.length > 0) {
+        let selectPrice = el.options[el.selectedIndex].dataset.price;
+        document.getElementById('itemPrice').innerText = "NT$ " + selectPrice;
+      }
+    }
+
     function closeModal() { document.getElementById('itemModal').style.display = 'none'; document.getElementById('videoPlayer').src = ""; }
     function addToCart() {
       const sz = document.getElementById('sizeSelect'); if(!sz.options[sz.selectedIndex]) return;
@@ -414,52 +437,76 @@
     }
     function removeCart(idx) { cart.splice(idx,1); updateCartUI(); }
     function toggleCart(show) { document.getElementById('cartDrawer').classList.toggle('open', show); }
+    
     function applyPromo() {
-      let code = document.getElementById('discountInput').value.trim(); let found = promoList.find(p => p[0] === code);
-      if(found) { discountValue = Math.abs(Number(found[1])); myAlert("折扣碼套用成功，現折 $" + discountValue); } else { discountValue = 0; myAlert("無效的折扣碼！"); }
+      let code = document.getElementById('discountInput').value.trim(); 
+      let found = promoList.find(p => p[0].toString().trim() === code);
+      if(found) { discountValue = Math.abs(Number(found[1])); myAlert("折扣碼套用成功，現折 $" + discountValue); } 
+      else { discountValue = 0; myAlert("無效或已過期的折扣碼！"); }
       updateCartUI();
     }
 
-    // 🎯 完美修復帶入資料按鈕事件打通
+    // 🎯 完美復活：一鍵智慧收件資料帶入功能
     function autoFillCustomerData() {
       let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
-          if(res.success && res.order) {
-            myAlert("✨ 已成功帶入您歷史預訂的聯絡資訊！");
-            document.getElementById('custName').value = res.order.custName || "";
-            document.getElementById('lineName').value = res.order.lineName || "";
-            document.getElementById('shipReceiverName').value = res.order.shipName || "";
-            document.getElementById('custEmail').value = res.order.email || "";
+          if(res.success && res.allOrders && res.allOrders.length > 0) {
+            let lastO = res.allOrders[0]; // 拿最新一筆當作帶入基底
+            myAlert("✨ 已成功帶入您歷史預訂的收件與聯絡人資料！");
+            document.getElementById('custName').value = lastO.custName || "";
+            document.getElementById('lineName').value = lastO.lineName || "";
+            document.getElementById('shipReceiverName').value = lastO.shipName || "";
             
             let dropdown = document.getElementById('shipSelectDropdown');
-            dropdown.value = res.order.shipping; calculateDynamicShipping();
+            dropdown.value = lastO.shipping; calculateDynamicShipping();
             
-            if(res.order.shipping.includes("超商")) { document.getElementById('storeName').value = res.order.address.replace("7-11超商：", ""); } 
-            else { document.getElementById('custAddress').value = res.order.address; }
+            if(lastO.shipping.includes("超商")) { document.getElementById('storeName').value = lastO.address.replace("7-11超商：", ""); } 
+            else { document.getElementById('custAddress').value = lastO.address; }
           } else { myAlert("查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
-        }).catch(e => myAlert("連線失敗，請稍後再試。"));
+        }).catch(e => myAlert("帶入失敗，請確認網路連線。"));
     }
 
+    // 🎯 完美改寫：全量歷史訂單列表呈現，絕不漏單漏歷史
     function checkOrderHistory() {
       let ph = document.getElementById('queryPhone').value.trim(); if(!ph) return myAlert("請輸入手機號碼");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
-          if(res.success) {
-            document.getElementById('queryResultArea').style.display = 'block'; document.getElementById('resOrderId').innerText = res.order.orderId;
-            document.getElementById('resItems').innerHTML = res.order.itemsSummary; document.getElementById('resStatus').innerText = res.order.status + " (" + res.order.payStatus + ")";
-            document.getElementById('reportReportPayRow').style.display = (res.order.payStatus === '未付款') ? 'block' : 'none';
+          if(res.success && res.allOrders) {
+            const container = document.getElementById('multiOrdersContainer');
+            container.innerHTML = `<h3 style="margin-top:0; color:var(--primary); font-size:14px;">📋 您名下的所有歷史預訂紀錄如下：</h3>`;
+            
+            res.allOrders.forEach(o => {
+              container.innerHTML += `
+                <div style="background:#F1F5F9; padding:12px; border-radius:12px; margin-bottom:10px; border:1px solid #E2E8F0; line-height:1.6;">
+                  <div><b>訂單單號：</b><span>${o.orderId}</span></div>
+                  <div><b>訂購內容：</b><br><span style="color:#475569;">${o.items.join('<br>')}</span></div>
+                  <div><b>應匯金額：</b><span style="color:var(--accent-pink); font-weight:bold;">$${o.grandTotal}</span></div>
+                  <div><b>訂單狀態：</b><span class="status-badge">${o.status} (${o.payStatus})</span></div>
+                  ${o.payStatus === '未付款' ? `
+                    <div style="margin-top:8px; border-top:1px dashed #CBD5E1; padding-top:6px;">
+                      <input type="number" id="payFive_${o.orderId}" placeholder="填入匯款後五碼" style="width:130px; padding:6px; display:inline-block; font-size:12px;">
+                      <button onclick="submitLastFive('${o.orderId}')" style="background:var(--accent-pink); border:none; color:white; padding:7px 12px; border-radius:8px; font-weight:bold; cursor:pointer; margin-left:5px; font-size:12px;">回傳明細</button>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            });
+            document.getElementById('queryResultArea').style.display = 'block';
           } else { myAlert(res.message); }
         });
     }
-    function submitLastFive() {
-      let ph = document.getElementById('queryPhone').value.trim(), oid = document.getElementById('resOrderId').innerText, five = document.getElementById('payLastFive').value.trim();
+    
+    function submitLastFive(oid) {
+      let ph = document.getElementById('queryPhone').value.trim();
+      let five = document.getElementById('payFive_' + oid).value.trim();
       if(five.length !== 5) return myAlert("請輸入精確的匯款後五碼！");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updatePaymentReport", phone: ph, orderId: oid, lastFive: five }) })
         .then(r => r.json()).then(res => { myAlert(res.message); checkOrderHistory(); });
     }
+    
     function submitFinalOrder() {
       let phone = document.getElementById('custPhone').value.trim(), name = document.getElementById('custName').value.trim(), line = document.getElementById('lineName').value.trim(), rxName = document.getElementById('shipReceiverName').value.trim(), email = document.getElementById('custEmail').value.trim();
       if(!phone || !name || !line || !rxName || !email || cart.length === 0) return myAlert("請填寫所有欄位（皆為必填項目）。");
@@ -469,7 +516,7 @@
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: cart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: document.getElementById('grandTotal').innerText } }) })
         .then(r => r.json()).then(res => {
-          myAlert("🎉 預訂成功！明細已發送至您的 Mail 副本。\n您的單號為：<b>" + res.orderId + "</b>");
+          myAlert("🎉 預訂成功！明細副本已發送至您的信箱。\n您的單號為：<b>" + res.orderId + "</b>");
           cart = []; updateCartUI(); toggleCart(false);
         });
     }
