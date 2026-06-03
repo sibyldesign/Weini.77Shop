@@ -58,8 +58,6 @@
     th { background: #E2E8F4; color: var(--primary); font-weight: bold; }
     
     .badge { padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 11px; display: inline-block; }
-    .bg-unpaid { background: #FFEAEA; color: var(--accent-red); }
-    .bg-paid { background: #E6F4EA; color: #137333; }
     
     /* 🎯 分頁控制器排版 */
     .pagination-bar { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 25px; font-weight: bold; }
@@ -181,6 +179,7 @@
     </div>
 
     <div id="orderTab" class="tab-content card">
+      <h2>訂單管理看板</h2>
       <div class="batch-control-panel">
         <span style="font-size:13px; font-weight:bold; color:var(--primary); margin-right:10px;">📋 訂單批量管理區：</span>
         <button class="batch-btn" style="background:var(--accent-green);" onclick="fireBatchComplete()">✅ 批量結案 (歸檔至歷史訂單)</button>
@@ -207,6 +206,12 @@
             <tr><td colspan="9" style="text-align:center; padding:20px; color:#94A3B8;">加載訂單資料中...</td></tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="pagination-bar" id="orderPagination">
+        <button class="page-nav-btn" id="prevOrderPageBtn" onclick="changeOrderPage(-1)">上一頁</button>
+        <span id="orderPageInfoText">第 1 / 1 頁</span>
+        <button class="page-nav-btn" id="nextOrderPageBtn" onclick="changeOrderPage(1)">下一頁</button>
       </div>
     </div>
 
@@ -237,9 +242,13 @@
 
     let globalProducts = [], filteredProducts = [], isEditMode = false, rawOrdersCache = [];
     
-    // 🎯 商品清單分頁引擎參數
+    // 🎯 商品清單分頁參數
     let currentInvPage = 1;
     const pageInvSize = 20;
+
+    // 🎯 訂單管理分頁參數
+    let currentOrderPage = 1;
+    const pageOrderSize = 20;
 
     function myAlert(msg) { document.getElementById('alertMsg').innerHTML = msg; document.getElementById('customAlert').style.display = 'flex'; }
     function closeAlert() { document.getElementById('customAlert').style.display = 'none'; }
@@ -250,7 +259,7 @@
       document.getElementById(tabId).classList.add('active');
       event.target.classList.add('active');
       if(tabId === 'listTab') { currentInvPage = 1; loadProductInventory(); }
-      if(tabId === 'orderTab') loadOrders();
+      if(tabId === 'orderTab') { currentOrderPage = 1; loadOrders(); }
     }
 
     window.onload = () => {
@@ -267,7 +276,7 @@
       });
     };
 
-    // 🎯 智慧搜尋過濾優化
+    // ==================== 商品庫存分頁管理 ====================
     function searchInventoryProducts() {
       let val = document.getElementById('inventorySearchInput').value.toLowerCase().trim();
       currentInvPage = 1; 
@@ -291,7 +300,6 @@
       });
     }
 
-    // 🎯 分頁渲染引擎：精密切割數據
     function renderInventoryTable() {
       const tbody = document.getElementById('productTableBody'); tbody.innerHTML = "";
       document.getElementById('selectAllProductsBox').checked = false;
@@ -336,7 +344,6 @@
     function toggleSelectAllProducts(master) { document.querySelectorAll('.prod-chk').forEach(chk => chk.checked = master.checked); }
     function getSelectedProductSkus() { let skus = []; document.querySelectorAll('.prod-chk:checked').forEach(chk => skus.push(chk.value.trim())); return skus; }
 
-    // 🎯 商品批量管理區：複製、刪除、封存
     function fireBatchProductCopy() {
       let skus = getSelectedProductSkus(); if(skus.length === 0) return myAlert("請先勾選想要複製的商品列唷！");
       skus.forEach(sku => {
@@ -351,7 +358,6 @@
 
     function fireBatchProductArchive() {
       let skus = getSelectedProductSkus(); if(skus.length === 0) return myAlert("請先勾選想要封存的商品列唷！");
-      // 調用 Code.gs 內 handleBatchProductArchive (前端依此發送剔除請求)
       Promise.all(skus.map(sku => fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "deleteProduct", sku: sku }) })))
         .then(() => { myAlert("🎉 商品已成功移出看板並封存完畢！"); loadProductInventory(); });
     }
@@ -363,6 +369,109 @@
         .then(() => { myAlert("🎉 選定商品已批量徹底清除完畢！"); loadProductInventory(); });
     }
 
+    // ==================== 訂單分頁管理引擎 ====================
+    function loadOrders() {
+      const tbody = document.getElementById('orderTableBody'); 
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">讀取實時訂單中...</td></tr>`;
+      document.getElementById('selectAllBox').checked = false;
+      
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "getAllOrders" }) })
+        .then(r => r.json())
+        .then(res => {
+          if(!res.success || res.orders.length === 0) { 
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">目前尚無新訂單。</td></tr>`; 
+            return; 
+          }
+          rawOrdersCache = res.orders; 
+          renderOrderTable(); // 🎯 載入後執行分頁渲染
+        });
+    }
+
+    function renderOrderTable() {
+      const tbody = document.getElementById('orderTableBody'); tbody.innerHTML = "";
+      document.getElementById('selectAllBox').checked = false;
+      
+      let totalPages = Math.ceil(rawOrdersCache.length / pageOrderSize) || 1;
+      if (currentOrderPage > totalPages) currentOrderPage = totalPages;
+      
+      // 更新分頁資訊文字
+      document.getElementById('orderPageInfoText').innerText = `第 ${currentOrderPage} / ${totalPages} 頁 (共 ${rawOrdersCache.length} 筆)`;
+      document.getElementById('prevOrderPageBtn').disabled = (currentOrderPage === 1);
+      document.getElementById('nextOrderPageBtn').disabled = (currentOrderPage === totalPages);
+      
+      let startIdx = (currentOrderPage - 1) * pageOrderSize;
+      let endIdx = Math.min(startIdx + pageOrderSize, rawOrdersCache.length);
+      
+      for(let i = startIdx; i < endIdx; i++) {
+        let o = rawOrdersCache[i];
+        let tr = document.createElement('tr'); 
+        let payBadgeStyle = o.payStatus === "已對帳" || o.payStatus === "已確認匯款" ? "background:#10B981; color:white;" : (o.payStatus === "已匯款" ? "background:#E6F4EA; color:#137333;" : "background:#FFEAEA; color:#EF4444;");
+        
+        tr.innerHTML = `
+          <td><input type="checkbox" class="order-chk" value="${o.orderId}"></td>
+          <td><small>${o.time}</small></td>
+          <td><b>${o.orderId}</b></td>
+          <td>[${o.sku}] ${o.prodName}<br><small style="color:#64748B;">${o.specs}</small></td>
+          <td style="color:var(--accent-pink); font-weight:bold;">$${o.total}</td>
+          <td>${o.custName}<br><small style="color:#64748B;">Line:${o.lineName}<br>Tel:${o.phone}</small></td>
+          <td><small>${o.shipping}<br>${o.address}</small></td>
+          <td>
+            <span class="badge" style="${payBadgeStyle}">${o.payStatus} ${o.lastFive?'('+o.lastFive+')':''}</span><br>
+            <select class="table-select" style="margin-top:4px;" onchange="updateOrderRow(${o.rowIdx}, null, this.value)">
+              <option value="">對帳變更...</option>
+              <option value="未付款">未付款</option>
+              <option value="已匯款">已匯款</option>
+              <option value="已確認匯款">已確認匯款</option>
+            </select>
+          </td>
+          <td>
+            <span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br>
+            <select class="table-select" style="margin-top:4px;" onchange="updateOrderRow(${o.rowIdx}, this.value, null)">
+              <option value="">狀態變更...</option>
+              <option value="已收到訂單">已收到訂單</option>
+              <option value="已確認訂單">已確認訂單</option>
+              <option value="已出貨">已出貨</option>
+              <option value="已取消">已取消</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function changeOrderPage(dir) { currentOrderPage += dir; renderOrderTable(); }
+    function toggleSelectAll(master) { document.querySelectorAll('.order-chk').forEach(chk => chk.checked = master.checked); }
+    function getSelectedOrderIds() { let ids = []; document.querySelectorAll('.order-chk:checked').forEach(chk => ids.push(chk.value.trim())); return ids; }
+
+    function updateOrderRow(rowIdx, status, payStatus) { 
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updateOrderStatus", rowIdx: rowIdx, status: status, payStatus: payStatus }) })
+        .then(r => r.json()).then(res => { if(res.success) loadOrders(); }); 
+    }
+
+    function fireBatchDelete() {
+      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選訂單！");
+      if(!confirm(`⚠️ 警告：確定要徹底刪除這 ${ids.length} 筆訂單嗎？`)) return;
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchDeleteOrders", orderIds: ids }) }).then(r => r.json()).then(res => { myAlert(res.message); loadOrders(); });
+    }
+    
+    function fireBatchComplete() {
+      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選訂單！");
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchCompleteOrders", orderIds: ids }) }).then(r => r.json()).then(res => { myAlert(res.message); loadOrders(); });
+    }
+    
+    function fireBatchPrint() {
+      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選訂單！");
+      const printBox = document.getElementById('printArea'); printBox.innerHTML = "";
+      ids.forEach(id => {
+        let o = rawOrdersCache.find(item => item.orderId === id);
+        if(o) {
+          printBox.innerHTML += `<div class="invoice-box"><h2>Weini.77 Shop 出貨單</h2><hr><p>單號: ${o.orderId}</p><p>客戶: ${o.custName} / ${o.phone}</p><p>明細: ${o.prodName} ${o.specs}</p><p>金額: $${o.total}</p><p>地址: ${o.address}</p></div>`;
+        }
+      });
+      window.print(); 
+    }
+
+    // ==================== 基礎上架與圖床功能 ====================
     async function uploadToImgur(files) {
       if(files.length === 0) return;
       const previewBox = document.getElementById('previewBox'); const pImgs = document.getElementById('pImgs');
@@ -379,7 +488,6 @@
       if(uploadedUrls.length > 0) { pImgs.value = uploadedUrls.join('\n'); myAlert(`🎉 照片已成功存入圖床！`); }
     }
 
-    // 🎯 核心儲存邏輯：保留逗號字串，修正 200230 Bug
     function submitProduct() {
       const sku = document.getElementById('pSku').value.trim();
       const name = document.getElementById('pName').value.trim();
@@ -387,7 +495,7 @@
 
       let prodObj = {
         sku: sku, name: name, 
-        price: document.getElementById('pPrice').value.toString().trim(), // 🎯 強制保持字串原樣，防止逗號消失
+        price: document.getElementById('pPrice').value.toString().trim(), 
         color: document.getElementById('pColor').value.trim(), 
         size: document.getElementById('pSize').value.trim(),
         category: document.getElementById('pMajorSelect').value + (document.getElementById('pSubSelect').value !== '無' ? ' / ' + document.getElementById('pSubSelect').value : ''),
@@ -411,8 +519,7 @@
       document.getElementById('submitProductBtn').innerText = "儲存修改內容";
       document.getElementById('cancelEditBtn').style.display = "block";
       document.getElementById('pSku').value = p[0]; document.getElementById('pSku').disabled = true;
-      document.getElementById('pName').value = p[1]; 
-      document.getElementById('pPrice').value = p[2]; // 帶入時保留原始逗號字串
+      document.getElementById('pName').value = p[1]; document.getElementById('pPrice').value = p[2];
       document.getElementById('pColor').value = p[3]; document.getElementById('pSize').value = p[4];
       document.getElementById('pImgs').value = p[5]; document.getElementById('pDesc').value = p[7];
       document.getElementById('pProgress').value = p[8]; document.getElementById('pVideo').value = p[9];
@@ -432,51 +539,6 @@
       document.getElementById('pVideo').value = ""; document.getElementById('previewBox').innerHTML = "";
     }
 
-    function loadOrders() {
-      const tbody = document.getElementById('orderTableBody'); tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">讀取實時訂單中...</td></tr>`;
-      document.getElementById('selectAllBox').checked = false;
-      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "getAllOrders" }) }).then(r => r.json()).then(res => {
-          if(!res.success || res.orders.length === 0) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">目前尚無新訂單。</td></tr>`; return; }
-          rawOrdersCache = res.orders; tbody.innerHTML = "";
-          rawOrdersCache.forEach(o => {
-            let tr = document.createElement('tr'); 
-            let payBadgeStyle = o.payStatus === "已對帳" || o.payStatus === "已確認匯款" ? "background:#10B981; color:white;" : (o.payStatus === "已匯款" ? "background:#E6F4EA; color:#137333;" : "background:#FFEAEA; color:#EF4444;");
-            
-            tr.innerHTML = `
-              <td><input type="checkbox" class="order-chk" value="${o.orderId}"></td>
-              <td><small>${o.time}</small></td><td><b>${o.orderId}</b></td><td>[${o.sku}] ${o.prodName}<br><small style="color:#64748B;">${o.specs}</small></td><td style="color:var(--accent-pink); font-weight:bold;">$${o.total}</td><td>${o.custName}<br><small style="color:#64748B;">Line:${o.lineName}<br>Tel:${o.phone}</small></td><td><small>${o.shipping}<br>${o.address}</small></td>
-              <td><span class="badge" style="${payBadgeStyle}">${o.payStatus} ${o.lastFive?'('+o.lastFive+')':''}</span><br><select class="table-select" onchange="updateOrderRow(${o.rowIdx}, null, this.value)"><option value="">對帳變更...</option><option value="未付款">未付款</option><option value="已匯款">已匯款</option><option value="已確認匯款">已確認匯款</option></select></td>
-              <td><span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br><select class="table-select" onchange="updateOrderRow(${o.rowIdx}, this.value, null)"><option value="">狀態變更...</option><option value="已收到訂單">已收到訂單</option><option value="已確認訂單">已確認訂單</option><option value="已出貨">已出貨</option><option value="已取消">已取消</option></select></td>
-            `;
-            tbody.appendChild(tr);
-          });
-        });
-    }
-
-    function updateOrderRow(rowIdx, status, payStatus) { fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updateOrderStatus", rowIdx: rowIdx, status: status, payStatus: payStatus }) }).then(r => r.json()).then(res => { if(res.success) loadOrders(); }); }
-    function toggleSelectAll(master) { document.querySelectorAll('.order-chk').forEach(chk => chk.checked = master.checked); }
-    function getSelectedOrderIds() { let ids = []; document.querySelectorAll('.order-chk:checked').forEach(chk => ids.push(chk.value.trim())); return ids; }
-
-    function fireBatchDelete() {
-      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選訂單！");
-      if(!confirm(`⚠️ 警告：確定要徹底刪除這 ${ids.length} 筆訂單嗎？`)) return;
-      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchDeleteOrders", orderIds: ids }) }).then(r => r.json()).then(res => { myAlert(res.message); loadOrders(); });
-    }
-    function fireBatchComplete() {
-      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選訂單！");
-      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchCompleteOrders", orderIds: ids }) }).then(r => r.json()).then(res => { myAlert(res.message); loadOrders(); });
-    }
-    function fireBatchPrint() {
-      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選訂單！");
-      const printBox = document.getElementById('printArea'); printBox.innerHTML = "";
-      ids.forEach(id => {
-        let o = rawOrdersCache.find(item => item.orderId === id);
-        if(o) {
-          printBox.innerHTML += `<div class="invoice-box"><h2>Weini.77 Shop 出貨單</h2><hr><p>單號: ${o.orderId}</p><p>客戶: ${o.custName} / ${o.phone}</p><p>明細: ${o.prodName} ${o.specs}</p><p>金額: $${o.total}</p><p>地址: ${o.address}</p></div>`;
-        }
-      });
-      window.print(); 
-    }
     function createCustomOrderLink() {
       let id = document.getElementById('cOrderId').value.trim(); let price = document.getElementById('cAmount').value.trim();
       if(!id || !price) return myAlert("請填寫單號與金額！");
