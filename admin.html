@@ -36,9 +36,6 @@
     .preview-img { width: 75px; height: 75px; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; }
     
     .primary-btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; transition: 0.2s; }
-    .primary-btn:hover { background: var(--primary-dark); }
-    
-    /* 🎯 頂部批量操控管理區按鈕視覺 */
     .batch-control-panel { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; background: #E2E8F4; padding: 10px; border-radius: 12px; align-items: center; }
     .batch-btn { padding: 8px 16px; border-radius: 8px; border: none; font-weight: bold; font-size: 13px; cursor: pointer; color: white; transition: 0.2s; }
     
@@ -57,7 +54,6 @@
     .alert-content { background:white; padding:24px; border-radius:20px; width:85%; max-width:340px; text-align:center; box-shadow:0 15px 35px rgba(0,0,0,0.15); border:1px solid #E2E8F0; }
     .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
 
-    /* 🖨️ 自動分頁 PDF 出貨單渲染引擎 */
     @media print {
       body { background: white; color: black; padding: 0; }
       .admin-container, .tab-nav, h2, button, select { display: none !important; }
@@ -72,18 +68,18 @@
   <div class="admin-container">
     <div style="text-align:center; margin-bottom:25px;">
       <h1 style="color:var(--primary); margin:0; font-size: 28px; font-weight: 900;">Weini.77 Shop 管理後台</h1>
-      <p style="color:#64748B; margin:6px 0 0 0; font-weight: 500;">智慧分頁主控台</p>
+      <p style="color:#64748B; margin:6px 0 0 0; font-weight: 500;">頂級智慧分頁主控台</p>
     </div>
 
     <div class="tab-nav">
-      <button class="tab-btn active" onclick="switchTab('uploadTab')">✨ 商品快速上架</button>
-      <button class="tab-btn" onclick="switchTab('listTab')">📦 商品清單總覽</button>
-      <button class="tab-btn" onclick="switchTab('orderTab')">📋 訂單管理看板</button>
-      <button class="tab-btn" onclick="switchTab('customTab')">💐 客製專屬通道編輯</button>
+      <button class="tab-btn active" onclick="switchTab('uploadTab')">商品快速上架</button>
+      <button class="tab-btn" onclick="switchTab('listTab')">商品清單總覽</button>
+      <button class="tab-btn" onclick="switchTab('orderTab')">訂單管理看板</button>
+      <button class="tab-btn" onclick="switchTab('customTab')">客製專屬通道編輯</button>
     </div>
 
     <div id="uploadTab" class="tab-content active card">
-      <h2 id="formActionTitle">✨ 商品快速上架</h2>
+      <h2 id="formActionTitle">商品快速上架</h2>
       <div class="form-grid">
         <div><label>商品貨號 (必填)</label><input type="text" id="pSku" placeholder="例如: W9112#"></div>
         <div><label>商品品名 (必填)</label><input type="text" id="pName" placeholder="例如: 韓系圍巾領襯衫"></div>
@@ -102,7 +98,7 @@
         <div><label>可選尺碼</label><input type="text" id="pSize" placeholder="例如: S,M,L"></div>
       </div>
       <div class="form-grid">
-        <div><label>進度顯示標籤 (選填)</label><input type="text" id="pProgress" placeholder="例如: W日常! 高 CP 值"></div>
+        <div><label>特色標籤 (選填，例如：送禮首選)</label><input type="text" id="pProgress" placeholder="例如: 送禮首選"></div>
         <div><label>YouTube Shorts 影片網址</label><input type="text" id="pVideo" placeholder="貼上短影音分享網址"></div>
       </div>
       <div style="margin-bottom:15px;">
@@ -124,7 +120,7 @@
     </div>
 
     <div id="listTab" class="tab-content card">
-      <h2>📦 目前架上所有商品清單</h2>
+      <h2>目前架上所有商品清單</h2>
       <div style="overflow-x:auto;">
         <table>
           <thead>
@@ -275,7 +271,7 @@
     }
 
     function resetProductForm() {
-      isEditMode = false; document.getElementById('formActionTitle').innerText = "✨ 傻瓜式商品快速上架"; document.getElementById('submitProductBtn').innerText = "一鍵確認商品網頁上架"; document.getElementById('cancelEditBtn').style.display = "none"; document.getElementById('pSku').disabled = false;
+      isEditMode = false; document.getElementById('formActionTitle').innerText = "✨ 商品快速上架"; document.getElementById('submitProductBtn').innerText = "一鍵確認商品網頁上架"; document.getElementById('cancelEditBtn').style.display = "none"; document.getElementById('pSku').disabled = false;
       document.getElementById('pSku').value = ""; document.getElementById('pName').value = ""; document.getElementById('pPrice').value = ""; document.getElementById('pColor').value = ""; document.getElementById('pSize').value = ""; document.getElementById('pImgs').value = ""; document.getElementById('pDesc').value = ""; document.getElementById('pProgress').value = ""; document.getElementById('pVideo').value = ""; document.getElementById('previewBox').innerHTML = "";
     }
 
@@ -300,12 +296,20 @@
           if(!res.success || res.orders.length === 0) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">目前尚無客人提交預訂單。</td></tr>`; return; }
           rawOrdersCache = res.orders; tbody.innerHTML = "";
           rawOrdersCache.forEach(o => {
-            let tr = document.createElement('tr'); let payBadge = o.payStatus === "已匯款" ? `<span class="badge bg-paid">已匯款 (${o.lastFive})</span>` : `<span class="badge bg-unpaid">未付款</span>`;
+            let tr = document.createElement('tr'); 
+            
+            // 🎯 對帳下拉狀態優化：新增「已確認匯款」選項
+            let payBadgeStyle = "bg-unpaid";
+            if(o.payStatus === "已匯款") payBadgeStyle = "bg-paid";
+            if(o.payStatus === "已確認匯款") payBadgeStyle = "badge"; // 自訂特色高亮
+            
+            let payBadge = `<span class="badge ${payBadgeStyle}" style="${o.payStatus==='已確認匯款'?'background:#10B981; color:white;':''}">${o.payStatus} ${o.lastFive?'('+o.lastFive+')':''}</span>`;
+            
             tr.innerHTML = `
               <td><input type="checkbox" class="order-chk" value="${o.orderId}"></td>
               <td><small>${o.time}</small></td><td><b>${o.orderId}</b></td><td>[${o.sku}] ${o.prodName}<br><small style="color:#64748B;">${o.specs}</small></td><td style="color:var(--accent-pink); font-weight:bold;">$${o.total}</td><td>${o.custName}<br><small style="color:#64748B;">Line:${o.lineName}<br>Tel:${o.phone}</small></td><td><small>${o.shipping}<br>${o.address}</small></td>
-              <td>${payBadge}<br><select class="table-select" onchange="updateOrderRow(${o.rowIdx}, null, this.value)"><option value="">變更...</option><option value="未付款">未付款</option><option value="已匯款">已匯款</option></select></td>
-              <td><span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br><select class="table-select" onchange="updateOrderRow(${o.rowIdx}, this.value, null)"><option value="">變更...</option><option value="已收到訂單">已收到訂單</option><option value="已確認訂單">已確認訂單</option><option value="已叫貨追加中">已叫貨追加中</option><option value="已到貨">已到貨</option><option value="已出貨">已出貨</option><option value="取貨完成">取貨完成</option><option value="已取消">已取消</option></select></td>
+              <td>${payBadge}<br><select class="table-select" onchange="updateOrderRow(${o.rowIdx}, null, this.value)"><option value="">變更...</option><option value="未付款">未付款</option><option value="已匯款">已匯款</option><option value="已確認匯款">已確認匯款</option></select></td>
+              <td><span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br><select class="table-select" onchange="updateOrderRow(${o.rowIdx}, this.value, null)"><option value="">變更...</option><option value="已收到訂單">已收到訂單</option><option value="Ref">已確認訂單</option><option value="已叫貨追加中">已叫貨追加中</option><option value="已到貨">已到貨</option><option value="Ref">已出貨</option><option value="取貨完成">取貨完成</option><option value="已取消">已取消</option></select></td>
             `;
             tbody.appendChild(tr);
           });
@@ -314,20 +318,12 @@
 
     function updateOrderRow(rowIdx, status, payStatus) { fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updateOrderStatus", rowIdx: rowIdx, status: status, payStatus: payStatus }) }).then(r => r.json()).then(res => { if(res.success) loadOrders(); }); }
 
-    // 🎯 批量與全選勾選管理邏輯
-    function toggleSelectAll(master) {
-      document.querySelectorAll('.order-chk').forEach(chk => chk.checked = master.checked);
-    }
-
-    function getSelectedOrderIds() {
-      let ids = [];
-      document.querySelectorAll('.order-chk:checked').forEach(chk => ids.push(chk.value.trim()));
-      return ids;
-    }
+    function toggleSelectAll(master) { document.querySelectorAll('.order-chk').forEach(chk => chk.checked = master.checked); }
+    function getSelectedOrderIds() { let ids = []; document.querySelectorAll('.order-chk:checked').forEach(chk => ids.push(chk.value.trim())); return ids; }
 
     function fireBatchDelete() {
       let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選您想要刪除的訂單列唷！");
-      if(!confirm(`⚠️ 警告：確定要批量徹底刪除這 ${ids.length} 筆訂單嗎？試算表資料也會一起被刪掉唷！`)) return;
+      if(!confirm(`⚠️ 警告：確定要批量徹底刪除這 ${ids.length} 筆訂單嗎？`)) return;
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchDeleteOrders", orderIds: ids }) }).then(r => r.json()).then(res => { myAlert(res.message); loadOrders(); });
     }
 
@@ -336,12 +332,9 @@
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchCompleteOrders", orderIds: ids }) }).then(r => r.json()).then(res => { myAlert(res.message); loadOrders(); });
     }
 
-    // 🎯 批量產生分頁 PDF 列印單
     function fireBatchPrint() {
       let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選您想要批量列印的訂單列唷！");
-      const printBox = document.getElementById('printArea');
-      printBox.innerHTML = "";
-      
+      const printBox = document.getElementById('printArea'); printBox.innerHTML = "";
       ids.forEach(id => {
         let o = rawOrdersCache.find(item => item.orderId === id);
         if(o) {
@@ -360,7 +353,7 @@
           `;
         }
       });
-      window.print(); // 自動調用 PDF 分頁列印
+      window.print(); 
     }
 
     function createCustomOrderLink() {
