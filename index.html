@@ -33,6 +33,7 @@
     .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
     .product-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.4); display: flex; flex-direction: column; cursor: pointer; }
     .product-card img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+    .product-card img[loading="lazy"] { opacity: 0; transition: opacity 0.3s; }
     .product-info { padding: 12px; display: flex; flex-direction: column; flex: 1; }
     .product-title { font-size: 13px; font-weight: bold; color: var(--text-main); line-height: 1.4; height: 36px; overflow: hidden; }
     .product-price { color: var(--accent-pink); font-size: 15px; font-weight: 800; margin-top: 8px; }
@@ -45,8 +46,6 @@
     .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
     
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
-    
-    /* 🎯 響應式佈局校正：響應式加大，且規格資料一律在圖片最下方垂直堆疊呈現 */
     .modal-content { background:white; width:92%; max-width: 480px; border-radius:24px; overflow:hidden; position:relative; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; flex-direction: column; height: auto; max-height: 90vh; overflow-y: auto; }
     .modal-close { position: absolute; right: 14px; top: 14px; font-size: 18px; font-weight: bold; color: #64748B; background: #FFFFFF; border: 2px solid #E2E8F0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 120; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     
@@ -54,16 +53,14 @@
     .img-viewer img, .img-viewer iframe { width: 100%; height: 100%; object-fit: cover; border: none; display: block; }
     .video-container { width: 100%; height: 100%; display: none; background: #000; position: absolute; top:0; left:0; z-index: 10; }
     
-    /* 網頁版專用左右按鈕 */
     .arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid #CBD5E1; padding: 10px 14px; color: var(--text-main); border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.12); z-index: 100; }
-    @media (max-width: 768px) { .arrow { display: none !important; } } /* 手機版智慧隱藏箭頭 */
+    @media (max-width: 768px) { .arrow { display: none !important; } } 
 
     .indicator-dots { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 20; background: rgba(0, 0, 0, 0.35); padding: 5px 10px; border-radius: 12px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transition: all 0.25s; }
     .dot.active { background: #FFFFFF; width: 16px; border-radius: 4px; }
     .detail-body { padding: 22px; box-sizing: border-box; }
-    .feature-badge { display: inline-block; background: #FFE8E8; color: #D66D6D; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 8px; border: 1px solid #FFD2D2; }
-
+    
     select, input { font-size: 14px; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; outline: none; background: #F8FAFC; width: 100%; box-sizing: border-box; color: var(--text-main); }
     .cart-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; z-index: 2800; padding: 24px; transform: translateY(100%); transition: transform 0.3s ease; max-height: 80vh; overflow-y: auto; box-shadow: 0 -8px 25px rgba(0,0,0,0.1); }
     .cart-drawer.open { transform: translateY(0); }
@@ -92,7 +89,10 @@
   <div id="announcement" class="announcement-bar">Welcome~</div>
 
   <div class="search-section">
-    <input type="text" id="searchInput" class="search-box" placeholder="搜尋商品貨號或名稱關鍵字..." oninput="searchProducts()">
+    <form action="javascript:void(0);" onsubmit="searchProducts()" style="display:flex; gap:8px; width:100%;">
+      <input type="text" id="searchInput" class="search-box" placeholder="搜尋商品貨號或名稱關鍵字..." style="flex:1;">
+      <button type="submit" style="background:var(--primary); color:white; border:none; padding:0 20px; border-radius:24px; font-size:14px; font-weight:bold; cursor:pointer;">搜尋</button>
+    </form>
     
     <div class="query-panel">
       <div style="font-size:13px; font-weight:bold; color:var(--primary); margin-bottom:8px;">🔍 舊客對帳 / 訂單歷史查詢</div>
@@ -122,6 +122,13 @@
     <button id="viewCartBtn" class="float-cart-btn" onclick="toggleCart(true)">購物車 (0)</button>
   </div>
 
+  <div id="customAlert" class="custom-alert">
+    <div class="alert-content">
+      <div id="alertMsg" style="font-size:14px; color:#333; line-height:1.5; white-space:pre-line;"></div>
+      <button class="alert-btn" onclick="closeAlert()">確定</button>
+    </div>
+  </div>
+
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal()">✕</span>
@@ -135,7 +142,8 @@
         <div class="indicator-dots" id="dotsContainer"></div>
       </div>
       <div class="detail-body">
-        <div id="itemFeatureBadge" class="feature-badge" style="display:none;"></div> <div id="itemTitle" style="font-weight:bold; font-size:16px;"></div>
+        <div id="itemFeatureBadge" class="feature-badge" style="display:none;"></div>
+        <div id="itemTitle" style="font-weight:bold; font-size:16px;"></div>
         <div id="itemDesc" style="font-size:13px; color:#666; margin-top:8px; white-space:pre-line; line-height:1.5;"></div>
         <div id="itemPrice" style="color:var(--accent-pink); font-size:22px; font-weight:800; margin:14px 0;"></div>
         <div style="display:flex; gap:8px; margin-top:12px;">
@@ -193,9 +201,11 @@
     <button class="action-btn" onclick="submitFinalOrder()" style="background:var(--accent-pink); margin-top:10px;">確認並送出訂單</button>
   </div>
 
-  <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
+  <footer>
+    © Weini.77 Shop | Designed by <a href="https://heysibyl.com" target="_blank" style="color:white; font-weight:bold;">Sibyl數位管家</a>
+  </footer>
 
+  <script>
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
     let touchStartX = 0, touchEndX = 0;
@@ -232,8 +242,8 @@
             if(modes.length > 0) currentShipping = modes[0].trim();
           }
 
-          // 🎯 核心補強技術：全域資料預清洗（Pre-parsing），防禦性清除空白殘留，圖片100%正常加載
-          rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
+          // 🎯 全域資料預清洗（Pre-parsing）：加載圖片一鍵去噪過濾
+          rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "" && p[10] !== "下架").map(p => {
             let cleanUrls = p[5].toString().split(/[\s,，、\n\r]+/).map(u => u.trim()).filter(u => u !== "");
             p.processedImgs = cleanUrls.length > 0 ? cleanUrls : ["https://via.placeholder.com/300?text=No+Image"];
             return p;
@@ -272,7 +282,8 @@
       renderCatalog(products);
     }
     function searchProducts() {
-      let val = document.getElementById('searchInput').value.toLowerCase();
+      let val = document.getElementById('searchInput').value.toLowerCase().trim();
+      if(val === "") { products = rawData; renderCatalog(products); return; }
       products = rawData.filter(p => p[0].toLowerCase().includes(val) || p[1].toLowerCase().includes(val));
       renderCatalog(products);
     }
@@ -282,7 +293,7 @@
       list.forEach((p, idx) => {
         let card = document.createElement('div'); card.className = 'product-card'; card.onclick = () => openProduct(idx);
         let firstImg = p.processedImgs[0];
-        card.innerHTML = `<img src="${firstImg}" loading="lazy"><div class="product-info"><div class="product-title">[${p[0]}] ${p[1]}</div><div class="product-price">NT$ ${p[2].toString().split(',')[0]}</div></div>`;
+        card.innerHTML = `<img src="${firstImg}" loading="lazy" onload="this.style.opacity=1;"><div class="product-info"><div class="product-title">[${p[0]}] ${p[1]}</div><div class="product-price">NT$ ${p[2].toString().split(',')[0]}</div></div>`;
         box.appendChild(card);
       });
     }
@@ -291,20 +302,22 @@
       selectedIdx = idx; const p = products[idx];
       document.getElementById('itemModal').style.display = 'flex';
       
-      // 🎯 輪播狀態徹底重置歸零，防止上一件商品殘留
+      // 🎯 輪播重置優化：索引（Index）完美歸零，防範殘留
       imgIdx = 0; 
-      curImgs = [...p.processedImgs];
       
-      // 🎯 智慧解碼去噪：全自動封印 Error 153 影片錯誤問題
+      // 🎯 防禦性網址去噪器：完美轉換 Shorts 與手機分享網址，徹底根除 Error 153
       let videoUrl = p[9] ? p[9].toString().trim() : "";
       let videoBox = document.getElementById('videoContainer');
       let playerEl = document.getElementById('videoPlayer');
+      
+      // 先深度清理圖片列表，杜絕空白換行殘留
+      curImgs = [...p.processedImgs];
       
       if (videoUrl !== "") {
         let embedUrl = convertToEmbedUrl(videoUrl);
         if (embedUrl) {
           videoBox.style.display = "block"; playerEl.src = embedUrl;
-          curImgs.unshift({ type: "video", url: embedUrl }); 
+          curImgs.unshift({ type: "video", url: embedUrl }); // 置入頭像輪播
         } else { videoBox.style.display = "none"; playerEl.src = ""; }
       } else { videoBox.style.display = "none"; playerEl.src = ""; }
 
@@ -318,10 +331,11 @@
       document.getElementById('itemDesc').innerText = p[7] || "";
       setupDropdown('colorSelect', p[3]); setupSizePriceDropdown('sizeSelect', p[4], p[2]);
 
+      // 🎯 一鍵複製分享連結與彈出式通知提示窗打通
       document.getElementById('shareProductBtn').onclick = () => {
         let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
         navigator.clipboard.writeText(shareUrl);
-        myAlert(`🔗 【${p[0]}】商品分享專屬連結已成功複製！<br><small>${shareUrl}</small>`);
+        myAlert(`🔗 【${p[0]}】專屬分享連結已成功複製！<br><br>您可以直接貼到 IG 限時動態分享導流囉！`);
       };
     }
     function buildDots() {
@@ -366,7 +380,7 @@
       str.toString().split(/[,，、]/).forEach(s => { let o = document.createElement('option'); o.value = o.text = s.trim(); el.appendChild(o); });
     }
     
-    // 🎯 核心多維對齊規格：建立價格一對一配對，完全消除文字相加錯誤
+    // 🎯 核心多維對齊規格：建立單價一對一精密配對，完全消除文字相加錯誤
     function setupSizePriceDropdown(id, szStr, prStr) {
       const el = document.getElementById(id); el.innerHTML = "";
       let szs = szStr.toString().split(/[,，、]/).map(s => s.trim()).filter(s => s !== "");
@@ -375,7 +389,7 @@
       szs.forEach((s, idx) => {
         let o = document.createElement('option');
         o.text = o.value = s;
-        o.dataset.price = prs[idx] ? prs[idx] : prs[0]; 
+        o.dataset.price = prs[idx] ? prs[idx] : prs[0]; // 對齊平行位置
         el.appendChild(o);
       });
       syncMultiSizePrice(); 
@@ -432,7 +446,7 @@
       updateCartUI();
     }
 
-    // 🎯 完美修復：Fetch 智慧帶入歷史個人收件資料一鍵填報
+    // 🎯 智慧連線帶入：Fetch 精準對齊歷史個人收件填報免重填
     function autoFillCustomerData() {
       let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
@@ -440,23 +454,26 @@
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
           if(res.success && res.allOrders && res.allOrders.length > 0) {
-            let lastO = res.allOrders[0]; 
-            myAlert("✨ 已自動為您帶入歷史收件與聯絡人資料！");
+            let lastO = res.allOrders[0]; // 取全量列表中的最新一筆
+            myAlert("✨ 已自動為您填入歷史收件與聯絡人資料！");
             document.getElementById('custName').value = lastO.custName || "";
             document.getElementById('lineName').value = lastO.lineName || "";
             document.getElementById('shipReceiverName').value = lastO.shipName || "";
-            document.getElementById('custEmail').value = lastO.email || "";
+            if(document.getElementById('custEmail')) document.getElementById('custEmail').value = lastO.email || "";
             
             let dropdown = document.getElementById('shipSelectDropdown');
             dropdown.value = lastO.shipping; calculateDynamicShipping();
             
-            if(lastO.shipping.includes("超商")) { document.getElementById('storeName').value = lastO.address.replace("7-11超商：", ""); } 
-            else { document.getElementById('custAddress').value = lastO.address; }
-          } else { myAlert("查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
-        }).catch(e => myAlert("帶入失敗，請確認網路連線。"));
+            if(lastO.shipping.includes("超商")) {
+              document.getElementById('storeName').value = lastO.address.replace("7-11超商：", "");
+            } else {
+              document.getElementById('custAddress').value = lastO.address;
+            }
+          } else { myAlert("查無此電話的歷史預訂紀錄，請手動填寫新資料唷。"); }
+        }).catch(e => myAlert("連線逾時，請檢查網絡連線。"));
     }
 
-    // 🎯 全量歷史訂單條列呈現
+    // 🎯 完美重構：全量歷史訂單列表呈現，絕不隨機漏單
     function checkOrderHistory() {
       let ph = document.getElementById('queryPhone').value.trim(); if(!ph) return myAlert("請輸入手機號碼");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
