@@ -17,7 +17,6 @@
     body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 20px; }
     .admin-container { max-width: 1200px; margin: 0 auto; position: relative; }
     
-    /* 🌐 右上方官方商城快速連結 */
     .top-right-link {
       position: absolute; right: 0; top: 10px;
       background: var(--primary); color: white;
@@ -28,7 +27,6 @@
     }
     .top-right-link:hover { background: var(--primary-dark); transform: scale(1.03); }
 
-    /* 🎯 移除 Emoji 的清爽頁籤 */
     .tab-nav { display: flex; gap: 8px; border-bottom: 3px solid #CBD5E1; padding-bottom: 0; margin-bottom: 20px; overflow-x: auto; }
     .tab-btn { background: #E2E8F0; color: #64748B; border: none; padding: 12px 24px; border-radius: 12px 12px 0 0; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
     .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
@@ -49,7 +47,6 @@
     
     .primary-btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; transition: 0.2s; }
     
-    /* 🛠️ 批量管理面板視覺 */
     .batch-control-panel { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; background: #E2E8F4; padding: 10px; border-radius: 12px; align-items: center; }
     .batch-btn { padding: 8px 16px; border-radius: 8px; border: none; font-weight: bold; font-size: 13px; cursor: pointer; color: white; transition: 0.2s; }
     
@@ -59,12 +56,10 @@
     
     .badge { padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 11px; display: inline-block; }
     
-    /* 🎯 分頁控制器排版 */
     .pagination-bar { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 25px; font-weight: bold; }
     .page-nav-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: 0.2s; }
     .page-nav-btn:disabled { background: #CBD5E1; cursor: not-allowed; }
 
-    /* 💎 自訂彈出視窗樣式 */
     .custom-alert { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.5); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
     .alert-content { background:white; padding:24px; border-radius:20px; width:85%; max-width:320px; text-align:center; box-shadow:0 15px 35px rgba(15,23,42,0.15); border:1px solid #E2E8F0; }
     .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
@@ -116,7 +111,7 @@
       </div>
       <div class="form-grid">
         <div><label>特色標籤 (選填，例如：送禮首選)</label><input type="text" id="pProgress" placeholder="會顯示在標題上方"></div>
-        <div><label>YouTube 短影音網址</label><input type="text" id="pVideo" placeholder="貼上分享網址即可"></div>
+        <div><label>YouTube 導流播放網址 (方案C：外連播放)</label><input type="text" id="pVideo" placeholder="請貼上不公開影片或 Shorts 分享網址"></div>
       </div>
       <div style="margin-bottom:15px;">
         <label>商品細節敘述短文</label>
@@ -238,8 +233,6 @@
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
-    
-    // 🎯 核心圖床金鑰：完全綁定您的 ImgBB 帳號
     const IMGBB_API_KEY = '6a1499a96ac36dfef7cc5a8bc7b590bc'; 
 
     let globalProducts = [], filteredProducts = [], isEditMode = false, rawOrdersCache = [];
@@ -255,7 +248,6 @@
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       
-      // 智慧分頁頁籤元素高亮定位
       const tabs = document.querySelectorAll('.tab-btn');
       tabs.forEach(t => {
         if(t.getAttribute('onclick').includes(tabId)) t.classList.add('active');
@@ -279,7 +271,6 @@
       });
     };
 
-    // ImgBB 商業級高相容檔案異步傳輸引擎
     async function uploadToImgBB(files) {
       if(files.length === 0) return;
       const previewBox = document.getElementById('previewBox'); const pImgs = document.getElementById('pImgs');
@@ -335,7 +326,6 @@
         let p = filteredProducts[i]; let tr = document.createElement('tr'); 
         let urls = p[5].toString().split(/[\s,，、\n\r]+/); let img = urls[0] ? urls[0].trim() : "https://via.placeholder.com/100?text=No+Image";
         
-        // 🎯 核心還原：將後台列表單價完整顯示（保留逗號文字），徹底消除去噪黏合錯誤
         let displayPrice = p[2].toString();
         if(displayPrice.startsWith("'")) { displayPrice = displayPrice.substring(1); }
 
@@ -380,7 +370,6 @@
         .then(() => { myAlert("🎉 商品已從前台與後端完全徹底清除！"); loadProductInventory(); });
     }
 
-    // ==================== 訂單智慧分頁 ====================
     function loadOrders() {
       const tbody = document.getElementById('orderTableBody'); tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">讀取實時訂單中...</td></tr>`;
       document.getElementById('selectAllBox').checked = false;
@@ -437,18 +426,16 @@
       window.print(); 
     }
 
-    // ==================== 🎯 核心儲存修正：鎖死單價文字原樣輸出，徹底封印 230250 Bug ====================
     function submitProduct() {
       const sku = document.getElementById('pSku').value.trim(); 
       const name = document.getElementById('pName').value.trim();
       if(!sku || !name) return myAlert("請填寫貨號與品名！");
       
-      // 強制保留逗號字串
       let rawPrice = document.getElementById('pPrice').value.toString().trim();
       
       let prodObj = {
         sku: sku, name: name, 
-        price: "'" + rawPrice, // 🎯 鎖死最原始字串格式，加上防禦性單引號，禁止 Google 試算表吃掉逗號！
+        price: "'" + rawPrice, 
         color: document.getElementById('pColor').value.trim(), 
         size: document.getElementById('pSize').value.trim(),
         category: document.getElementById('pMajorSelect').value + (document.getElementById('pSubSelect').value !== '無' ? ' / ' + document.getElementById('pSubSelect').value : ''),
@@ -464,8 +451,6 @@
         .then(r => r.json()).then(res => { 
           myAlert(res.message); 
           resetProductForm(); 
-          
-          // 🎯 體驗優化：儲存成功後原封不動留在目前頁籤（不跳回上架頁），直接更新目前分頁庫存！
           loadProductInventory(); 
         });
     }
@@ -477,7 +462,6 @@
       document.getElementById('pSku').value = p[0]; document.getElementById('pSku').disabled = true;
       document.getElementById('pName').value = p[1]; 
       
-      // 🎯 核心儲存修正：帶入編輯格子時，自動切除我們加進去的防禦單引號，呈現最乾淨的 230,250 格式
       let cleanPrice = p[2].toString().trim();
       if(cleanPrice.startsWith("'")) { cleanPrice = cleanPrice.substring(1); }
       document.getElementById('pPrice').value = cleanPrice;
@@ -487,7 +471,6 @@
       document.getElementById('pProgress').value = p[8]; document.getElementById('pVideo').value = p[9];
       document.getElementById('pStatusConfig').value = p[10] || "上架"; 
       
-      // 切換至編輯區域
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('uploadTab').classList.add('active');
