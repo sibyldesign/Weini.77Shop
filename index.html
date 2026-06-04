@@ -36,42 +36,46 @@
     .product-info { padding: 12px; display: flex; flex-direction: column; flex: 1; }
     .product-title { font-size: 13px; font-weight: bold; color: var(--text-main); line-height: 1.4; height: 36px; overflow: hidden; }
     .product-price { color: var(--accent-pink); font-size: 15px; font-weight: 800; margin-top: 8px; }
+    .float-controls { position: fixed; right: 16px; bottom: 24px; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; z-index: 2500; }
+    .float-cart-btn { background: var(--primary); color: white; padding: 14px 24px; border-radius: 30px; border: none; font-weight: bold; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; display: none; }
+    .float-top-btn { background: rgba(255,255,255,0.95); color: var(--primary); width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CBD5E1; font-size: 22px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: none; align-items: center; justify-content: center; }
     
-    /* 🎯 全新分頁組件視覺樣式 */
+    /* 🎯 補強新增：一頁20個商品專屬分頁控制列樣式 */
     .pagination-container { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 20px 16px; padding: 10px; background: rgba(255, 255, 255, 0.15); border-radius: 16px; }
     .page-btn { background: white; color: var(--primary); border: none; padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: 0.2s; }
     .page-btn:disabled { background: rgba(255,255,255,0.4); color: rgba(0,0,0,0.25); cursor: not-allowed; box-shadow: none; }
     .page-info { color: white; font-size: 14px; font-weight: bold; padding: 0 8px; }
 
-    .float-controls { position: fixed; right: 16px; bottom: 24px; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; z-index: 2500; }
-    .float-cart-btn { background: var(--primary); color: white; padding: 14px 24px; border-radius: 30px; border: none; font-weight: bold; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; display: none; }
-    .float-top-btn { background: rgba(255,255,255,0.95); color: var(--primary); width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CBD5E1; font-size: 22px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: none; align-items: center; justify-content: center; }
-    
     .custom-alert { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
     .alert-content { background:white; padding:24px; border-radius:20px; width:85%; max-width:320px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2); }
     .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
     
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
+    
+    /* 🎯 響應式佈局校正：響應式加大，且規格資料一律在圖片最下方垂直堆疊呈現 */
     .modal-content { background:white; width:92%; max-width: 480px; border-radius:24px; overflow:hidden; position:relative; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; flex-direction: column; height: auto; max-height: 90vh; overflow-y: auto; }
     .modal-close { position: absolute; right: 14px; top: 14px; font-size: 18px; font-weight: bold; color: #64748B; background: #FFFFFF; border: 2px solid #E2E8F0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 120; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     
     .img-viewer { width: 100%; aspect-ratio: 1; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; touch-action: pan-y; flex-shrink: 0; }
     .img-viewer img, .img-viewer iframe { width: 100%; height: 100%; object-fit: cover; border: none; display: block; }
-    .video-container { width: 100%; height: 100%; display: none; background: #000; position: absolute; top:0; left:0; z-index: 10; }
+    .video-container { width: 100%; height: 100%; display: none; background: #000; }
     
+    /* 網頁版專用左右按鈕 */
     .arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid #CBD5E1; padding: 10px 14px; color: var(--text-main); border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.12); z-index: 100; }
-    @media (max-width: 768px) { .arrow { display: none !important; } }
+    @media (max-width: 768px) { .arrow { display: none !important; } } /* 手機版智慧隱藏箭頭 */
 
     .indicator-dots { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 20; background: rgba(0, 0, 0, 0.35); padding: 5px 10px; border-radius: 12px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transition: all 0.25s; }
     .dot.active { background: #FFFFFF; width: 16px; border-radius: 4px; }
     .detail-body { padding: 22px; box-sizing: border-box; }
-    .feature-badge { display: inline-block; background: #FFE8E8; color: #D66D6D; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 8px; border: 1px solid #FFD2D2; }
 
     select, input { font-size: 14px; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; outline: none; background: #F8FAFC; width: 100%; box-sizing: border-box; color: var(--text-main); }
     .cart-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; z-index: 2800; padding: 24px; transform: translateY(100%); transition: transform 0.3s ease; max-height: 80vh; overflow-y: auto; box-shadow: 0 -8px 25px rgba(0,0,0,0.1); }
     .cart-drawer.open { transform: translateY(0); }
     .cart-item { border-bottom: 1px solid #F1F5F9; padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
+    .btn-group { display: flex; gap: 10px; margin: 8px 0; }
+    .toggle-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; background: #F8FAFC; font-weight: 600; cursor: pointer; font-size: 13px; text-align: center; }
+    .toggle-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
     .action-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; }
     footer { padding: 30px 16px; text-align: center; font-size: 12px; color: white; }
     #toast { visibility: hidden; background: rgba(0,0,0,0.85); color: white; text-align: center; border-radius: 12px; padding: 12px 24px; position: fixed; z-index: 4000; left: 50%; transform: translateX(-50%); bottom: 160px; font-size: 14px; opacity: 0; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -86,7 +90,7 @@
   </div>
 
   <div class="brand-hero">
-    <img src="https://i.postimg.cc/qBskp62d/6500d65a-71fe-4827-a080-e9b8534bbecd.jpg" class="brand-logo" id="fallbackBrandLogo">
+    <img src="https://i.postimg.cc/qBskp62d/6500d65a-71fe-4827-a080-e9b8534bbecd.jpg" class="brand-logo" id="fallbackLogo">
     <div class="brand-title">Weini.77 Shop</div>
   </div>
 
@@ -123,7 +127,6 @@
   <div id="catalog" class="product-grid"></div>
 
   <div id="paginationCtrl" class="pagination-container">
-    <button id="btnFirstPage" class="page-btn" onclick="goToPage(1)">首頁</button>
     <button id="btnPrevPage" class="page-btn" onclick="goToPage(currentPage - 1)">上一頁</button>
     <span id="pageIndicator" class="page-info">1 / 1</span>
     <button id="btnNextPage" class="page-btn" onclick="goToPage(currentPage + 1)">下一頁</button>
@@ -207,86 +210,14 @@
     <button class="action-btn" onclick="submitFinalOrder()" style="background:var(--accent-pink); margin-top:10px;">確認並送出訂單</button>
   </div>
 
-  <div id="customAlert" class="custom-alert">
-    <div class="alert-content">
-      <div id="alertMsg" style="font-size:14px; color:var(--text-main); line-height:1.5;"></div>
-      <button class="alert-btn" onclick="closeAlert()">我知道了</button>
-    </div>
-  </div>
-
-  <div id="toast">🛒 已成功加入購物車！</div>
-
   <script>
-    // 請將您的 Google Web App 網址填入下方 API_URL 變數中
-    const API_URL = "https://script.google.com/macros/s/AKfycbz_K_N37T86g-hNiaqIom6vPqYw81U77Z6AexU0MByw/exec"; 
-
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
     let touchStartX = 0, touchEndX = 0;
     
-    // 🎯 核心分頁狀態控制變數
+    // 🎯 核心分頁狀態變數 (一頁限制出現20個商品)
     let currentPage = 1;
     const itemsPerPage = 20;
-
-    window.onscroll = function() {
-      let topBtn = document.getElementById("backToTopBtn");
-      if (document.body.scrollTop > 250 || document.documentElement.scrollTop > 250) { topBtn.style.display = "flex"; } else { topBtn.style.display = "none"; }
-    };
-    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-    function myAlert(msg) { document.getElementById('alertMsg').innerHTML = msg; document.getElementById('customAlert').style.display = 'flex'; }
-    function closeAlert() { document.getElementById('customAlert').style.display = 'none'; }
-
-    window.onload = () => {
-      const swiperArea = document.getElementById('swiperArea');
-      swiperArea.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, false);
-      swiperArea.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }, false);
-
-      fetch(API_URL)
-        .then(r => r.json())
-        .then(res => {
-          promoList = res.promos;
-          document.getElementById('announcement').innerText = res.announcement;
-          document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
-          setupCategories(res.majorCategories);
-          
-          if (res.shipModes && res.shipFees) {
-            let modes = res.shipModes.split(/[,，]/); let fees = res.shipFees.split(/[,，]/);
-            const selectDropdown = document.getElementById('shipSelectDropdown'); selectDropdown.innerHTML = "";
-            modes.forEach((m, index) => {
-              let mName = m.trim(); let mFee = Number(fees[index] ? fees[index].trim() : 0);
-              dynamicShippingMap[mName] = mFee;
-              let o = document.createElement('option'); o.value = mName; o.text = `${mName} ($${mFee})`; selectDropdown.appendChild(o);
-            });
-            if(modes.length > 0) currentShipping = modes[0].trim();
-          }
-
-          // 🎯 核心清洗與防呆：如果試算表圖片沒帶入或是空的，自動回退品牌 Logo 防破圖
-          let fallbackLogo = document.getElementById('fallbackBrandLogo').src;
-          rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
-            if (!p[5] || p[5].toString().trim() === "" || p[5].toString().includes("儲存格圖片") || p[5].toString().includes("Preview")) {
-              p.processedImgs = [fallbackLogo];
-            } else {
-              let cleanUrls = p[5].toString().split(/[\s,，、\n\r]+/).map(u => u.trim()).filter(u => u !== "");
-              p.processedImgs = cleanUrls.length > 0 ? cleanUrls : [fallbackLogo];
-            }
-            return p;
-          });
-          products = rawData;
-          
-          // 載入完畢後初始化第一頁
-          currentPage = 1;
-          renderCatalog(products);
-
-          const urlParams = new URLSearchParams(window.location.search);
-          const skuParam = urlParams.get('sku');
-          if(skuParam) {
-            let foundIdx = products.findIndex(p => p[0].toString().trim().toLowerCase() === skuParam.trim().toLowerCase());
-            if(foundIdx !== -1) { setTimeout(() => openProduct(foundIdx), 500); }
-          }
-        }).catch(err => {
-          myAlert("資料加載失敗，請檢查試算表權限或 API 連結設定是否正確。");
-        });
-    };
 
     function handleSwipe() {
       if (curImgs.length <= 1) return;
@@ -307,39 +238,36 @@
     function filterCategory(cat) {
       document.getElementById('lineNotice').style.display = (cat === '客製花束') ? 'block' : 'none';
       products = (cat === '全部') ? rawData : rawData.filter(p => p[6] && p[6].toString().trim().includes(cat));
-      currentPage = 1; // 切換分類時重置回第一頁
+      currentPage = 1; // 切換分類重置第一頁
       renderCatalog(products);
     }
     function searchProducts() {
       let val = document.getElementById('searchInput').value.toLowerCase().trim();
       if(val === "") { products = rawData; currentPage = 1; renderCatalog(products); return; }
       products = rawData.filter(p => p[0].toLowerCase().includes(val) || p[1].toLowerCase().includes(val));
-      currentPage = 1; // 搜尋時重置回第一頁
+      currentPage = 1; // 搜尋時重置第一頁
       renderCatalog(products);
     }
 
-    // 🎯 精準分頁渲染引擎：每頁切 20 個商品
+    // 🎯 核心重構分頁渲染引擎：一頁20個商品
     function renderCatalog(list) {
       const box = document.getElementById('catalog'); box.innerHTML = "";
-      
       if(list.length === 0) { 
         box.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:white; font-size:13px;'>目前無此商品</p>"; 
         document.getElementById('paginationCtrl').style.display = 'none';
         return; 
       }
-      
       document.getElementById('paginationCtrl').style.display = 'flex';
       
-      // 計算總頁數與當頁索引界限
-      let totalPages = Math.ceil(list.length / itemsPerPage);
+      let totalPages = Math.ceil(list.length / itemsPerPage) || 1;
       if (currentPage > totalPages) currentPage = totalPages;
       if (currentPage < 1) currentPage = 1;
       
       let startIdx = (currentPage - 1) * itemsPerPage;
       let endIdx = Math.min(startIdx + itemsPerPage, list.length);
       
-      // 僅渲染當前分頁的商品群
-      for (let i = startIdx; i < endIdx; i++) {
+      // 唯獨渲染這 20 個商品
+      for(let i = startIdx; i < endIdx; i++) {
         let p = list[i];
         let card = document.createElement('div'); card.className = 'product-card'; card.onclick = () => openProduct(i);
         let firstImg = p.processedImgs[0];
@@ -347,18 +275,15 @@
         box.appendChild(card);
       }
       
-      // 更新分頁控制按鈕與文字狀態
       document.getElementById('pageIndicator').innerText = `${currentPage} / ${totalPages}`;
-      document.getElementById('btnFirstPage').disabled = (currentPage === 1);
       document.getElementById('btnPrevPage').disabled = (currentPage === 1);
       document.getElementById('btnNextPage').disabled = (currentPage === totalPages);
     }
-    
-    // 分頁切換點擊觸發函式
-    function goToPage(page) {
-      currentPage = page;
+
+    function goToPage(targetPage) {
+      currentPage = targetPage;
       renderCatalog(products);
-      scrollToTop(); // 切換分頁後自動平滑滾回商品頂端
+      scrollToTop(); // 切分頁順暢滾回頂端
     }
     
     function openProduct(idx) {
@@ -390,13 +315,12 @@
 
       document.getElementById('itemTitle').innerText = `[${p[0]}] ${p[1]}`;
       document.getElementById('itemDesc').innerText = p[7] || "";
-      setupDropdown('colorSelect', p[3]); 
-      setupSizePriceDropdown('sizeSelect', p[4], p[2]);
+      setupDropdown('colorSelect', p[3]); setupSizePriceDropdown('sizeSelect', p[4], p[2]);
 
       document.getElementById('shareProductBtn').onclick = () => {
         let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
         navigator.clipboard.writeText(shareUrl);
-        myAlert(`🎉 【${p[0]}】專屬商品分享連結已成功複製！<br><br>您可以直接貼到 IG 限時動態分享導流囉！`);
+        myAlert(`🔗 【${p[0]}】專屬分享連結已成功複製！<br><br>可以直接貼至限時動態分享導流囉！`);
       };
     }
     function buildDots() {
@@ -431,7 +355,7 @@
         imgEl.style.display = "none"; videoBox.style.display = "block"; playerEl.src = currentItem.url; 
       } else {
         videoBox.style.display = "none"; playerEl.src = ""; imgEl.style.display = "block";
-        imgEl.src = (typeof currentItem === "string") ? currentItem : document.getElementById('fallbackBrandLogo').src;
+        imgEl.src = (typeof currentItem === "string") ? currentItem : "https://via.placeholder.com/300?text=No+Image";
       }
       updateDots();
     }
@@ -440,6 +364,8 @@
       const el = document.getElementById(id); el.innerHTML = ""; if(!str) return;
       str.toString().split(/[,，、]/).forEach(s => { let o = document.createElement('option'); o.value = o.text = s.trim(); el.appendChild(o); });
     }
+    
+    // 🎯 核心多維尺寸單價精密一對一配對，完全根除「200230」文字相加 Bug
     function setupSizePriceDropdown(id, szStr, prStr) {
       const el = document.getElementById(id); el.innerHTML = "";
       let szs = szStr.toString().split(/[,，、]/).map(s => s.trim()).filter(s => s !== "");
@@ -460,6 +386,7 @@
         document.getElementById('itemPrice').innerText = "NT$ " + selectPrice;
       }
     }
+
     function closeModal() { document.getElementById('itemModal').style.display = 'none'; document.getElementById('videoPlayer').src = ""; }
     function addToCart() {
       const sz = document.getElementById('sizeSelect'); if(!sz.options[sz.selectedIndex]) return;
@@ -474,6 +401,7 @@
       updateCartUI();
     }
     function calculateDynamicShipping() { currentShipping = document.getElementById('shipSelectDropdown').value; setShipping(currentShipping); }
+
     function updateCartUI() {
       const box = document.getElementById('cartList'); box.innerHTML = ""; let subtotal = 0; let hasFlower = false;
       cart.forEach((item, idx) => {
@@ -499,9 +427,9 @@
       updateCartUI();
     }
 
-    // 🎯 核心功能完全保留：手機號碼一鍵自動帶入歷史顧客數據
+    // 🎯 智慧自動填報歷史資料
     function autoFillCustomerData() {
-      let ph = document.getElementById('custPhone').value.trim(); 
+      let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
