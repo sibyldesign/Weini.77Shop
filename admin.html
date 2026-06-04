@@ -430,33 +430,52 @@
 
     // ==================== 🎯 核心儲存修正：鎖死單價文字原樣輸出，徹底封印 230250 Bug ====================
     function submitProduct() {
-      const sku = document.getElementById('pSku').value.trim(); const name = document.getElementById('pName').value.trim();
+      const sku = document.getElementById('pSku').value.trim();
+      const name = document.getElementById('pName').value.trim();
       if(!sku || !name) return myAlert("請填寫貨號與品名！");
+
+      // 🎯 核心通電修改：將 price 強制轉成字串，並在前後加上單引號，強迫 Google 試算表以「純文字」格式儲存，絕對不去掉逗號！
+      let rawPrice = document.getElementById('pPrice').value.toString().trim();
       
       let prodObj = {
-        sku: sku, name: name, 
-        price: document.getElementById('pPrice').value.toString().trim(), // 🎯 鎖死最原始字串格式，禁止自動刪去逗號！
-        color: document.getElementById('pColor').value.trim(), size: document.getElementById('pSize').value.trim(),
+        sku: sku,
+        name: name, 
+        price: "'" + rawPrice, // 💡 加上單引號防禦，強制 Google 試算表不當成數字，完美保留 230,250 格式
+        color: document.getElementById('pColor').value.trim(), 
+        size: document.getElementById('pSize').value.trim(),
         category: document.getElementById('pMajorSelect').value + (document.getElementById('pSubSelect').value !== '無' ? ' / ' + document.getElementById('pSubSelect').value : ''),
-        desc: document.getElementById('pDesc').value.trim(), progress: document.getElementById('pProgress').value.trim(),
-        video: document.getElementById('pVideo').value.trim(), imgs: document.getElementById('pImgs').value.trim(), status: document.getElementById('pStatusConfig').value
+        desc: document.getElementById('pDesc').value.trim(), 
+        progress: document.getElementById('pProgress').value.trim(),
+        video: document.getElementById('pVideo').value.trim(), 
+        imgs: document.getElementById('pImgs').value.trim(),
+        status: document.getElementById('pStatusConfig').value
       };
+
       let targetMethod = isEditMode ? "editProduct" : "addNewProduct";
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: targetMethod, product: prodObj }) })
         .then(r => r.json()).then(res => { myAlert(res.message); resetProductForm(); loadProductInventory(); });
     }
 
     function startEditProduct(sku) {
-      let p = globalProducts.find(item => item[0].toString().trim() === sku.toString().trim()); if(!p) return;
-      isEditMode = true; document.getElementById('formActionTitle').innerText = `📝 編輯商品 - ${sku}`;
-      document.getElementById('submitProductBtn').innerText = "儲存修改內容"; document.getElementById('cancelEditBtn').style.display = "block";
+      let p = globalProducts.find(item => item[0].toString().trim() === sku.toString().trim());
+      if(!p) return;
+      isEditMode = true;
+      document.getElementById('formActionTitle').innerText = `📝 編輯商品 - ${sku}`;
+      document.getElementById('submitProductBtn').innerText = "儲存修改內容";
+      document.getElementById('cancelEditBtn').style.display = "block";
       document.getElementById('pSku').value = p[0]; document.getElementById('pSku').disabled = true;
       document.getElementById('pName').value = p[1]; 
-      document.getElementById('pPrice').value = p[2]; // 🎯 帶入編輯表單時完整還原原始逗號字串
+      
+      // 🎯 核心通電修改：如果雲端帶出來的價格開頭有單引號，自動幫妳清除掉，讓編輯格子裡乾乾淨淨顯示 230,250
+      let cleanPrice = p[2].toString();
+      if(cleanPrice.startsWith("'")) { cleanPrice = cleanPrice.substring(1); }
+      document.getElementById('pPrice').value = cleanPrice;
+      
       document.getElementById('pColor').value = p[3]; document.getElementById('pSize').value = p[4];
       document.getElementById('pImgs').value = p[5]; document.getElementById('pDesc').value = p[7];
       document.getElementById('pProgress').value = p[8]; document.getElementById('pVideo').value = p[9];
-      document.getElementById('pStatusConfig').value = p[10] || "上架"; switchTab('uploadTab');
+      document.getElementById('pStatusConfig').value = p[10] || "上架";
+      switchTab('uploadTab');
     }
 
     function resetProductForm() {
@@ -473,3 +492,4 @@
   </script>
 </body>
 </html>
+
