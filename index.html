@@ -159,7 +159,8 @@
         <div id="itemPrice" style="color:var(--accent-pink); font-size:22px; font-weight:800; margin:14px 0;"></div>
         <div style="display:flex; gap:8px; margin-top:12px;">
           <div style="flex:1;"><select id="colorSelect"></select></div>
-          <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div> <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
+          <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div>
+          <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
           <button class="action-btn" onclick="addToCart()" style="flex:1;">加入購物車</button>
@@ -212,8 +213,6 @@
     <button class="action-btn" onclick="submitFinalOrder()" style="background:var(--accent-pink); margin-top:10px;">確認並送出訂單</button>
   </div>
 
-  <div id="customAlert" class="custom-alert"><div class="alert-content"><div id="alertMsg" style="text-align:left; font-size:14px; color:var(--text-main); line-height:1.5;"></div><button class="alert-btn" onclick="closeAlert()">我知道了</button></div></div>
-
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
 
@@ -245,7 +244,7 @@
           document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
           setupCategories(res.majorCategories);
           
-          // 🎯 核心物流淨化：在官網僅保留「宅配」及「7-11超商取貨」這兩種配送選項
+          // 🎯 終極物流淨化通電：精準對齊帶有空格的「7-11 超商取貨」與「宅配」，排除非花束選項
           if (res.shipModes && res.shipFees) {
             let originalModes = res.shipModes.split(/[,，]/); 
             let originalFees = res.shipFees.split(/[,，]/);
@@ -256,7 +255,8 @@
               let mName = m.trim(); 
               let mFee = Number(originalFees[index] ? originalFees[index].trim() : 0);
               
-              if (mName.includes("宅配") || mName.includes("7-11超商取貨")) {
+              // 100% 精準捕捉：包含「宅配」或「7-11 超商取貨」（包含空格）才寫入前台
+              if (mName.includes("宅配") || mName.includes("7-11 超商取貨")) {
                 dynamicShippingMap[mName] = mFee;
                 let o = document.createElement('option'); 
                 o.value = mName; 
@@ -317,7 +317,6 @@
       renderCatalog(products);
     }
     
-    // 🎯 搜尋引擎修復優化
     function searchProducts() {
       let val = document.getElementById('searchInput').value.toLowerCase().trim();
       if(val === "") { products = rawData; currentPage = 1; renderCatalog(products); return; }
@@ -326,7 +325,6 @@
       renderCatalog(products);
     }
     
-    // 🎯 一頁顯示20個商品之分頁引擎
     function renderCatalog(list) {
       const box = document.getElementById('catalog'); box.innerHTML = "";
       if(list.length === 0) { 
@@ -347,7 +345,10 @@
         let p = list[i];
         let card = document.createElement('div'); card.className = 'product-card'; card.onclick = () => openProduct(i);
         let firstImg = p.processedImgs[0];
-        card.innerHTML = `<img src="${firstImg}" loading="lazy"><div class="product-info"><div class="product-title">[${p[0]}] ${p[1]}</div><div class="product-price">NT$ ${p[2].toString().split(/[,，、]/)[0]}</div></div>`;
+        
+        // 🎯 核心切割修復：支援多維價格字串分割直出
+        let displayPriceStr = p[2].toString().split(/[,，、]/)[0].trim();
+        card.innerHTML = `<img src="${firstImg}" loading="lazy"><div class="product-info"><div class="product-title">[${p[0]}] ${p[1]}</div><div class="product-price">NT$ ${displayPriceStr}</div></div>`;
         box.appendChild(card);
       }
       
@@ -382,7 +383,7 @@
       document.getElementById('itemTitle').innerText = `[${p[0]}] ${p[1]}`;
       document.getElementById('itemDesc').innerText = p[7] || "";
       setupDropdown('colorSelect', p[3]); 
-      setupSizePriceDropdown('sizeSelect', p[4], p[2]); // 啟用多規格精密單價配對
+      setupSizePriceDropdown('sizeSelect', p[4], p[2]); // 啟用多規格精密配對
 
       document.getElementById('shareProductBtn').onclick = () => {
         let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
@@ -424,7 +425,7 @@
       str.toString().split(/[,，、]/).forEach(s => { let o = document.createElement('option'); o.value = o.text = s.trim(); el.appendChild(o); });
     }
     
-    // 🎯 核心多規格對齊：建立單價精密一對一配對，徹底粉碎「200230」文字相加 Bug
+    // 🎯 核心多規格對齊升級：建立單價精密一對一配對，完全根除「200230」文字相加 Bug
     function setupSizePriceDropdown(id, szStr, prStr) {
       const el = document.getElementById(id); el.innerHTML = "";
       let szs = szStr.toString().split(/[,，、]/).map(s => s.trim()).filter(s => s !== "");
@@ -433,8 +434,7 @@
       szs.forEach((s, idx) => {
         let o = document.createElement('option');
         o.text = o.value = s;
-        // 抓取對應索引價格，若超出則給予第一個基底價
-        o.dataset.price = prs[idx] ? prs[idx] : prs[0]; 
+        o.dataset.price = prs[idx] ? prs[idx].trim() : prs[0].trim(); 
         el.appendChild(o);
       });
       syncMultiSizePrice(); 
@@ -493,7 +493,6 @@
       updateCartUI();
     }
 
-    // 智慧帶入歷史數據功能 (100% 正常穩定回填版)
     function autoFillCustomerData() {
       let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
@@ -517,11 +516,10 @@
             } else {
               document.getElementById('custAddress').value = lastO.address || "";
             }
-          } else { myAlert("查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
+          } else { myAlert("查查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
         }).catch(e => myAlert("連線出錯，請確認後台 API 狀態。"));
     }
 
-    // 🎯 勿動：全量歷史單據看版與單筆對帳回傳（與截圖完美對齊）
     function checkOrderHistory() {
       let ph = document.getElementById('queryPhone').value.trim(); if(!ph) return myAlert("請輸入手機號碼");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
@@ -565,19 +563,6 @@
       if(five.length !== 5) return myAlert("請輸入精確的匯款後五碼！");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updatePaymentReport", phone: ph, orderId: oid, lastFive: five }) })
         .then(r => r.json()).then(res => { myAlert(res.message); checkOrderHistory(); });
-    }
-    function submitFinalOrder() {
-      let phone = document.getElementById('custPhone').value.trim(), name = document.getElementById('custName').value.trim(), line = document.getElementById('lineName').value.trim(), rxName = document.getElementById('shipReceiverName').value.trim(), email = document.getElementById('custEmail').value.trim();
-      if(!phone || !name || !line || !rxName || !email || cart.length === 0) return myAlert("請填寫所有欄位（皆為必填項目）。");
-      let addr = (currentShipping.includes('宅配')) ? document.getElementById('custAddress').value.trim() : document.getElementById('storeName').value.trim();
-      if(!addr) return myAlert((currentShipping.includes('宅配')) ? "請填寫完整收件地址" : "請填寫超商門市名稱");
-      let finalAddr = (currentShipping.includes('宅配')) ? `(${document.getElementById('custZip').value}) ${addr}` : `7-11超商：${addr}`;
-      
-      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: cart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: document.getElementById('grandTotal').innerText } }) })
-        .then(r => r.json()).then(res => {
-          myAlert("🎉 預訂成功！明細已發送至您的 Mail 副本。\n您的單號為：<b>" + res.orderId + "</b>");
-          cart = []; updateCartUI(); toggleCart(false);
-        });
     }
   </script>
 </body>
