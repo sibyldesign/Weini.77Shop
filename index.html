@@ -15,22 +15,20 @@
     }
     body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; padding-bottom: 140px; }
     
-    /* 🎯 視覺優化校正：改為相對布局包裹，防止層級遮擋造成點擊失靈，按鈕字體與間距微調緊湊 */
-    .nav-wrapper { width: 100%; display: flex; justify-content: flex-end; padding: 12px 16px 0 16px; box-sizing: border-box; }
-    .fixed-ig-nav { display: flex; gap: 6px; z-index: 2100; }
-    .fixed-ig-nav a { color: white; text-decoration: none; font-size: 11px; font-weight: bold; background: rgba(44, 62, 80, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 5px 8px; border-radius: 12px; }
+    /* 🎯 視覺與點擊優化：透過標準流包裹防止層級交疊，確保下方搜尋、輸入框100%觸發不失靈 */
+    .nav-wrapper { width: 100%; display: flex; justify-content: flex-end; padding: 15px 16px 5px 16px; box-sizing: border-box; position: relative; z-index: 2100; }
+    .fixed-ig-nav { display: flex; gap: 6px; }
+    .fixed-ig-nav a { color: white; text-decoration: none; font-size: 11px; font-weight: bold; background: rgba(44, 62, 80, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 5px 8px; border-radius: 12px; transition: 0.2s; }
     
     .brand-hero { padding: 10px 16px 20px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .brand-logo { width: 90px; height: 90px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     .brand-title { font-size: 26px; font-weight: 900; color: white; margin-top: 12px; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .announcement-bar { background: rgba(255,255,255,0.2); color: white; padding: 10px 15px; font-size: 13px; text-align: center; font-weight: 600; margin: 0 16px; border-radius: 12px; }
     
-    .search-section { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .search-section { padding: 16px; display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 2000; }
     .search-box { background: white; border: none; padding: 14px 18px; border-radius: 24px; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); outline: none; width: 100%; box-sizing: border-box; }
     
-    /* 🎯 完美保留原有歷史面板結構，並新增相對定位基礎以供關閉按鈕使用 */
     .query-panel { background: var(--card-bg); padding: 16px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
-    /* 🎯 新增歷史面板關閉按鈕樣式 */
     .panel-close-btn { position: absolute; top: 12px; right: 14px; font-size: 16px; font-weight: bold; color: #94A3B8; cursor: pointer; transition: 0.2s; padding: 4px; }
     .panel-close-btn:hover { color: var(--primary); }
     
@@ -67,8 +65,12 @@
     .modal-close { position: absolute; right: 14px; top: 14px; font-size: 18px; font-weight: bold; color: #64748B; background: #FFFFFF; border: 2px solid #E2E8F0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 120; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     
     .img-viewer { width: 100%; aspect-ratio: 1; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; touch-action: pan-y; flex-shrink: 0; }
-    .img-viewer img, .img-viewer iframe { width: 100%; height: 100%; object-fit: cover; border: none; display: block; }
-    .video-container { width: 100%; height: 100%; display: none; background: #000; position: absolute; top:0; left:0; z-index: 10; }
+    .img-viewer img { width: 100%; height: 100%; object-fit: cover; border: none; display: block; }
+    
+    /* 🎯 方案 C 專屬：精美影片封面播放容器（帶有高光播放圖示，100% 免疫錯誤 153） */
+    .video-cover-container { width: 100%; height: 100%; display: none; background: #000; position: absolute; top:0; left:0; z-index: 10; cursor: pointer; }
+    .video-play-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; gap: 10px; }
+    .video-play-icon { width: 60px; height: 60px; background: rgba(225, 152, 152, 0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); padding-left: 4px; box-sizing: border-box; }
     
     .arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid #CBD5E1; padding: 10px 14px; color: var(--text-main); border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.12); z-index: 100; }
     @media (max-width: 768px) { .arrow { display: none !important; } } 
@@ -93,7 +95,6 @@
 </head>
 <body>
 
-  <!-- 🎯 視覺優化校正：包裹進排版流中，靠右對齊，不遮擋下方任何搜尋與 LOGO 點擊事件 -->
   <div class="nav-wrapper">
     <div class="fixed-ig-nav">
       <a href="https://lin.ee/UyP3YhJ" target="_blank">LINE客服</a>
@@ -110,14 +111,12 @@
   <div id="announcement" class="announcement-bar">Welcome~</div>
 
   <div class="search-section">
-    <!-- 🎯 完美保留：原創包含搜尋按鈕的 Submit 獨立結構與 Enter 鍵過濾 -->
     <form action="javascript:void(0);" onsubmit="searchProducts()" style="display:flex; gap:8px; width:100%;">
       <input type="text" id="searchInput" class="search-box" placeholder="搜尋商品貨號或名稱關鍵字..." style="flex:1;">
       <button type="submit" style="background:var(--primary); color:white; border:none; padding:0 22px; border-radius:24px; font-size:14px; font-weight:bold; cursor:pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">搜尋</button>
     </form>
     
     <div class="query-panel">
-      <!-- 🎯 新增右上角關閉面板按鈕 -->
       <span class="panel-close-btn" onclick="closeQueryPanel()">✕</span>
       <div style="font-size:13px; font-weight:bold; color:var(--primary); margin-bottom:8px;">🔍 舊客對帳 / 訂單歷史查詢</div>
       <div style="display:flex; gap:8px;">
@@ -125,7 +124,7 @@
         <button onclick="checkOrderHistory()" style="background:var(--primary); color:white; border:none; padding:0 14px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">查詢資料</button>
       </div>
       <div id="queryResultArea" style="margin-top:10px; font-size:13px; display:none; border-top:1px dashed #CBD5E1; padding-top:8px; line-height:1.5;">
-        <div id="multiOrdersContainer"></div> <!-- 🎯 勿動：完美歷史訂單與對帳看板 -->
+        <div id="multiOrdersContainer"></div> 
       </div>
     </div>
   </div>
@@ -142,7 +141,6 @@
 
   <div id="catalog" class="product-grid"></div>
 
-  <!-- 一頁 20 款商品分頁控制器 -->
   <div id="paginationCtrl" class="pagination-container">
     <button id="btnPrevPage" class="page-btn" onclick="goToPage(currentPage - 1)">上一頁</button>
     <span id="pageIndicator" class="page-info">1 / 1</span>
@@ -160,9 +158,15 @@
       <div class="img-viewer" id="swiperArea">
         <button class="arrow" id="prevBtn" style="left:10px;" onclick="changeImg(-1)">❮</button>
         <img id="itemImg" src="">
-        <div id="videoContainer" class="video-container">
-          <iframe id="videoPlayer" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        
+        <div id="videoCoverContainer" class="video-cover-container" onclick="launchExternalVideo()">
+          <img id="videoCoverImg" src="">
+          <div class="video-play-overlay">
+            <div class="video-play-icon">▶</div>
+            <span>點擊播放官方實體動態短影音 🎬</span>
+          </div>
         </div>
+        
         <button class="arrow" id="nextBtn" style="right:10px;" onclick="changeImg(1)">❯</button>
         <div class="indicator-dots" id="dotsContainer"></div>
       </div>
@@ -177,7 +181,6 @@
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
           <button class="action-btn" onclick="addToCart()" style="flex:1;">加入購物車</button>
-          <!-- 🎯 頂級 UX 優化：點擊分享時，100% 彈出精美 Weini.77 專屬中央大提示窗 -->
           <button type="button" class="action-btn" id="shareProductBtn" style="background:#64748B; width:auto; padding:0 18px;">🔗 分享</button>
         </div>
       </div>
@@ -205,7 +208,6 @@
     </div>
     <div style="margin-top:12px; display:flex; gap:6px;">
       <input type="text" id="discountInput" placeholder="輸入折扣碼" style="padding:10px;">
-      <!-- 🎯 補強修正：折扣碼按鈕通電，加上 type="button" 防範事件沒收失效 -->
       <button type="button" onclick="applyPromo()" style="background:#333; color:white; border:none; padding:0 14px; border-radius:12px; font-weight:bold; font-size:13px; cursor:pointer;">套用</button>
     </div>
     <div style="text-align:right; margin:15px 0; font-size:13px; line-height:1.5;">
@@ -218,7 +220,6 @@
       <label style="font-size:12px; font-weight:bold; color:#666;">填寫訂購資訊</label>
       <div style="display:flex; gap:8px; margin-bottom:8px;">
         <input type="tel" id="custPhone" placeholder="手機號碼 (必填)" style="flex:1;">
-        <!-- 🎯 已注入防震穩定機制，防止頁面跳走與焦點失效 -->
         <button type="button" onclick="autoFillCustomerData(event)" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">帶入資料</button>
       </div>
       <input type="text" id="custName" placeholder="訂購人姓名 (必填)" style="margin-bottom:8px;">
@@ -230,13 +231,14 @@
   </div>
 
   <div id="customAlert" class="custom-alert"><div class="alert-content"><div id="alertMsg" style="text-align:left; font-size:14px; color:var(--text-main); line-height:1.5;"></div><button class="alert-btn" onclick="closeAlert()">我知道了</button></div></div>
+  <div id="toast">🛒 商品已成功加入購物車</div>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
 
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
-    let touchStartX = 0, touchEndX = 0;
+    let touchStartX = 0, touchEndX = 0, currentActiveVideoUrl = "";
     
     let currentPage = 1;
     const itemsPerPage = 20;
@@ -248,6 +250,7 @@
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function myAlert(msg) { document.getElementById('alertMsg').innerHTML = msg; document.getElementById('customAlert').style.display = 'flex'; }
     function closeAlert() { document.getElementById('customAlert').style.display = 'none'; }
+    function closeQueryPanel() { document.getElementById('queryResultArea').style.display = 'none'; document.getElementById('multiOrdersContainer').innerHTML = ""; document.getElementById('queryPhone').value = ""; }
 
     window.onload = () => {
       const swiperArea = document.getElementById('swiperArea');
@@ -321,10 +324,12 @@
       currentPage = 1;
       renderCatalog(products);
     }
+
+    // 🎯 完美修復搜尋引擎：支援全站點擊、Enter直接捕捉「編號」與「品名」
     function searchProducts() {
       let val = document.getElementById('searchInput').value.toLowerCase().trim();
       if(val === "") { products = rawData; currentPage = 1; renderCatalog(products); return; }
-      products = rawData.filter(p => p[0].toLowerCase().includes(val) || p[1].toLowerCase().includes(val));
+      products = rawData.filter(p => p[0].toString().toLowerCase().includes(val) || p[1].toString().toLowerCase().includes(val));
       currentPage = 1;
       renderCatalog(products);
     }
@@ -370,28 +375,37 @@
       imgIdx = 0; curImgs = [...p.processedImgs];
       
       let videoUrl = p[9] ? p[9].toString().trim() : "";
-      let videoBox = document.getElementById('videoContainer');
-      let playerEl = document.getElementById('videoPlayer');
+      let videoBox = document.getElementById('videoCoverContainer');
+      let coverImg = document.getElementById('videoCoverImg');
       
       if (videoUrl !== "") {
-        let embedUrl = convertToEmbedUrl(videoUrl);
-        if (embedUrl) {
-          videoBox.style.display = "block"; playerEl.src = embedUrl;
-        } else { videoBox.style.display = "none"; playerEl.src = ""; }
-      } else { videoBox.style.display = "none"; playerEl.src = ""; }
+        currentActiveVideoUrl = videoUrl;
+        videoBox.style.display = "block";
+        coverImg.src = curImgs[0]; // 自動使用第一張主圖作為動態高光封面底圖
+      } else { 
+        currentActiveVideoUrl = "";
+        videoBox.style.display = "none"; 
+      }
 
       buildDots(); showMediaItem();
       document.getElementById('itemTitle').innerText = `[${p[0]}] ${p[1]}`;
       document.getElementById('itemDesc').innerText = p[7] || "";
       setupDropdown('colorSelect', p[3]); setupSizePriceDropdown('sizeSelect', p[4], p[2]);
 
-      // 🎯 核心分享跳窗修正：複製連結後強制彈出精美 Weini.77 專屬中央大對話框
       document.getElementById('shareProductBtn').onclick = () => {
         let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
         navigator.clipboard.writeText(shareUrl);
         myAlert(`🔗 【${p[0]}】專屬分享連結已成功複製！<br><br>可以直接貼至限時動態分享導流囉！`);
       };
     }
+
+    // 🎯 方案 C 核心跳轉：繞過 iframe 限制，直接連動原生 YouTube 頂級高清畫質渠道
+    function launchExternalVideo() {
+      if (currentActiveVideoUrl !== "") {
+        window.open(currentActiveVideoUrl, '_blank');
+      }
+    }
+
     function buildDots() {
       const container = document.getElementById('dotsContainer'); container.innerHTML = "";
       if (curImgs.length <= 1) return;
@@ -407,13 +421,6 @@
       if (document.getElementById('prevBtn')) document.getElementById('prevBtn').style.display = showArrows;
       if (document.getElementById('nextBtn')) document.getElementById('nextBtn').style.display = showArrows;
     }
-    function convertToEmbedUrl(url) {
-      let videoId = "";
-      if (url.includes("shorts/")) { videoId = url.split("shorts/")[1].split(/[?#]/)[0]; } 
-      else if (url.includes("youtu.be/")) { videoId = url.split("youtu.be/")[1].split(/[?#]/)[0]; } 
-      else if (url.includes("v=")) { videoId = url.split("v=")[1].split("&")[0]; }
-      return videoId ? "https://www.youtube.com/embed/" + videoId + "?autoplay=1&mute=1&playlist=" + videoId + "&loop=1" : null;
-    }
     function showMediaItem() {
       let currentItem = curImgs[imgIdx];
       let imgEl = document.getElementById('itemImg');
@@ -426,7 +433,6 @@
       str.toString().split(/[,，、]/).forEach(s => { let o = document.createElement('option'); o.value = o.text = s.trim(); el.appendChild(o); });
     }
     
-    // 🎯 規格單價精密 1:1 配對引擎
     function setupSizePriceDropdown(id, szStr, prStr) {
       const el = document.getElementById(id); el.innerHTML = "";
       let szs = szStr.toString().split(/[,，、]/).map(s => s.trim()).filter(s => s !== "");
@@ -448,7 +454,7 @@
       }
     }
 
-    function closeModal() { document.getElementById('itemModal').style.display = 'none'; document.getElementById('videoPlayer').src = ""; }
+    function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
     function addToCart() {
       const sz = document.getElementById('sizeSelect'); if(!sz.options[sz.selectedIndex]) return;
       cart.push({ sku: products[selectedIdx][0], prodName: products[selectedIdx][1], color: document.getElementById('colorSelect').value, size: sz.value, price: Number(sz.options[sz.selectedIndex].dataset.price), qty: Number(document.getElementById('qtyInput').value), category: products[selectedIdx][6] ? products[selectedIdx][6].toString().trim() : "" });
@@ -482,7 +488,6 @@
     function removeCart(idx) { cart.splice(idx,1); updateCartUI(); }
     function toggleCart(show) { document.getElementById('cartDrawer').classList.toggle('open', show); }
     
-    // 🎯 折扣碼套用邏輯優化
     function applyPromo() {
       let code = document.getElementById('discountInput').value.trim(); 
       let found = promoList.find(p => p[0] === code);
@@ -496,26 +501,22 @@
       updateCartUI();
     }
 
-    // 🎯 新增關閉歷史對帳看板功能
-    function closeQueryPanel() {
-      document.getElementById('queryResultArea').style.display = 'none';
-      document.getElementById('multiOrdersContainer').innerHTML = "";
-      document.getElementById('queryPhone').value = "";
-    }
-
-    // 🎯 核心強固填報修正：全面打通並注入事件防範，100% 穩定防止點擊刷新跳走
+    // 🎯 鐵壁防震自動帶入資料修改：全面注入攔截雙核心，按一次即刻精準帶入，視窗不動如山
     function autoFillCustomerData(event) {
-      if(event) event.preventDefault();
+      if(event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
           if(res.success && res.allOrders && res.allOrders.length > 0) {
-            let lastO = res.allOrders[0]; // 提取最新一筆歷史紀錄
+            let lastO = res.allOrders[0]; 
             myAlert("✨ 已自動為您填入歷史預訂的收件聯絡人資料！");
             document.getElementById('custName').value = lastO.custName || "";
             document.getElementById('lineName').value = lastO.lineName || "";
-            document.getElementById('shipReceiverName').value = lastO.shipName || "";
+            document.getElementById('shipReceiverName').value = lastO.shipName || lastO.custName || "";
             if(document.getElementById('custEmail') && lastO.email) document.getElementById('custEmail').value = lastO.email;
             
             let dropdown = document.getElementById('shipSelectDropdown');
@@ -532,7 +533,7 @@
         }).catch(e => myAlert("連線出錯，請確認後台 API 狀態。"));
     }
 
-    // 🎯 勿動：全量歷史看版（已與截圖完美 1:1 條列對齊）
+    // 🎯 歷史看板完整修復：徹底移除了導致代碼破碎外露的條件句殘留，100% 條列完美呈現！
     function checkOrderHistory() {
       let ph = document.getElementById('queryPhone').value.trim(); if(!ph) return myAlert("請輸入手機號碼");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
@@ -542,20 +543,20 @@
             container.innerHTML = ""; 
             
             res.allOrders.forEach(o => {
-              container.innerHTML += `
-                <div style="border-bottom: 1px dashed #CBD5E1; padding: 12px 0; text-align: left; line-height: 1.6;">
-                  <div><b>歷史單號：</b><span>${o.orderId}</span></div>
-                  <div><b>訂單內容：</b><br><span style="color:#555;">${o.items.join('<br>')}</span></div>
-                  <div><b>訂單狀態：</b><span class="status-badge">${o.status} (${o.payStatus})</span></div>
-                  
-                  \${o.payStatus === '未付款' ? \`
-                    <div style="margin-top:10px; display: flex; gap: 6px; align-items: center;">
-                      <input type="number" id="payFive_\${o.orderId}" placeholder="請填入您的匯款後五碼" style="width:160px; padding:8px; display:inline-block; vertical-align:middle; background: #fff; border: 1px solid #CBD5E1; border-radius: 12px;">
-                      <button onclick="submitLastFive('\${o.orderId}')" style="background:var(--accent-pink); border:none; color:white; padding:9px 14px; border-radius:10px; font-weight:bold; cursor:pointer; vertical-align:middle; white-space: nowrap;">回傳付款明細</button>
-                    </div>
-                  \` : ''}
-                </div>
-              `;
+              let rowHtml = '<div style="border-bottom: 1px dashed #CBD5E1; padding: 12px 0; text-align: left; line-height: 1.6;">' +
+                            '<div><b>歷史單號：</b><span>' + o.orderId + '</span></div>' +
+                            '<div><b>訂單內容：</b><br><span style="color:#555;">' + o.items.join('<br>') + '</span></div>' +
+                            '<div><b>訂單狀態：</b><span class="status-badge">' + o.status + ' (' + o.payStatus + ')</span></div>';
+              
+              if(o.payStatus === '未付款') {
+                rowHtml += '<div style="margin-top:10px; display: flex; gap: 6px; align-items: center;">' +
+                           '<input type="number" id="payFive_' + o.orderId + '" placeholder="請填入您的匯款後五碼" style="width:160px; padding:8px; display:inline-block; vertical-align:middle; background: #fff; border: 1px solid #CBD5E1; border-radius: 12px;">' +
+                           '<button onclick="submitLastFive(\'' + o.orderId + '\')" style="background:var(--accent-pink); border:none; color:white; padding:9px 14px; border-radius:10px; font-weight:bold; cursor:pointer; vertical-align:middle; white-space: nowrap;">回傳付款明細</button>' +
+                           '</div>';
+              }
+              
+              rowHtml += '</div>';
+              container.innerHTML += rowHtml;
             });
             document.getElementById('queryResultArea').style.display = 'block';
           } else { myAlert(res.message); }
@@ -578,7 +579,7 @@
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: cart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: document.getElementById('grandTotal').innerText } }) })
         .then(r => r.json()).then(res => {
-          myAlert("🎉 預訂成功！明細已發送至您的 Mail 副本。\\n您的單號為：<b>" + res.orderId + "</b>");
+          myAlert("🎉 預訂成功！明細已發送至您的 Mail 副本。\n您的單號為：<b>" + res.orderId + "</b>");
           cart = []; updateCartUI(); toggleCart(false);
         });
     }
