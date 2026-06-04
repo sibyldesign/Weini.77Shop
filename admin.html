@@ -66,7 +66,7 @@
 
     /* 💎 自訂彈出視窗樣式 */
     .custom-alert { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.5); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
-    .alert-content { background:white; padding:24px; border-radius:20px; width:85%; max-width:340px; text-align:center; box-shadow:0 15px 35px rgba(0,0,0,0.15); border:1px solid #E2E8F0; }
+    .alert-content { background:white; padding:24px; border-radius:20px; width:85%; max-width:320px; text-align:center; box-shadow:0 15px 35px rgba(15,23,42,0.15); border:1px solid #E2E8F0; }
     .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
 
     @media print {
@@ -220,7 +220,7 @@
       <div class="form-grid" style="margin-top:20px;">
         <div><label>手動創立專屬單號 (必填)</label><input type="text" id="cOrderId" placeholder="例如: W77-CUSTOM-01"></div>
         <div><label>客製討論品名細節</label><input type="text" id="cProdName" value="粉櫻浪漫客製大花束"></div>
-        <div><label>雙方協定好金額 (必填)</label><input type="number" id="cAmount" placeholder="example='例如: 1500'"></div>
+        <div><label>雙方協定好金額 (必填)</label><input type="number" id="cAmount" placeholder="例如: 1500"></div>
       </div>
       <button class="primary-btn" onclick="createCustomOrderLink()" style="background:var(--accent-pink);">生成並複製專屬客製下單連結</button>
       <div id="linkOutput" style="margin-top:15px; font-weight:bold; color:var(--primary); font-size:13px; text-align:center;"></div>
@@ -239,7 +239,7 @@
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
     
-    // 🎯 完美綁定：對齊妳開通的 ImgBB 商業圖床專屬授權密鑰
+    // 🎯 核心圖床金鑰：完全綁定您的 ImgBB 帳號
     const IMGBB_API_KEY = '6a1499a96ac36dfef7cc5a8bc7b590bc'; 
 
     let globalProducts = [], filteredProducts = [], isEditMode = false, rawOrdersCache = [];
@@ -254,7 +254,13 @@
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
-      event.target.classList.add('active');
+      
+      // 智慧分頁頁籤元素高亮定位
+      const tabs = document.querySelectorAll('.tab-btn');
+      tabs.forEach(t => {
+        if(t.getAttribute('onclick').includes(tabId)) t.classList.add('active');
+      });
+
       if(tabId === 'listTab') { currentInvPage = 1; loadProductInventory(); }
       if(tabId === 'orderTab') { currentOrderPage = 1; loadOrders(); }
     }
@@ -273,7 +279,7 @@
       });
     };
 
-    // ImgBB 商業圖床高相容性非同步傳輸上傳引擎
+    // ImgBB 商業級高相容檔案異步傳輸引擎
     async function uploadToImgBB(files) {
       if(files.length === 0) return;
       const previewBox = document.getElementById('previewBox'); const pImgs = document.getElementById('pImgs');
@@ -329,12 +335,15 @@
         let p = filteredProducts[i]; let tr = document.createElement('tr'); 
         let urls = p[5].toString().split(/[\s,，、\n\r]+/); let img = urls[0] ? urls[0].trim() : "https://via.placeholder.com/100?text=No+Image";
         
-        // 🎯 終極修復：將價格顯示改回最原始無去噪的「p[2]」純字串直出，徹底杜絕 230250 連合 Bug
+        // 🎯 核心還原：將後台列表單價完整顯示（保留逗號文字），徹底消除去噪黏合錯誤
+        let displayPrice = p[2].toString();
+        if(displayPrice.startsWith("'")) { displayPrice = displayPrice.substring(1); }
+
         tr.innerHTML = `
           <td><input type="checkbox" class="prod-chk" value="${p[0]}"></td>
           <td><img src="${img}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;"></td>
           <td><b>${p[0]}</b></td><td>${p[1]}</td><td><small>${p[6]}</small></td>
-          <td><span style="color:var(--accent-pink); font-weight:bold;">$${p[2]}</span></td><td><small>色:${p[3]}<br>碼:${p[4]}</small></td>
+          <td><span style="color:var(--accent-pink); font-weight:bold;">$${displayPrice}</span></td><td><small>色:${p[3]}<br>碼:${p[4]}</small></td>
           <td><span class="badge" style="background:${p[10]==='下架'?'#E2E8F0':'#E6F4EA'}; color:${p[10]==='下架'?'#64748B':'#137333'};">${p[10]||'上架'}</span></td>
           <td><button class="row-btn" onclick="startEditProduct('${p[0]}')">編輯</button></td>
         `;
@@ -397,7 +406,7 @@
           <td><input type="checkbox" class="order-chk" value="${o.orderId}"></td>
           <td><small>${o.time}</small></td><td><b>${o.orderId}</b></td><td>[${o.sku}] ${o.prodName}<br><small style="color:#64748B;">${o.specs}</small></td><td style="color:var(--accent-pink); font-weight:bold;">$${o.total}</td><td>${o.custName}<br><small style="color:#64748B;">Line:${o.lineName}<br>Tel:${o.phone}</small></td><td><small>${o.shipping}<br>${o.address}</small></td>
           <td><span class="badge" style="${payBadgeStyle}">${o.payStatus} ${o.lastFive?'('+o.lastFive+')':''}</span><br><select class="table-select" style="margin-top:4px;" onchange="updateOrderRow(${o.rowIdx}, null, this.value)"><option value="">對帳變更...</option><option value="未付款">未付款</option><option value="已匯款">已匯款</option><option value="已確認匯款">已確認匯款</option></select></td>
-          <td><span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br><select class="table-select" style="margin-top:4px;" onchange="updateOrderRow(${o.rowIdx}, this.value, null)"><option value="">狀態變更...</option><option value="已收到訂單">已收到訂單</option><option value="已確認訂單">已確認訂單</option><option value="已出貨">聯絡匯款</option><option value="已取消">已取消</option></select></td>
+          <td><span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br><select class="table-select" style="margin-top:4px;" onchange="updateOrderRow(${o.rowIdx}, this.value, null)"><option value="">狀態變更...</option><option value="已收到訂單">已收到訂單</option><option value="已確認訂單">已確認訂單</option><option value="已出貨">已出貨</option><option value="已取消">已取消</option></select></td>
         `; tbody.appendChild(tr);
       }
     }
@@ -430,52 +439,59 @@
 
     // ==================== 🎯 核心儲存修正：鎖死單價文字原樣輸出，徹底封印 230250 Bug ====================
     function submitProduct() {
-      const sku = document.getElementById('pSku').value.trim();
+      const sku = document.getElementById('pSku').value.trim(); 
       const name = document.getElementById('pName').value.trim();
       if(!sku || !name) return myAlert("請填寫貨號與品名！");
-
-      // 🎯 核心通電修改：將 price 強制轉成字串，並在前後加上單引號，強迫 Google 試算表以「純文字」格式儲存，絕對不去掉逗號！
+      
+      // 強制保留逗號字串
       let rawPrice = document.getElementById('pPrice').value.toString().trim();
       
       let prodObj = {
-        sku: sku,
-        name: name, 
-        price: "'" + rawPrice, // 💡 加上單引號防禦，強制 Google 試算表不當成數字，完美保留 230,250 格式
+        sku: sku, name: name, 
+        price: "'" + rawPrice, // 🎯 鎖死最原始字串格式，加上防禦性單引號，禁止 Google 試算表吃掉逗號！
         color: document.getElementById('pColor').value.trim(), 
         size: document.getElementById('pSize').value.trim(),
         category: document.getElementById('pMajorSelect').value + (document.getElementById('pSubSelect').value !== '無' ? ' / ' + document.getElementById('pSubSelect').value : ''),
         desc: document.getElementById('pDesc').value.trim(), 
         progress: document.getElementById('pProgress').value.trim(),
         video: document.getElementById('pVideo').value.trim(), 
-        imgs: document.getElementById('pImgs').value.trim(),
+        imgs: document.getElementById('pImgs').value.trim(), 
         status: document.getElementById('pStatusConfig').value
       };
-
+      
       let targetMethod = isEditMode ? "editProduct" : "addNewProduct";
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: targetMethod, product: prodObj }) })
-        .then(r => r.json()).then(res => { myAlert(res.message); resetProductForm(); loadProductInventory(); });
+        .then(r => r.json()).then(res => { 
+          myAlert(res.message); 
+          resetProductForm(); 
+          
+          // 🎯 體驗優化：儲存成功後原封不動留在目前頁籤（不跳回上架頁），直接更新目前分頁庫存！
+          loadProductInventory(); 
+        });
     }
 
     function startEditProduct(sku) {
-      let p = globalProducts.find(item => item[0].toString().trim() === sku.toString().trim());
-      if(!p) return;
-      isEditMode = true;
-      document.getElementById('formActionTitle').innerText = `📝 編輯商品 - ${sku}`;
-      document.getElementById('submitProductBtn').innerText = "儲存修改內容";
-      document.getElementById('cancelEditBtn').style.display = "block";
+      let p = globalProducts.find(item => item[0].toString().trim() === sku.toString().trim()); if(!p) return;
+      isEditMode = true; document.getElementById('formActionTitle').innerText = `📝 編輯商品 - ${sku}`;
+      document.getElementById('submitProductBtn').innerText = "儲存修改內容"; document.getElementById('cancelEditBtn').style.display = "block";
       document.getElementById('pSku').value = p[0]; document.getElementById('pSku').disabled = true;
       document.getElementById('pName').value = p[1]; 
       
-      // 🎯 核心通電修改：如果雲端帶出來的價格開頭有單引號，自動幫妳清除掉，讓編輯格子裡乾乾淨淨顯示 230,250
-      let cleanPrice = p[2].toString();
+      // 🎯 核心儲存修正：帶入編輯格子時，自動切除我們加進去的防禦單引號，呈現最乾淨的 230,250 格式
+      let cleanPrice = p[2].toString().trim();
       if(cleanPrice.startsWith("'")) { cleanPrice = cleanPrice.substring(1); }
       document.getElementById('pPrice').value = cleanPrice;
       
       document.getElementById('pColor').value = p[3]; document.getElementById('pSize').value = p[4];
       document.getElementById('pImgs').value = p[5]; document.getElementById('pDesc').value = p[7];
       document.getElementById('pProgress').value = p[8]; document.getElementById('pVideo').value = p[9];
-      document.getElementById('pStatusConfig').value = p[10] || "上架";
-      switchTab('uploadTab');
+      document.getElementById('pStatusConfig').value = p[10] || "上架"; 
+      
+      // 切換至編輯區域
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('uploadTab').classList.add('active');
+      document.querySelector(".tab-nav button:nth-child(1)").classList.add('active');
     }
 
     function resetProductForm() {
@@ -492,4 +508,3 @@
   </script>
 </body>
 </html>
-
