@@ -14,15 +14,21 @@
       --accent-pink: #E19898;
     }
     body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; padding-bottom: 140px; }
-    .fixed-ig-nav { position: absolute; right: 10px; top: 15px; display: flex; gap: 8px; z-index: 2100; }
-    .fixed-ig-nav a { color: white; text-decoration: none; font-size: 11px; font-weight: bold; background: rgba(0, 0, 0, 0.15); padding: 5px 10px; border-radius: 12px; }
-    .brand-hero { padding: 35px 16px 20px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    
+    /* 🎯 頂部按鈕視覺優化：字體稍微縮小、間距微調，優化靠上垂直空間，絕不遮擋下方圓形 LOGO */
+    .fixed-ig-nav { display: flex; justify-content: center; gap: 6px; padding-top: 12px; padding-bottom: 6px; z-index: 2100; position: relative; }
+    .fixed-ig-nav a { color: white; text-decoration: none; font-size: 10.5px; font-weight: bold; background: rgba(0, 0, 0, 0.15); padding: 5px 10px; border-radius: 12px; transition: 0.2s; white-space: nowrap; }
+    .fixed-ig-nav a:hover { background: rgba(0, 0, 0, 0.3); }
+    
+    .brand-hero { padding: 10px 16px 20px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .brand-logo { width: 90px; height: 90px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     .brand-title { font-size: 26px; font-weight: 900; color: white; margin-top: 12px; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .announcement-bar { background: rgba(255,255,255,0.2); color: white; padding: 10px 15px; font-size: 13px; text-align: center; font-weight: 600; margin: 0 16px; border-radius: 12px; }
     .search-section { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
     .search-box { background: white; border: none; padding: 14px 18px; border-radius: 24px; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); outline: none; width: 100%; box-sizing: border-box; }
-    .query-panel { background: var(--card-bg); padding: 16px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    
+    /* 歷史查詢卡片相對定位，利於關閉按鈕精準懸浮右上角 */
+    .query-panel { background: var(--card-bg); padding: 16px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; background: #E2E8F4; color: #4A6283; margin-top: 4px; }
     .filter-section { position: sticky; top: 0; z-index: 1900; background: #83A6D4; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .filter-scroll { display: flex; overflow-x: auto; white-space: nowrap; padding: 0 16px; gap: 10px; }
@@ -37,6 +43,7 @@
     .product-title { font-size: 13px; font-weight: bold; color: var(--text-main); line-height: 1.4; height: 36px; overflow: hidden; }
     .product-price { color: var(--accent-pink); font-size: 15px; font-weight: 800; margin-top: 8px; }
     
+    /* 商品一頁顯示20個專屬分頁控制列 */
     .pagination-container { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 20px 16px; padding: 10px; background: rgba(255, 255, 255, 0.15); border-radius: 16px; }
     .page-btn { background: white; color: var(--primary); border: none; padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: 0.2s; }
     .page-btn:disabled { background: rgba(255,255,255,0.4); color: rgba(0,0,0,0.25); cursor: not-allowed; box-shadow: none; }
@@ -70,9 +77,6 @@
     .cart-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; z-index: 2800; padding: 24px; transform: translateY(100%); transition: transform 0.3s ease; max-height: 80vh; overflow-y: auto; box-shadow: 0 -8px 25px rgba(0,0,0,0.1); }
     .cart-drawer.open { transform: translateY(0); }
     .cart-item { border-bottom: 1px solid #F1F5F9; padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
-    .btn-group { display: flex; gap: 10px; margin: 8px 0; }
-    .toggle-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; background: #F8FAFC; font-weight: 600; cursor: pointer; font-size: 13px; text-align: center; }
-    .toggle-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
     .action-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; }
     footer { padding: 30px 16px; text-align: center; font-size: 12px; color: white; }
     #toast { visibility: hidden; background: rgba(0,0,0,0.85); color: white; text-align: center; border-radius: 12px; padding: 12px 24px; position: fixed; z-index: 4000; left: 50%; transform: translateX(-50%); bottom: 160px; font-size: 14px; opacity: 0; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -81,7 +85,6 @@
 </head>
 <body>
 
-  <!-- 🎯 視覺優化校正：LINE客服背景色全面修改與官方 IG / 闆娘 IG 一致的毛玻璃深灰藍底色 -->
   <div class="fixed-ig-nav">
     <a href="https://lin.ee/UyP3YhJ" target="_blank">LINE客服</a>
     <a href="https://www.instagram.com/weini.77shop?igsh=cTdpMDNtdGozVr" target="_blank">官方IG</a>
@@ -96,20 +99,21 @@
   <div id="announcement" class="announcement-bar">Welcome~</div>
 
   <div class="search-section">
-    <!-- 🎯 完美保留：原創包含搜尋按鈕的 Submit 獨立結構與 Enter 鍵過濾 -->
     <form action="javascript:void(0);" onsubmit="searchProducts()" style="display:flex; gap:8px; width:100%;">
       <input type="text" id="searchInput" class="search-box" placeholder="搜尋商品貨號或名稱關鍵字..." style="flex:1;">
       <button type="submit" style="background:var(--primary); color:white; border:none; padding:0 22px; border-radius:24px; font-size:14px; font-weight:bold; cursor:pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">搜尋</button>
     </form>
     
     <div class="query-panel">
+      <span id="closeQueryBtn" onclick="closeQueryPanel()" style="display:none; position: absolute; right: 14px; top: 12px; font-size: 14px; font-weight: bold; color: #94A3B8; background: #FFFFFF; border: 1px solid #E2E8F0; width: 24px; height: 24px; border-radius: 50%; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">✕</span>
+      
       <div style="font-size:13px; font-weight:bold; color:var(--primary); margin-bottom:8px;">🔍 舊客對帳 / 訂單歷史查詢</div>
       <div style="display:flex; gap:8px;">
         <input type="tel" id="queryPhone" placeholder="請輸入下單時的手機號碼" style="flex:1; padding:10px 12px;">
         <button onclick="checkOrderHistory()" style="background:var(--primary); color:white; border:none; padding:0 14px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">查詢資料</button>
       </div>
       <div id="queryResultArea" style="margin-top:10px; font-size:13px; display:none; border-top:1px dashed #CBD5E1; padding-top:8px; line-height:1.5;">
-        <div id="multiOrdersContainer"></div> <!-- 🎯 勿動：完美歷史訂單與對帳看板 -->
+        <div id="multiOrdersContainer"></div> 
       </div>
     </div>
   </div>
@@ -126,7 +130,6 @@
 
   <div id="catalog" class="product-grid"></div>
 
-  <!-- 一頁 20 款商品分頁控制器 -->
   <div id="paginationCtrl" class="pagination-container">
     <button id="btnPrevPage" class="page-btn" onclick="goToPage(currentPage - 1)">上一頁</button>
     <span id="pageIndicator" class="page-info">1 / 1</span>
@@ -156,12 +159,10 @@
         <div id="itemPrice" style="color:var(--accent-pink); font-size:22px; font-weight:800; margin:14px 0;"></div>
         <div style="display:flex; gap:8px; margin-top:12px;">
           <div style="flex:1;"><select id="colorSelect"></select></div>
-          <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div>
-          <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
+          <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div> <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
           <button class="action-btn" onclick="addToCart()" style="flex:1;">加入購物車</button>
-          <!-- 🎯 頂級 UX 優化：點擊分享時，100% 彈出精美 Weini.77 專屬中央大提示窗 -->
           <button type="button" class="action-btn" id="shareProductBtn" style="background:#64748B; width:auto; padding:0 18px;">🔗 分享</button>
         </div>
       </div>
@@ -189,7 +190,6 @@
     </div>
     <div style="margin-top:12px; display:flex; gap:6px;">
       <input type="text" id="discountInput" placeholder="輸入折扣碼" style="padding:10px;">
-      <!-- 🎯 補強修正：折扣碼按鈕通電，加上 type="button" 防範事件沒收失效 -->
       <button type="button" onclick="applyPromo()" style="background:#333; color:white; border:none; padding:0 14px; border-radius:12px; font-weight:bold; font-size:13px; cursor:pointer;">套用</button>
     </div>
     <div style="text-align:right; margin:15px 0; font-size:13px; line-height:1.5;">
@@ -245,15 +245,29 @@
           document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
           setupCategories(res.majorCategories);
           
+          // 🎯 核心物流淨化：在官網僅保留「宅配」及「7-11超商取貨」這兩種配送選項
           if (res.shipModes && res.shipFees) {
-            let modes = res.shipModes.split(/[,，]/); let fees = res.shipFees.split(/[,，]/);
-            const selectDropdown = document.getElementById('shipSelectDropdown'); selectDropdown.innerHTML = "";
-            modes.forEach((m, index) => {
-              let mName = m.trim(); let mFee = Number(fees[index] ? fees[index].trim() : 0);
-              dynamicShippingMap[mName] = mFee;
-              let o = document.createElement('option'); o.value = mName; o.text = `${mName} ($${mFee})`; selectDropdown.appendChild(o);
+            let originalModes = res.shipModes.split(/[,，]/); 
+            let originalFees = res.shipFees.split(/[,，]/);
+            const selectDropdown = document.getElementById('shipSelectDropdown'); 
+            selectDropdown.innerHTML = "";
+            
+            originalModes.forEach((m, index) => {
+              let mName = m.trim(); 
+              let mFee = Number(originalFees[index] ? originalFees[index].trim() : 0);
+              
+              if (mName.includes("宅配") || mName.includes("7-11超商取貨")) {
+                dynamicShippingMap[mName] = mFee;
+                let o = document.createElement('option'); 
+                o.value = mName; 
+                o.text = `${mName} ($${mFee})`; 
+                selectDropdown.appendChild(o);
+              }
             });
-            if(modes.length > 0) currentShipping = modes[0].trim();
+            if (selectDropdown.options.length > 0) {
+              currentShipping = selectDropdown.options[0].value;
+              setShipping(currentShipping);
+            }
           }
 
           let fallbackUrl = document.getElementById('fallbackLogo').src;
@@ -277,8 +291,6 @@
             let foundIdx = products.findIndex(p => p[0].toString().trim().toLowerCase() === skuParam.trim().toLowerCase());
             if(foundIdx !== -1) { setTimeout(() => openProduct(foundIdx), 500); }
           }
-        }).catch(err => {
-          myAlert("資料加載失敗，請檢查試算表權限或 API 連結設定是否正確。");
         });
     };
 
@@ -304,14 +316,17 @@
       currentPage = 1;
       renderCatalog(products);
     }
+    
+    // 🎯 搜尋引擎修復優化
     function searchProducts() {
       let val = document.getElementById('searchInput').value.toLowerCase().trim();
       if(val === "") { products = rawData; currentPage = 1; renderCatalog(products); return; }
-      products = rawData.filter(p => p[0].toLowerCase().includes(val) || p[1].toLowerCase().includes(val));
+      products = rawData.filter(p => p[0].toString().toLowerCase().includes(val) || p[1].toString().toLowerCase().includes(val));
       currentPage = 1;
       renderCatalog(products);
     }
     
+    // 🎯 一頁顯示20個商品之分頁引擎
     function renderCatalog(list) {
       const box = document.getElementById('catalog'); box.innerHTML = "";
       if(list.length === 0) { 
@@ -332,7 +347,7 @@
         let p = list[i];
         let card = document.createElement('div'); card.className = 'product-card'; card.onclick = () => openProduct(i);
         let firstImg = p.processedImgs[0];
-        card.innerHTML = `<img src="${firstImg}" loading="lazy"><div class="product-info"><div class="product-title">[${p[0]}] ${p[1]}</div><div class="product-price">NT$ ${p[2].toString().split(',')[0]}</div></div>`;
+        card.innerHTML = `<img src="${firstImg}" loading="lazy"><div class="product-info"><div class="product-title">[${p[0]}] ${p[1]}</div><div class="product-price">NT$ ${p[2].toString().split(/[,，、]/)[0]}</div></div>`;
         box.appendChild(card);
       }
       
@@ -366,13 +381,13 @@
       buildDots(); showMediaItem();
       document.getElementById('itemTitle').innerText = `[${p[0]}] ${p[1]}`;
       document.getElementById('itemDesc').innerText = p[7] || "";
-      setupDropdown('colorSelect', p[3]); setupSizePriceDropdown('sizeSelect', p[4], p[2]);
+      setupDropdown('colorSelect', p[3]); 
+      setupSizePriceDropdown('sizeSelect', p[4], p[2]); // 啟用多規格精密單價配對
 
-      // 🎯 核心分享跳窗修正：複製連結後強制彈出精美 Weini.77 專屬中央大對話框
       document.getElementById('shareProductBtn').onclick = () => {
         let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
         navigator.clipboard.writeText(shareUrl);
-        myAlert(`🔗 【${p[0]}】專屬分享連結已成功複製！<br><br>可以直接貼至限時動態分享導流囉！`);
+        myAlert(`🎉 【${p[0]}】專屬分享連結已成功複製！<br><br>可以直接貼至限時動態分享導流囉！`);
       };
     }
     function buildDots() {
@@ -409,7 +424,7 @@
       str.toString().split(/[,，、]/).forEach(s => { let o = document.createElement('option'); o.value = o.text = s.trim(); el.appendChild(o); });
     }
     
-    // 🎯 規格單價精密 1:1 配對引擎
+    // 🎯 核心多規格對齊：建立單價精密一對一配對，徹底粉碎「200230」文字相加 Bug
     function setupSizePriceDropdown(id, szStr, prStr) {
       const el = document.getElementById(id); el.innerHTML = "";
       let szs = szStr.toString().split(/[,，、]/).map(s => s.trim()).filter(s => s !== "");
@@ -418,6 +433,7 @@
       szs.forEach((s, idx) => {
         let o = document.createElement('option');
         o.text = o.value = s;
+        // 抓取對應索引價格，若超出則給予第一個基底價
         o.dataset.price = prs[idx] ? prs[idx] : prs[0]; 
         el.appendChild(o);
       });
@@ -464,8 +480,6 @@
     }
     function removeCart(idx) { cart.splice(idx,1); updateCartUI(); }
     function toggleCart(show) { document.getElementById('cartDrawer').classList.toggle('open', show); }
-    
-    // 🎯 折扣碼套用邏輯優化
     function applyPromo() {
       let code = document.getElementById('discountInput').value.trim(); 
       let found = promoList.find(p => p[0] === code);
@@ -479,15 +493,14 @@
       updateCartUI();
     }
 
-    // 🎯 核心強固填報修正：全面打通 queryOrderHistory 數組回傳，完美自動帶入舊客各項資料
+    // 智慧帶入歷史數據功能 (100% 正常穩定回填版)
     function autoFillCustomerData() {
       let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
-          // 修正為完全兼容 allOrders 的高容錯資料解構
           if(res.success && res.allOrders && res.allOrders.length > 0) {
-            let lastO = res.allOrders[0]; // 提取最新一筆歷史紀錄
+            let lastO = res.allOrders[0]; 
             myAlert("✨ 已自動為您填入歷史預訂的收件聯絡人資料！");
             document.getElementById('custName').value = lastO.custName || "";
             document.getElementById('lineName').value = lastO.lineName || "";
@@ -508,7 +521,7 @@
         }).catch(e => myAlert("連線出錯，請確認後台 API 狀態。"));
     }
 
-    // 🎯 勿動：全量歷史看版（已與截圖完美 1:1 條列對齊）
+    // 🎯 勿動：全量歷史單據看版與單筆對帳回傳（與截圖完美對齊）
     function checkOrderHistory() {
       let ph = document.getElementById('queryPhone').value.trim(); if(!ph) return myAlert("請輸入手機號碼");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
@@ -534,10 +547,18 @@
               `;
             });
             document.getElementById('queryResultArea').style.display = 'block';
+            document.getElementById('closeQueryBtn').style.display = 'flex'; 
           } else { myAlert(res.message); }
         });
     }
     
+    function closeQueryPanel() {
+      document.getElementById('queryPhone').value = "";
+      document.getElementById('queryResultArea').style.display = 'none';
+      document.getElementById('closeQueryBtn').style.display = 'none';
+      document.getElementById('multiOrdersContainer').innerHTML = "";
+    }
+
     function submitLastFive(oid) {
       let ph = document.getElementById('queryPhone').value.trim();
       let five = document.getElementById('payFive_' + oid).value.trim();
