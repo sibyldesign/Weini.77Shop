@@ -14,15 +14,26 @@
       --accent-pink: #E19898;
     }
     body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; padding-bottom: 140px; }
-    .fixed-ig-nav { position: absolute; right: 10px; top: 15px; display: flex; gap: 8px; z-index: 2100; }
-    .fixed-ig-nav a { color: white; text-decoration: none; font-size: 11px; font-weight: bold; background: rgba(0, 0, 0, 0.15); padding: 5px 10px; border-radius: 12px; }
-    .brand-hero { padding: 35px 16px 20px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    
+    /* 🎯 視覺優化校正：改為相對布局包裹，防止層級遮擋造成點擊失靈，按鈕字體與間距微調緊湊 */
+    .nav-wrapper { width: 100%; display: flex; justify-content: flex-end; padding: 12px 16px 0 16px; box-sizing: border-box; }
+    .fixed-ig-nav { display: flex; gap: 6px; z-index: 2100; }
+    .fixed-ig-nav a { color: white; text-decoration: none; font-size: 11px; font-weight: bold; background: rgba(44, 62, 80, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 5px 8px; border-radius: 12px; }
+    
+    .brand-hero { padding: 10px 16px 20px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .brand-logo { width: 90px; height: 90px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     .brand-title { font-size: 26px; font-weight: 900; color: white; margin-top: 12px; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .announcement-bar { background: rgba(255,255,255,0.2); color: white; padding: 10px 15px; font-size: 13px; text-align: center; font-weight: 600; margin: 0 16px; border-radius: 12px; }
+    
     .search-section { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
     .search-box { background: white; border: none; padding: 14px 18px; border-radius: 24px; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); outline: none; width: 100%; box-sizing: border-box; }
-    .query-panel { background: var(--card-bg); padding: 16px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    
+    /* 🎯 完美保留原有歷史面板結構，並新增相對定位基礎以供關閉按鈕使用 */
+    .query-panel { background: var(--card-bg); padding: 16px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
+    /* 🎯 新增歷史面板關閉按鈕樣式 */
+    .panel-close-btn { position: absolute; top: 12px; right: 14px; font-size: 16px; font-weight: bold; color: #94A3B8; cursor: pointer; transition: 0.2s; padding: 4px; }
+    .panel-close-btn:hover { color: var(--primary); }
+    
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; background: #E2E8F4; color: #4A6283; margin-top: 4px; }
     .filter-section { position: sticky; top: 0; z-index: 1900; background: #83A6D4; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .filter-scroll { display: flex; overflow-x: auto; white-space: nowrap; padding: 0 16px; gap: 10px; }
@@ -30,6 +41,7 @@
     .filter-tag { background: rgba(255,255,255,0.7); color: var(--text-main); padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
     .filter-tag.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     .line-notice-box { background: #FFF3CD; color: #856404; margin: 0 16px 12px 16px; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: bold; text-align: center; }
+    
     .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
     .product-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.4); display: flex; flex-direction: column; cursor: pointer; }
     .product-card img { width: 100%; aspect-ratio: 1; object-fit: cover; }
@@ -81,11 +93,13 @@
 </head>
 <body>
 
-  <!-- 🎯 視覺優化校正：LINE客服背景色全面修改與官方 IG / 闆娘 IG 一致的毛玻璃深灰藍底色 -->
-  <div class="fixed-ig-nav">
-    <a href="https://lin.ee/UyP3YhJ" target="_blank">LINE客服</a>
-    <a href="https://www.instagram.com/weini.77shop?igsh=cTdpMDNtdGozVr" target="_blank">官方IG</a>
-    <a href="https://www.instagram.com/penny_1030_?igsh=MjgzdXp4YWxoMmFx" target="_blank">闆娘IG</a>
+  <!-- 🎯 視覺優化校正：包裹進排版流中，靠右對齊，不遮擋下方任何搜尋與 LOGO 點擊事件 -->
+  <div class="nav-wrapper">
+    <div class="fixed-ig-nav">
+      <a href="https://lin.ee/UyP3YhJ" target="_blank">LINE客服</a>
+      <a href="https://www.instagram.com/weini.77shop?igsh=cTdpMDNtdGozVr" target="_blank">官方IG</a>
+      <a href="https://www.instagram.com/penny_1030_?igsh=MjgzdXp4YWxoMmFx" target="_blank">闆娘IG</a>
+    </div>
   </div>
 
   <div class="brand-hero">
@@ -103,6 +117,8 @@
     </form>
     
     <div class="query-panel">
+      <!-- 🎯 新增右上角關閉面板按鈕 -->
+      <span class="panel-close-btn" onclick="closeQueryPanel()">✕</span>
       <div style="font-size:13px; font-weight:bold; color:var(--primary); margin-bottom:8px;">🔍 舊客對帳 / 訂單歷史查詢</div>
       <div style="display:flex; gap:8px;">
         <input type="tel" id="queryPhone" placeholder="請輸入下單時的手機號碼" style="flex:1; padding:10px 12px;">
@@ -202,7 +218,8 @@
       <label style="font-size:12px; font-weight:bold; color:#666;">填寫訂購資訊</label>
       <div style="display:flex; gap:8px; margin-bottom:8px;">
         <input type="tel" id="custPhone" placeholder="手機號碼 (必填)" style="flex:1;">
-        <button type="button" onclick="autoFillCustomerData()" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">帶入資料</button>
+        <!-- 🎯 已注入防震穩定機制，防止頁面跳走與焦點失效 -->
+        <button type="button" onclick="autoFillCustomerData(event)" style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">帶入資料</button>
       </div>
       <input type="text" id="custName" placeholder="訂購人姓名 (必填)" style="margin-bottom:8px;">
       <input type="text" id="lineName" placeholder="LINE 名稱 (必填)" style="margin-bottom:8px;">
@@ -479,13 +496,20 @@
       updateCartUI();
     }
 
-    // 🎯 核心強固填報修正：全面打通 queryOrderHistory 數組回傳，完美自動帶入舊客各項資料
-    function autoFillCustomerData() {
+    // 🎯 新增關閉歷史對帳看板功能
+    function closeQueryPanel() {
+      document.getElementById('queryResultArea').style.display = 'none';
+      document.getElementById('multiOrdersContainer').innerHTML = "";
+      document.getElementById('queryPhone').value = "";
+    }
+
+    // 🎯 核心強固填報修正：全面打通並注入事件防範，100% 穩定防止點擊刷新跳走
+    function autoFillCustomerData(event) {
+      if(event) event.preventDefault();
       let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
-          // 修正為完全兼容 allOrders 的高容錯資料解構
           if(res.success && res.allOrders && res.allOrders.length > 0) {
             let lastO = res.allOrders[0]; // 提取最新一筆歷史紀錄
             myAlert("✨ 已自動為您填入歷史預訂的收件聯絡人資料！");
@@ -524,12 +548,12 @@
                   <div><b>訂單內容：</b><br><span style="color:#555;">${o.items.join('<br>')}</span></div>
                   <div><b>訂單狀態：</b><span class="status-badge">${o.status} (${o.payStatus})</span></div>
                   
-                  ${o.payStatus === '未付款' ? `
+                  \${o.payStatus === '未付款' ? \`
                     <div style="margin-top:10px; display: flex; gap: 6px; align-items: center;">
-                      <input type="number" id="payFive_${o.orderId}" placeholder="請填入您的匯款後五碼" style="width:160px; padding:8px; display:inline-block; vertical-align:middle; background: #fff; border: 1px solid #CBD5E1; border-radius: 12px;">
-                      <button onclick="submitLastFive('${o.orderId}')" style="background:var(--accent-pink); border:none; color:white; padding:9px 14px; border-radius:10px; font-weight:bold; cursor:pointer; vertical-align:middle; white-space: nowrap;">回傳付款明細</button>
+                      <input type="number" id="payFive_\${o.orderId}" placeholder="請填入您的匯款後五碼" style="width:160px; padding:8px; display:inline-block; vertical-align:middle; background: #fff; border: 1px solid #CBD5E1; border-radius: 12px;">
+                      <button onclick="submitLastFive('\${o.orderId}')" style="background:var(--accent-pink); border:none; color:white; padding:9px 14px; border-radius:10px; font-weight:bold; cursor:pointer; vertical-align:middle; white-space: nowrap;">回傳付款明細</button>
                     </div>
-                  ` : ''}
+                  \` : ''}
                 </div>
               `;
             });
@@ -554,11 +578,10 @@
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: cart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: document.getElementById('grandTotal').innerText } }) })
         .then(r => r.json()).then(res => {
-          myAlert("🎉 預訂成功！明細已發送至您的 Mail 副本。\n您的單號為：<b>" + res.orderId + "</b>");
+          myAlert("🎉 預訂成功！明細已發送至您的 Mail 副本。\\n您的單號為：<b>" + res.orderId + "</b>");
           cart = []; updateCartUI(); toggleCart(false);
         });
     }
   </script>
 </body>
 </html>
-
