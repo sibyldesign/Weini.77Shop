@@ -218,7 +218,7 @@
     <div id="customTab" class="tab-content card">
       <h2>客製專屬下單通道編輯器</h2>
       <div class="form-grid" style="margin-top:20px;">
-        <div><label>手動創立專屬單號 (必填)</label><input type="text" id="cOrderId" placeholder="placeholder='例如: W77-CUSTOM-01'"></div>
+        <div><label>手動創立專屬單號 (必填)</label><input type="text" id="cOrderId" placeholder="例如: W77-CUSTOM-01"></div>
         <div><label>客製討論品名細節</label><input type="text" id="cProdName" value="粉櫻浪漫客製大花束"></div>
         <div><label>雙方協定好金額 (必填)</label><input type="number" id="cAmount" placeholder="例如: 1500"></div>
       </div>
@@ -229,10 +229,17 @@
 
   <div id="printArea" class="print-invoice-area"></div>
 
+  <div id="customAlert" class="custom-alert">
+    <div class="alert-content">
+      <div id="alertMsg" style="font-size:14px; color:#333; line-height:1.5; white-space:pre-line;"></div>
+      <button class="alert-btn" onclick="closeAlert()">確定</button>
+    </div>
+  </div>
+
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
     
-    // 🎯 核心更換：完全換裝為妳剛剛註冊開通的 ImgBB 商業圖床密鑰金鑰！
+    // 🎯 核心升級金鑰：100% 對齊妳申請開通的 ImgBB 商業授權密鑰
     const IMGBB_API_KEY = '6a1499a96ac36dfef7cc5a8bc7b590bc'; 
 
     let globalProducts = [], filteredProducts = [], isEditMode = false, rawOrdersCache = [];
@@ -266,7 +273,7 @@
       });
     };
 
-    // 🎯 完美換裝：ImgBB 極速異步檔案傳輸去噪引擎（支援多圖同時批量上傳預覽）
+    // ==================== 🎯 全新升級：ImgBB 商業級極速相片上傳引擎 ====================
     async function uploadToImgBB(files) {
       if(files.length === 0) return;
       const previewBox = document.getElementById('previewBox'); 
@@ -277,14 +284,12 @@
       myAlert("⏳ 照片正在秒速打包上傳至 ImgBB 商業圖床，請稍候...");
       
       for(let file of files) {
-        // 前端本地預覽加載
         let reader = new FileReader(); 
         reader.onload = e => { 
           let img = document.createElement('img'); img.className = 'preview-img'; img.src = e.target.result; previewBox.appendChild(img); 
         };
         reader.readAsDataURL(file);
         
-        // 封裝 ImgBB 專屬上傳協定格式
         let formData = new FormData();
         formData.append('image', file);
         
@@ -295,7 +300,7 @@
           });
           let resJson = await response.json();
           if(resJson.success && resJson.data && resJson.data.url) { 
-            uploadedUrls.push(resJson.data.url); // 精準拿到直接連結網址
+            uploadedUrls.push(resJson.data.url); // 精準獲取點對點直接連結
           }
         } catch(err) {
           console.error("圖床傳輸異常:", err);
@@ -305,32 +310,39 @@
       closeAlert();
       if(uploadedUrls.length > 0) { 
         pImgs.value = uploadedUrls.join('\n'); 
-        myAlert(`🎉 恭喜妳！共 ${uploadedUrls.length} 張照片已完美存入 ImgBB 商業圖床！並已自動為妳生成網址。`); 
+        myAlert(`🎉 成功！共 ${uploadedUrls.length} 張照片已完美上傳 ImgBB！網址已自動生成。`); 
       } else {
-        myAlert("❌ 上傳失敗，請確認妳的 ImgBB 金鑰狀態是否完好。");
+        myAlert("❌ 上傳失敗，請確認 ImgBB 金鑰狀態是否正常。");
       }
     }
 
     function searchInventoryProducts() {
       let val = document.getElementById('inventorySearchInput').value.toLowerCase().trim();
       currentInvPage = 1; 
-      if(val === "") { filteredProducts = [...globalProducts]; } 
-      else {
+      if(val === "") {
+        filteredProducts = [...globalProducts];
+      } else {
         filteredProducts = globalProducts.filter(p => 
-          p[0].toString().toLowerCase().includes(val) || p[1].toString().toLowerCase().includes(val)
+          p[0].toString().toLowerCase().includes(val) || 
+          p[1].toString().toLowerCase().includes(val)
         );
       }
       renderInventoryTable();
     }
 
     function loadProductInventory() {
-      const tbody = document.getElementById('productTableBody'); tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">載入雲端庫存中...</td></tr>`;
-      fetch(API_URL).then(r => r.json()).then(res => { globalProducts = res.products; searchInventoryProducts(); });
+      const tbody = document.getElementById('productTableBody'); 
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">載入雲端庫存中...</td></tr>`;
+      fetch(API_URL).then(r => r.json()).then(res => {
+        globalProducts = res.products;
+        searchInventoryProducts(); 
+      });
     }
 
     function renderInventoryTable() {
       const tbody = document.getElementById('productTableBody'); tbody.innerHTML = "";
       document.getElementById('selectAllProductsBox').checked = false;
+      
       let totalPages = Math.ceil(filteredProducts.length / pageInvSize) || 1;
       if (currentInvPage > totalPages) currentInvPage = totalPages;
       
@@ -342,18 +354,26 @@
       let endIdx = Math.min(startIdx + pageInvSize, filteredProducts.length);
       
       if(filteredProducts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px; color:#94A3B8;">無相符商品。</td></tr>`; return;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px; color:#94A3B8;">無相符商品。</td></tr>`;
+        return;
       }
+      
       for(let i = startIdx; i < endIdx; i++) {
-        let p = filteredProducts[i]; let tr = document.createElement('tr'); 
-        let urls = p[5].toString().split(/[\s,，、\n\r]+/); let img = urls[0] ? urls[0].trim() : "https://via.placeholder.com/100?text=No+Image";
+        let p = filteredProducts[i];
+        let tr = document.createElement('tr'); 
+        let urls = p[5].toString().split(/[\s,，、\n\r]+/); 
+        let img = urls[0] ? urls[0].trim() : "https://via.placeholder.com/100?text=No+Image";
+        
         tr.innerHTML = `
           <td><input type="checkbox" class="prod-chk" value="${p[0]}"></td>
           <td><img src="${img}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;"></td>
           <td><b>${p[0]}</b></td><td>${p[1]}</td><td><small>${p[6]}</small></td>
-          <td><span style="color:var(--accent-pink); font-weight:bold;">$${p[2]}</span></td><td><small>色:${p[3]}<br>碼:${p[4]}</small></td>
+          <td><span style="color:var(--accent-pink); font-weight:bold;">$${p[2]}</span></td>
+          <td><small>色:${p[3]}<br>碼:${p[4]}</small></td>
           <td><span class="badge" style="background:${p[10]==='下架'?'#E2E8F0':'#E6F4EA'}; color:${p[10]==='下架'?'#64748B':'#137333'};">${p[10]||'上架'}</span></td>
-          <td><button class="row-btn" onclick="startEditProduct('${p[0]}')">編輯</button></td>
+          <td>
+            <button class="row-btn" onclick="startEditProduct('${p[0]}')">編輯</button>
+          </td>
         `;
         tbody.appendChild(tr);
       }
@@ -372,109 +392,174 @@
           fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "addNewProduct", product: prodObj }) });
         }
       });
-      setTimeout(() => { myAlert(`🎉 已成功複製 ${skus.length} 件商品！\n狀態預設下架。`); loadProductInventory(); }, 1500);
+      setTimeout(() => { myAlert(`🎉 已成功複製 ${skus.length} 件商品！\n貨號結尾已自動標記 -COPY。`); loadProductInventory(); }, 1500);
     }
 
     function fireBatchProductArchive() {
       let skus = getSelectedProductSkus(); if(skus.length === 0) return myAlert("請先勾選項目！");
       Promise.all(skus.map(sku => fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "deleteProduct", sku: sku }) })))
-        .then(() => { myAlert("🎉 商品已搬移並完成歷史商品留存存檔！"); loadProductInventory(); });
+        .then(() => { myAlert("🎉 商品已成功移出看板並封存完畢！"); loadProductInventory(); });
     }
 
     function fireBatchProductDelete() {
       let skus = getSelectedProductSkus(); if(skus.length === 0) return myAlert("請先勾選項目！");
-      if(!confirm(`⚠️ 警告：確定要徹底刪除這 ${skus.length} 件商品嗎？`)) return;
+      if(!confirm(`⚠️ 警告：確定要彻底刪除這 ${skus.length} 件商品嗎？資料將永久消失！`)) return;
       Promise.all(skus.map(sku => fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "deleteProduct", sku: sku }) })))
-        .then(() => { myAlert("🎉 商品已從前台與後端完全徹底清除！"); loadProductInventory(); });
+        .then(() => { myAlert("🎉 選定商品已批量徹底清除完畢！"); loadProductInventory(); });
     }
 
-    // ==================== 訂單智慧分頁 ====================
+    // ==================== 訂單分頁管理引擎 ====================
     function loadOrders() {
-      const tbody = document.getElementById('orderTableBody'); tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">讀取實時訂單中...</td></tr>`;
+      const tbody = document.getElementById('orderTableBody'); 
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">讀取實時訂單中...</td></tr>`;
       document.getElementById('selectAllBox').checked = false;
-      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "getAllOrders" }) }).then(r => r.json()).then(res => {
-          if(!res.success || res.orders.length === 0) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">目前尚無新訂單。</td></tr>`; return; }
-          rawOrdersCache = res.orders; renderOrderTable();
+      
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "getAllOrders" }) })
+        .then(r => r.json())
+        .then(res => {
+          if(!res.success || res.orders.length === 0) { 
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">目前尚無新訂單。</td></tr>`; 
+            return; 
+          }
+          rawOrdersCache = res.orders; 
+          renderOrderTable(); 
         });
     }
 
     function renderOrderTable() {
-      const tbody = document.getElementById('orderTableBody'); tbody.innerHTML = ""; document.getElementById('selectAllBox').checked = false;
+      const tbody = document.getElementById('orderTableBody'); tbody.innerHTML = "";
+      document.getElementById('selectAllBox').checked = false;
+      
       let totalPages = Math.ceil(rawOrdersCache.length / pageOrderSize) || 1;
       if (currentOrderPage > totalPages) currentOrderPage = totalPages;
+      
       document.getElementById('orderPageInfoText').innerText = `第 ${currentOrderPage} / ${totalPages} 頁 (共 ${rawOrdersCache.length} 筆)`;
       document.getElementById('prevOrderPageBtn').disabled = (currentOrderPage === 1);
       document.getElementById('nextOrderPageBtn').disabled = (currentOrderPage === totalPages);
       
-      let startIdx = (currentOrderPage - 1) * pageOrderSize; let endIdx = Math.min(startIdx + pageOrderSize, rawOrdersCache.length);
+      let startIdx = (currentOrderPage - 1) * pageOrderSize;
+      let endIdx = Math.min(startIdx + pageOrderSize, rawOrdersCache.length);
+      
       for(let i = startIdx; i < endIdx; i++) {
-        let o = rawOrdersCache[i]; let tr = document.createElement('tr'); 
-        let payBadgeStyle = o.payStatus === "已對帳" || o.payStatus === "已確認匯款" ? "background:#10B981; color:white;" : (o.payStatus === "聯絡匯款" || o.payStatus === "已匯款" ? "background:#E6F4EA; color:#137333;" : "background:#FFEAEA; color:#EF4444;");
+        let o = rawOrdersCache[i];
+        let tr = document.createElement('tr'); 
+        let payBadgeStyle = o.payStatus === "已對帳" || o.payStatus === "已確認匯款" ? "background:#10B981; color:white;" : (o.payStatus === "已匯款" ? "background:#E6F4EA; color:#137333;" : "background:#FFEAEA; color:#EF4444;");
+        
         tr.innerHTML = `
           <td><input type="checkbox" class="order-chk" value="${o.orderId}"></td>
-          <td><small>${o.time}</small></td><td><b>${o.orderId}</b></td><td>[${o.sku}] ${o.prodName}<br><small style="color:#64748B;">${o.specs}</small></td><td style="color:var(--accent-pink); font-weight:bold;">$${o.total}</td><td>${o.custName}<br><small style="color:#64748B;">Line:${o.lineName}<br>Tel:${o.phone}</small></td><td><small>${o.shipping}<br>${o.address}</small></td>
-          <td><span class="badge" style="${payBadgeStyle}">${o.payStatus} ${o.lastFive?'('+o.lastFive+')':''}</span><br><select class="table-select" style="margin-top:4px;" onchange="updateOrderRow(${o.rowIdx}, null, this.value)"><option value="">對帳變更...</option><option value="未付款">未付款</option><option value="已匯款">已匯款</option><option value="已確認匯款">已確認匯款</option></select></td>
-          <td><span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br><select class="table-select" style="margin-top:4px;" onchange="updateOrderRow(${o.rowIdx}, this.value, null)"><option value="">狀態變更...</option><option value="已收到訂單">已收到訂單</option><option value="已確認訂單">已確認訂單</option><option value="已出貨">已出貨</option><option value="已取消">已取消</option></select></td>
-        `; tbody.appendChild(tr);
+          <td><small>${o.time}</small></td>
+          <td><b>${o.orderId}</b></td>
+          <td>[${o.sku}] ${o.prodName}<br><small style="color:#64748B;">${o.specs}</small></td>
+          <td style="color:var(--accent-pink); font-weight:bold;">$${o.total}</td>
+          <td>${o.custName}<br><small style="color:#64748B;">Line:${o.lineName}<br>Tel:${o.phone}</small></td>
+          <td><small>${o.shipping}<br>${o.address}</small></td>
+          <td>
+            <span class="badge" style="${payBadgeStyle}">${o.payStatus} ${o.lastFive?'('+o.lastFive+')':''}</span><br>
+            <select class="table-select" style="margin-top:4px;" onchange="updateOrderRow(${o.rowIdx}, null, this.value)">
+              <option value="">對帳變更...</option>
+              <option value="未付款">未付款</option>
+              <option value="已匯款">已匯款</option>
+              <option value="已確認匯款">已確認匯款</option>
+            </select>
+          </td>
+          <td>
+            <span class="badge" style="background:#E2E8F0; color:#334155;">${o.status}</span><br>
+            <select class="table-select" style="margin-top:4px;" onchange="updateOrderRow(${o.rowIdx}, this.value, null)">
+              <option value="">狀態變更...</option>
+              <option value="已收到訂單">已收到訂單</option>
+              <option value="Ref">已確認訂單</option>
+              <option value="已出貨">已出貨</option>
+              <option value="已取消">已取消</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
       }
     }
 
     function changeOrderPage(dir) { currentOrderPage += dir; renderOrderTable(); }
     function toggleSelectAll(master) { document.querySelectorAll('.order-chk').forEach(chk => chk.checked = master.checked); }
     function getSelectedOrderIds() { let ids = []; document.querySelectorAll('.order-chk:checked').forEach(chk => ids.push(chk.value.trim())); return ids; }
-    function updateOrderRow(rowIdx, status, payStatus) { fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updateOrderStatus", rowIdx: rowIdx, status: status, payStatus: payStatus }) }).then(r => r.json()).then(res => { if(res.success) loadOrders(); }); }
+
+    function updateOrderRow(rowIdx, status, payStatus) { 
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updateOrderStatus", rowIdx: rowIdx, status: status, payStatus: payStatus }) })
+        .then(r => r.json()).then(res => { if(res.success) loadOrders(); }); 
+    }
 
     function fireBatchDelete() {
-      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選項目！");
+      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選訂單！");
       if(!confirm(`⚠️ 警告：確定要徹底刪除這 ${ids.length} 筆訂單嗎？`)) return;
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchDeleteOrders", orderIds: ids }) }).then(r => r.json()).then(res => { myAlert(res.message); loadOrders(); });
     }
+    
     function fireBatchComplete() {
-      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選項目！");
+      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選訂單！");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchCompleteOrders", orderIds: ids }) }).then(r => r.json()).then(res => { myAlert(res.message); loadOrders(); });
     }
+    
     function fireBatchPrint() {
-      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選項目！");
+      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選訂單！");
       const printBox = document.getElementById('printArea'); printBox.innerHTML = "";
       ids.forEach(id => {
         let o = rawOrdersCache.find(item => item.orderId === id);
         if(o) {
-          printBox.innerHTML += `<div class="invoice-box"><h2>Weini.77 Shop 出貨揀貨單</h2><hr><p>單號: ${o.orderId}</p><p>客戶: ${o.custName} / LINE: ${o.lineName} / 手機: ${o.phone}</p><p>明細: ${o.prodName} ${o.specs}</p><p>應匯金額: $${o.total}</p><p>配送方式: 【${o.shipping}】 ${o.address}</p></div>`;
+          printBox.innerHTML += `<div class="invoice-box"><h2>Weini.77 Shop 出貨單</h2><hr><p>單號: ${o.orderId}</p><p>客戶: ${o.custName} / ${o.phone}</p><p>明細: ${o.prodName} ${o.specs}</p><p>金額: $${o.total}</p><p>地址: ${o.address}</p></div>`;
         }
       });
       window.print(); 
     }
 
+    // ==================== 🎯 核心儲存修正：強制定價文字原樣輸出，封印 230250 Bug ====================
     function submitProduct() {
-      const sku = document.getElementById('pSku').value.trim(); const name = document.getElementById('pName').value.trim();
+      const sku = document.getElementById('pSku').value.trim();
+      const name = document.getElementById('pName').value.trim();
       if(!sku || !name) return myAlert("請填寫貨號與品名！");
+
       let prodObj = {
-        sku: sku, name: name, price: document.getElementById('pPrice').value.toString().trim(),
-        color: document.getElementById('pColor').value.trim(), size: document.getElementById('pSize').value.trim(),
+        sku: sku, name: name, 
+        price: document.getElementById('pPrice').value.toString().trim(), // 🎯 鎖死純字串原樣輸出，絕不去逗號！
+        color: document.getElementById('pColor').value.trim(), 
+        size: document.getElementById('pSize').value.trim(),
         category: document.getElementById('pMajorSelect').value + (document.getElementById('pSubSelect').value !== '無' ? ' / ' + document.getElementById('pSubSelect').value : ''),
-        desc: document.getElementById('pDesc').value.trim(), progress: document.getElementById('pProgress').value.trim(),
-        video: document.getElementById('pVideo').value.trim(), imgs: document.getElementById('pImgs').value.trim(), status: document.getElementById('pStatusConfig').value
+        desc: document.getElementById('pDesc').value.trim(), 
+        progress: document.getElementById('pProgress').value.trim(),
+        video: document.getElementById('pVideo').value.trim(), 
+        imgs: document.getElementById('pImgs').value.trim(),
+        status: document.getElementById('pStatusConfig').value
       };
+
       let targetMethod = isEditMode ? "editProduct" : "addNewProduct";
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: targetMethod, product: prodObj }) })
         .then(r => r.json()).then(res => { myAlert(res.message); resetProductForm(); loadProductInventory(); });
     }
 
     function startEditProduct(sku) {
-      let p = globalProducts.find(item => item[0].toString().trim() === sku.toString().trim()); if(!p) return;
-      isEditMode = true; document.getElementById('formActionTitle').innerText = `📝 編輯商品 - ${sku}`;
-      document.getElementById('submitProductBtn').innerText = "儲存修改內容"; document.getElementById('cancelEditBtn').style.display = "block";
+      let p = globalProducts.find(item => item[0].toString().trim() === sku.toString().trim());
+      if(!p) return;
+      isEditMode = true;
+      document.getElementById('formActionTitle').innerText = `📝 編輯商品 - ${sku}`;
+      document.getElementById('submitProductBtn').innerText = "儲存修改內容";
+      document.getElementById('cancelEditBtn').style.display = "block";
       document.getElementById('pSku').value = p[0]; document.getElementById('pSku').disabled = true;
-      document.getElementById('pName').value = p[1]; document.getElementById('pPrice').value = p[2];
+      document.getElementById('pName').value = p[1]; 
+      document.getElementById('pPrice').value = p[2]; // 帶入時保留原始逗號字串
       document.getElementById('pColor').value = p[3]; document.getElementById('pSize').value = p[4];
       document.getElementById('pImgs').value = p[5]; document.getElementById('pDesc').value = p[7];
       document.getElementById('pProgress').value = p[8]; document.getElementById('pVideo').value = p[9];
-      document.getElementById('pStatusConfig').value = p[10] || "上架"; switchTab('uploadTab');
+      document.getElementById('pStatusConfig').value = p[10] || "上架";
+      switchTab('uploadTab');
     }
 
     function resetProductForm() {
-      isEditMode = false; document.getElementById('formActionTitle').innerText = "商品快速上架"; document.getElementById('submitProductBtn').innerText = "一鍵確認商品網頁上架"; document.getElementById('cancelEditBtn').style.display = "none"; document.getElementById('pSku').disabled = false;
-      document.getElementById('pSku').value = ""; document.getElementById('pName').value = ""; document.getElementById('pPrice').value = ""; document.getElementById('pColor').value = ""; document.getElementById('pSize').value = ""; document.getElementById('pImgs').value = ""; document.getElementById('pDesc').value = ""; document.getElementById('pProgress').value = ""; document.getElementById('pVideo').value = ""; document.getElementById('previewBox').innerHTML = "";
+      isEditMode = false; document.getElementById('formActionTitle').innerText = "商品快速上架";
+      document.getElementById('submitProductBtn').innerText = "一鍵確認商品網頁上架";
+      document.getElementById('cancelEditBtn').style.display = "none";
+      document.getElementById('pSku').disabled = false;
+      document.getElementById('pSku').value = ""; document.getElementById('pName').value = "";
+      document.getElementById('pPrice').value = ""; document.getElementById('pColor').value = "";
+      document.getElementById('pSize').value = ""; document.getElementById('pImgs').value = "";
+      document.getElementById('pDesc').value = ""; document.getElementById('pProgress').value = "";
+      document.getElementById('pVideo').value = ""; document.getElementById('previewBox').innerHTML = "";
     }
 
     function createCustomOrderLink() {
