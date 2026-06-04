@@ -36,6 +36,13 @@
     .product-info { padding: 12px; display: flex; flex-direction: column; flex: 1; }
     .product-title { font-size: 13px; font-weight: bold; color: var(--text-main); line-height: 1.4; height: 36px; overflow: hidden; }
     .product-price { color: var(--accent-pink); font-size: 15px; font-weight: 800; margin-top: 8px; }
+    
+    /* 🎯 全新分頁組件視覺樣式 */
+    .pagination-container { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 20px 16px; padding: 10px; background: rgba(255, 255, 255, 0.15); border-radius: 16px; }
+    .page-btn { background: white; color: var(--primary); border: none; padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: 0.2s; }
+    .page-btn:disabled { background: rgba(255,255,255,0.4); color: rgba(0,0,0,0.25); cursor: not-allowed; box-shadow: none; }
+    .page-info { color: white; font-size: 14px; font-weight: bold; padding: 0 8px; }
+
     .float-controls { position: fixed; right: 16px; bottom: 24px; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; z-index: 2500; }
     .float-cart-btn { background: var(--primary); color: white; padding: 14px 24px; border-radius: 30px; border: none; font-weight: bold; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; display: none; }
     .float-top-btn { background: rgba(255,255,255,0.95); color: var(--primary); width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CBD5E1; font-size: 22px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: none; align-items: center; justify-content: center; }
@@ -45,8 +52,6 @@
     .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
     
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
-    
-    /* 🎯 響應式佈局校正：響應式加大，且規格資料一律在圖片最下方垂直堆疊呈現 */
     .modal-content { background:white; width:92%; max-width: 480px; border-radius:24px; overflow:hidden; position:relative; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; flex-direction: column; height: auto; max-height: 90vh; overflow-y: auto; }
     .modal-close { position: absolute; right: 14px; top: 14px; font-size: 18px; font-weight: bold; color: #64748B; background: #FFFFFF; border: 2px solid #E2E8F0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 120; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     
@@ -54,9 +59,8 @@
     .img-viewer img, .img-viewer iframe { width: 100%; height: 100%; object-fit: cover; border: none; display: block; }
     .video-container { width: 100%; height: 100%; display: none; background: #000; position: absolute; top:0; left:0; z-index: 10; }
     
-    /* 網頁版專用左右按鈕 */
     .arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid #CBD5E1; padding: 10px 14px; color: var(--text-main); border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.12); z-index: 100; }
-    @media (max-width: 768px) { .arrow { display: none !important; } } /* 手機版智慧隱藏箭頭 */
+    @media (max-width: 768px) { .arrow { display: none !important; } }
 
     .indicator-dots { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 20; background: rgba(0, 0, 0, 0.35); padding: 5px 10px; border-radius: 12px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transition: all 0.25s; }
@@ -68,9 +72,6 @@
     .cart-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; z-index: 2800; padding: 24px; transform: translateY(100%); transition: transform 0.3s ease; max-height: 80vh; overflow-y: auto; box-shadow: 0 -8px 25px rgba(0,0,0,0.1); }
     .cart-drawer.open { transform: translateY(0); }
     .cart-item { border-bottom: 1px solid #F1F5F9; padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
-    .btn-group { display: flex; gap: 10px; margin: 8px 0; }
-    .toggle-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #E2E8F0; background: #F8FAFC; font-weight: 600; cursor: pointer; font-size: 13px; text-align: center; }
-    .toggle-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
     .action-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; }
     footer { padding: 30px 16px; text-align: center; font-size: 12px; color: white; }
     #toast { visibility: hidden; background: rgba(0,0,0,0.85); color: white; text-align: center; border-radius: 12px; padding: 12px 24px; position: fixed; z-index: 4000; left: 50%; transform: translateX(-50%); bottom: 160px; font-size: 14px; opacity: 0; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -85,7 +86,7 @@
   </div>
 
   <div class="brand-hero">
-    <img src="https://i.postimg.cc/qBskp62d/6500d65a-71fe-4827-a080-e9b8534bbecd.jpg" class="brand-logo">
+    <img src="https://i.postimg.cc/qBskp62d/6500d65a-71fe-4827-a080-e9b8534bbecd.jpg" class="brand-logo" id="fallbackBrandLogo">
     <div class="brand-title">Weini.77 Shop</div>
   </div>
 
@@ -94,7 +95,7 @@
   <div class="search-section">
     <form action="javascript:void(0);" onsubmit="searchProducts()" style="display:flex; gap:8px; width:100%;">
       <input type="text" id="searchInput" class="search-box" placeholder="搜尋商品貨號或名稱關鍵字..." style="flex:1;">
-      <button type="submit" style="background:var(--primary); color:white; border:none; padding:0 22px; border-radius:24px; font-size:14px; font-weight:bold; cursor:pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">搜尋</button>
+      <button type="submit" style="background:var(--primary); color:white; border:none; padding:0 22px; border-radius:24px; font-size:14px; font-weight:bold; cursor:pointer;">搜尋</button>
     </form>
     
     <div class="query-panel">
@@ -104,7 +105,8 @@
         <button onclick="checkOrderHistory()" style="background:var(--primary); color:white; border:none; padding:0 14px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">查詢資料</button>
       </div>
       <div id="queryResultArea" style="margin-top:10px; font-size:13px; display:none; border-top:1px dashed #CBD5E1; padding-top:8px; line-height:1.5;">
-        <div id="multiOrdersContainer"></div> </div>
+        <div id="multiOrdersContainer"></div>
+      </div>
     </div>
   </div>
 
@@ -119,6 +121,13 @@
   </div>
 
   <div id="catalog" class="product-grid"></div>
+
+  <div id="paginationCtrl" class="pagination-container">
+    <button id="btnFirstPage" class="page-btn" onclick="goToPage(1)">首頁</button>
+    <button id="btnPrevPage" class="page-btn" onclick="goToPage(currentPage - 1)">上一頁</button>
+    <span id="pageIndicator" class="page-info">1 / 1</span>
+    <button id="btnNextPage" class="page-btn" onclick="goToPage(currentPage + 1)">下一頁</button>
+  </div>
 
   <div class="float-controls">
     <button id="backToTopBtn" class="float-top-btn" onclick="scrollToTop()">↑</button>
@@ -138,12 +147,14 @@
         <div class="indicator-dots" id="dotsContainer"></div>
       </div>
       <div class="detail-body">
-        <div id="itemFeatureBadge" class="feature-badge" style="display:none;"></div> <div id="itemTitle" style="font-weight:bold; font-size:16px;"></div>
+        <div id="itemFeatureBadge" class="feature-badge" style="display:none;"></div>
+        <div id="itemTitle" style="font-weight:bold; font-size:16px;"></div>
         <div id="itemDesc" style="font-size:13px; color:#666; margin-top:8px; white-space:pre-line; line-height:1.5;"></div>
         <div id="itemPrice" style="color:var(--accent-pink); font-size:22px; font-weight:800; margin:14px 0;"></div>
         <div style="display:flex; gap:8px; margin-top:12px;">
           <div style="flex:1;"><select id="colorSelect"></select></div>
-          <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div> <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
+          <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div>
+          <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
           <button class="action-btn" onclick="addToCart()" style="flex:1;">加入購物車</button>
@@ -196,10 +207,26 @@
     <button class="action-btn" onclick="submitFinalOrder()" style="background:var(--accent-pink); margin-top:10px;">確認並送出訂單</button>
   </div>
 
+  <div id="customAlert" class="custom-alert">
+    <div class="alert-content">
+      <div id="alertMsg" style="font-size:14px; color:var(--text-main); line-height:1.5;"></div>
+      <button class="alert-btn" onclick="closeAlert()">我知道了</button>
+    </div>
+  </div>
+
+  <div id="toast">🛒 已成功加入購物車！</div>
+
   <script>
+    // 請將您的 Google Web App 網址填入下方 API_URL 變數中
+    const API_URL = "https://script.google.com/macros/s/AKfycbz_K_N37T86g-hNiaqIom6vPqYw81U77Z6AexU0MByw/exec"; 
+
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
     let touchStartX = 0, touchEndX = 0;
+    
+    // 🎯 核心分頁狀態控制變數
+    let currentPage = 1;
+    const itemsPerPage = 20;
 
     window.onscroll = function() {
       let topBtn = document.getElementById("backToTopBtn");
@@ -233,13 +260,21 @@
             if(modes.length > 0) currentShipping = modes[0].trim();
           }
 
-          // 🎯 核心清洗技術：預清洗時鎖定第 6 欄「p[5]」，並強力清除任何隱形空字元，100% 正常載圖
+          // 🎯 核心清洗與防呆：如果試算表圖片沒帶入或是空的，自動回退品牌 Logo 防破圖
+          let fallbackLogo = document.getElementById('fallbackBrandLogo').src;
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
-            let cleanUrls = p[5].toString().split(/[\s,，、\n\r]+/).map(u => u.trim()).filter(u => u !== "");
-            p.processedImgs = cleanUrls.length > 0 ? cleanUrls : ["https://via.placeholder.com/300?text=No+Image"];
+            if (!p[5] || p[5].toString().trim() === "" || p[5].toString().includes("儲存格圖片") || p[5].toString().includes("Preview")) {
+              p.processedImgs = [fallbackLogo];
+            } else {
+              let cleanUrls = p[5].toString().split(/[\s,，、\n\r]+/).map(u => u.trim()).filter(u => u !== "");
+              p.processedImgs = cleanUrls.length > 0 ? cleanUrls : [fallbackLogo];
+            }
             return p;
           });
           products = rawData;
+          
+          // 載入完畢後初始化第一頁
+          currentPage = 1;
           renderCatalog(products);
 
           const urlParams = new URLSearchParams(window.location.search);
@@ -248,6 +283,8 @@
             let foundIdx = products.findIndex(p => p[0].toString().trim().toLowerCase() === skuParam.trim().toLowerCase());
             if(foundIdx !== -1) { setTimeout(() => openProduct(foundIdx), 500); }
           }
+        }).catch(err => {
+          myAlert("資料加載失敗，請檢查試算表權限或 API 連結設定是否正確。");
         });
     };
 
@@ -270,34 +307,67 @@
     function filterCategory(cat) {
       document.getElementById('lineNotice').style.display = (cat === '客製花束') ? 'block' : 'none';
       products = (cat === '全部') ? rawData : rawData.filter(p => p[6] && p[6].toString().trim().includes(cat));
+      currentPage = 1; // 切換分類時重置回第一頁
       renderCatalog(products);
     }
     function searchProducts() {
       let val = document.getElementById('searchInput').value.toLowerCase().trim();
-      if(val === "") { products = rawData; renderCatalog(products); return; }
+      if(val === "") { products = rawData; currentPage = 1; renderCatalog(products); return; }
       products = rawData.filter(p => p[0].toLowerCase().includes(val) || p[1].toLowerCase().includes(val));
+      currentPage = 1; // 搜尋時重置回第一頁
       renderCatalog(products);
     }
+
+    // 🎯 精準分頁渲染引擎：每頁切 20 個商品
     function renderCatalog(list) {
       const box = document.getElementById('catalog'); box.innerHTML = "";
-      if(list.length === 0) { box.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:white; font-size:13px;'>目前無此商品</p>"; return; }
-      list.forEach((p, idx) => {
-        let card = document.createElement('div'); card.className = 'product-card'; card.onclick = () => openProduct(idx);
+      
+      if(list.length === 0) { 
+        box.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:white; font-size:13px;'>目前無此商品</p>"; 
+        document.getElementById('paginationCtrl').style.display = 'none';
+        return; 
+      }
+      
+      document.getElementById('paginationCtrl').style.display = 'flex';
+      
+      // 計算總頁數與當頁索引界限
+      let totalPages = Math.ceil(list.length / itemsPerPage);
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+      
+      let startIdx = (currentPage - 1) * itemsPerPage;
+      let endIdx = Math.min(startIdx + itemsPerPage, list.length);
+      
+      // 僅渲染當前分頁的商品群
+      for (let i = startIdx; i < endIdx; i++) {
+        let p = list[i];
+        let card = document.createElement('div'); card.className = 'product-card'; card.onclick = () => openProduct(i);
         let firstImg = p.processedImgs[0];
         card.innerHTML = `<img src="${firstImg}" loading="lazy"><div class="product-info"><div class="product-title">[${p[0]}] ${p[1]}</div><div class="product-price">NT$ ${p[2].toString().split(',')[0]}</div></div>`;
         box.appendChild(card);
-      });
+      }
+      
+      // 更新分頁控制按鈕與文字狀態
+      document.getElementById('pageIndicator').innerText = `${currentPage} / ${totalPages}`;
+      document.getElementById('btnFirstPage').disabled = (currentPage === 1);
+      document.getElementById('btnPrevPage').disabled = (currentPage === 1);
+      document.getElementById('btnNextPage').disabled = (currentPage === totalPages);
+    }
+    
+    // 分頁切換點擊觸發函式
+    function goToPage(page) {
+      currentPage = page;
+      renderCatalog(products);
+      scrollToTop(); // 切換分頁後自動平滑滾回商品頂端
     }
     
     function openProduct(idx) {
       selectedIdx = idx; const p = products[idx];
       document.getElementById('itemModal').style.display = 'flex';
       
-      // 輪播狀態完全歸零
       imgIdx = 0; 
       curImgs = [...p.processedImgs];
       
-      // 🎯 解碼去噪：全自動封印 Error 153 影片錯誤項目
       let videoUrl = p[9] ? p[9].toString().trim() : "";
       let videoBox = document.getElementById('videoContainer');
       let playerEl = document.getElementById('videoPlayer');
@@ -321,9 +391,8 @@
       document.getElementById('itemTitle').innerText = `[${p[0]}] ${p[1]}`;
       document.getElementById('itemDesc').innerText = p[7] || "";
       setupDropdown('colorSelect', p[3]); 
-      setupSizePriceDropdown('sizeSelect', p[4], p[2]); // 啟動精密規格價格平行配對
+      setupSizePriceDropdown('sizeSelect', p[4], p[2]);
 
-      // 🎯 分享按鈕一鍵複製與高質感提示彈出窗
       document.getElementById('shareProductBtn').onclick = () => {
         let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
         navigator.clipboard.writeText(shareUrl);
@@ -362,7 +431,7 @@
         imgEl.style.display = "none"; videoBox.style.display = "block"; playerEl.src = currentItem.url; 
       } else {
         videoBox.style.display = "none"; playerEl.src = ""; imgEl.style.display = "block";
-        imgEl.src = (typeof currentItem === "string") ? currentItem : "https://via.placeholder.com/300?text=No+Image";
+        imgEl.src = (typeof currentItem === "string") ? currentItem : document.getElementById('fallbackBrandLogo').src;
       }
       updateDots();
     }
@@ -371,8 +440,6 @@
       const el = document.getElementById(id); el.innerHTML = ""; if(!str) return;
       str.toString().split(/[,，、]/).forEach(s => { let o = document.createElement('option'); o.value = o.text = s.trim(); el.appendChild(o); });
     }
-    
-    // 🎯 核心多維對齊規格：建立單價一對一精密配對，完全消除價格 200230 的 Bug
     function setupSizePriceDropdown(id, szStr, prStr) {
       const el = document.getElementById(id); el.innerHTML = "";
       let szs = szStr.toString().split(/[,，、]/).map(s => s.trim()).filter(s => s !== "");
@@ -386,7 +453,6 @@
       });
       syncMultiSizePrice(); 
     }
-    
     function syncMultiSizePrice() {
       const el = document.getElementById('sizeSelect');
       if(el && el.options.length > 0) {
@@ -394,7 +460,6 @@
         document.getElementById('itemPrice').innerText = "NT$ " + selectPrice;
       }
     }
-
     function closeModal() { document.getElementById('itemModal').style.display = 'none'; document.getElementById('videoPlayer').src = ""; }
     function addToCart() {
       const sz = document.getElementById('sizeSelect'); if(!sz.options[sz.selectedIndex]) return;
@@ -402,7 +467,6 @@
       closeModal(); updateCartUI();
       let t = document.getElementById('toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000);
     }
-    
     function setShipping(mode) {
       currentShipping = mode;
       document.getElementById('shippingAddressBlock').style.display = mode.includes('宅配') ? 'block' : 'none';
@@ -410,21 +474,18 @@
       updateCartUI();
     }
     function calculateDynamicShipping() { currentShipping = document.getElementById('shipSelectDropdown').value; setShipping(currentShipping); }
-
     function updateCartUI() {
       const box = document.getElementById('cartList'); box.innerHTML = ""; let subtotal = 0; let hasFlower = false;
       cart.forEach((item, idx) => {
         let total = item.price * item.qty; subtotal += total; if(item.category.includes("花束")) hasFlower = true;
         box.innerHTML += `<div class="cart-item"><div><b>[${item.sku}] ${item.prodName}</b><br><small>${item.color}/${item.size} x${item.qty}</small></div><span>$${total} <button onclick="removeCart(${idx})" style="border:none;background:none;color:#94A3B8;cursor:pointer;">✕</button></span></div>`;
       });
-      
       if(hasFlower && !currentShipping.includes("花束")) {
         let dropdown = document.getElementById('shipSelectDropdown');
         for (let option of dropdown.options) {
           if (option.value.includes("花束")) { dropdown.value = option.value; currentShipping = option.value; setShipping(currentShipping); break; }
         }
       }
-
       let shipFee = cart.length > 0 ? (dynamicShippingMap[currentShipping] || 0) : 0;
       document.getElementById('subTotal').innerText = subtotal; document.getElementById('discountAmt').innerText = discountValue; document.getElementById('shipFee').innerText = shipFee;
       document.getElementById('grandTotal').innerText = (subtotal - discountValue + shipFee < 0) ? 0 : (subtotal - discountValue + shipFee);
@@ -438,15 +499,14 @@
       updateCartUI();
     }
 
-    // 🎯 完美修復：一鍵智慧自動填報舊客收件聯絡資訊，按下按鈕完美自動填寫
+    // 🎯 核心功能完全保留：手機號碼一鍵自動帶入歷史顧客數據
     function autoFillCustomerData() {
       let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
-      
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
           if(res.success && res.allOrders && res.allOrders.length > 0) {
-            let lastO = res.allOrders[0]; // 擷取列表最新一筆做帶入
+            let lastO = res.allOrders[0]; 
             myAlert("✨ 已自動為您填入歷史預訂的收件聯絡人資料！");
             document.getElementById('custName').value = lastO.custName || "";
             document.getElementById('lineName').value = lastO.lineName || "";
@@ -455,7 +515,6 @@
             
             let dropdown = document.getElementById('shipSelectDropdown');
             dropdown.value = lastO.shipping; calculateDynamicShipping();
-            
             if(lastO.shipping.includes("超商")) {
               document.getElementById('storeName').value = lastO.address.replace("7-11超商：", "");
             } else {
@@ -465,7 +524,6 @@
         }).catch(e => myAlert("連線出錯，請確認後台 API 狀態。"));
     }
 
-    // 🎯 全量歷史訂單分項呈現
     function checkOrderHistory() {
       let ph = document.getElementById('queryPhone').value.trim(); if(!ph) return myAlert("請輸入手機號碼");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
@@ -473,7 +531,6 @@
           if(res.success && res.allOrders) {
             const container = document.getElementById('multiOrdersContainer');
             container.innerHTML = `<h3 style="margin-top:0; color:var(--primary); font-size:14px; text-align:left;">📋 您名下的所有歷史預訂紀錄如下：</h3>`;
-            
             res.allOrders.forEach(o => {
               container.innerHTML += `
                 <div style="background:#F1F5F9; padding:12px; border-radius:12px; margin-bottom:10px; border:1px solid #E2E8F0; line-height:1.6; text-align:left;">
@@ -494,7 +551,6 @@
           } else { myAlert(res.message); }
         });
     }
-    
     function submitLastFive(oid) {
       let ph = document.getElementById('queryPhone').value.trim();
       let five = document.getElementById('payFive_' + oid).value.trim();
