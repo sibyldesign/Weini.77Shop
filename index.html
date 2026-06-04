@@ -36,33 +36,33 @@
     .product-info { padding: 12px; display: flex; flex-direction: column; flex: 1; }
     .product-title { font-size: 13px; font-weight: bold; color: var(--text-main); line-height: 1.4; height: 36px; overflow: hidden; }
     .product-price { color: var(--accent-pink); font-size: 15px; font-weight: 800; margin-top: 8px; }
-    .float-controls { position: fixed; right: 16px; bottom: 24px; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; z-index: 2500; }
-    .float-cart-btn { background: var(--primary); color: white; padding: 14px 24px; border-radius: 30px; border: none; font-weight: bold; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; display: none; }
-    .float-top-btn { background: rgba(255,255,255,0.95); color: var(--primary); width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CBD5E1; font-size: 22px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: none; align-items: center; justify-content: center; }
     
-    /* 🎯 補強新增：一頁20個商品專屬分頁控制列樣式 */
+    /* 🎯 補強新增：一頁顯示20個商品專屬分頁控制列樣式 */
     .pagination-container { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 20px 16px; padding: 10px; background: rgba(255, 255, 255, 0.15); border-radius: 16px; }
     .page-btn { background: white; color: var(--primary); border: none; padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: 0.2s; }
     .page-btn:disabled { background: rgba(255,255,255,0.4); color: rgba(0,0,0,0.25); cursor: not-allowed; box-shadow: none; }
     .page-info { color: white; font-size: 14px; font-weight: bold; padding: 0 8px; }
 
+    .float-controls { position: fixed; right: 16px; bottom: 24px; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; z-index: 2500; }
+    .float-cart-btn { background: var(--primary); color: white; padding: 14px 24px; border-radius: 30px; border: none; font-weight: bold; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; display: none; }
+    .float-top-btn { background: rgba(255,255,255,0.95); color: var(--primary); width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CBD5E1; font-size: 22px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: none; align-items: center; justify-content: center; }
+    
     .custom-alert { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
     .alert-content { background:white; padding:24px; border-radius:20px; width:85%; max-width:320px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.2); }
     .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
     
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
     
-    /* 🎯 響應式佈局校正：響應式加大，且規格資料一律在圖片最下方垂直堆疊呈現 */
+    /* 🎯 響應式佈局校正：規格資料一律在圖片最下方垂直堆疊呈現，絕不遮擋文字 */
     .modal-content { background:white; width:92%; max-width: 480px; border-radius:24px; overflow:hidden; position:relative; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; flex-direction: column; height: auto; max-height: 90vh; overflow-y: auto; }
     .modal-close { position: absolute; right: 14px; top: 14px; font-size: 18px; font-weight: bold; color: #64748B; background: #FFFFFF; border: 2px solid #E2E8F0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 120; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     
     .img-viewer { width: 100%; aspect-ratio: 1; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; touch-action: pan-y; flex-shrink: 0; }
     .img-viewer img, .img-viewer iframe { width: 100%; height: 100%; object-fit: cover; border: none; display: block; }
-    .video-container { width: 100%; height: 100%; display: none; background: #000; }
+    .video-container { width: 100%; height: 100%; display: none; background: #000; position: absolute; top:0; left:0; z-index: 10; }
     
-    /* 網頁版專用左右按鈕 */
     .arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid #CBD5E1; padding: 10px 14px; color: var(--text-main); border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.12); z-index: 100; }
-    @media (max-width: 768px) { .arrow { display: none !important; } } /* 手機版智慧隱藏箭頭 */
+    @media (max-width: 768px) { .arrow { display: none !important; } } 
 
     .indicator-dots { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 20; background: rgba(0, 0, 0, 0.35); padding: 5px 10px; border-radius: 12px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transition: all 0.25s; }
@@ -109,8 +109,7 @@
         <button onclick="checkOrderHistory()" style="background:var(--primary); color:white; border:none; padding:0 14px; border-radius:12px; font-size:13px; font-weight:bold; cursor:pointer;">查詢資料</button>
       </div>
       <div id="queryResultArea" style="margin-top:10px; font-size:13px; display:none; border-top:1px dashed #CBD5E1; padding-top:8px; line-height:1.5;">
-        <div id="multiOrdersContainer"></div>
-      </div>
+        <div id="multiOrdersContainer"></div> </div>
     </div>
   </div>
 
@@ -150,14 +149,12 @@
         <div class="indicator-dots" id="dotsContainer"></div>
       </div>
       <div class="detail-body">
-        <div id="itemFeatureBadge" class="feature-badge" style="display:none;"></div>
         <div id="itemTitle" style="font-weight:bold; font-size:16px;"></div>
         <div id="itemDesc" style="font-size:13px; color:#666; margin-top:8px; white-space:pre-line; line-height:1.5;"></div>
         <div id="itemPrice" style="color:var(--accent-pink); font-size:22px; font-weight:800; margin:14px 0;"></div>
         <div style="display:flex; gap:8px; margin-top:12px;">
           <div style="flex:1;"><select id="colorSelect"></select></div>
-          <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div>
-          <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
+          <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div> <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
           <button class="action-btn" onclick="addToCart()" style="flex:1;">加入購物車</button>
@@ -215,9 +212,61 @@
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
     let touchStartX = 0, touchEndX = 0;
     
-    // 🎯 核心分頁狀態變數 (一頁限制出現20個商品)
+    // 🎯 核心分頁狀態控制變數 (一頁限制出現20個商品)
     let currentPage = 1;
     const itemsPerPage = 20;
+
+    window.onload = () => {
+      const swiperArea = document.getElementById('swiperArea');
+      swiperArea.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, false);
+      swiperArea.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }, false);
+
+      fetch(API_URL)
+        .then(r => r.json())
+        .then(res => {
+          promoList = res.promos;
+          document.getElementById('announcement').innerText = res.announcement;
+          document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
+          setupCategories(res.majorCategories);
+          
+          if (res.shipModes && res.shipFees) {
+            let modes = res.shipModes.split(/[,，]/); let fees = res.shipFees.split(/[,，]/);
+            const selectDropdown = document.getElementById('shipSelectDropdown'); selectDropdown.innerHTML = "";
+            modes.forEach((m, index) => {
+              let mName = m.trim(); let mFee = Number(fees[index] ? fees[index].trim() : 0);
+              dynamicShippingMap[mName] = mFee;
+              let o = document.createElement('option'); o.value = mName; o.text = `${mName} ($${mFee})`; selectDropdown.appendChild(o);
+            });
+            if(modes.length > 0) currentShipping = modes[0].trim();
+          }
+
+          // 🎯 全域防禦清洗技術：如果試算表圖片沒帶入、鎖死、或是空的，自動回退品牌 Logo 防破圖
+          let fallbackLogo = document.getElementById('fallbackLogo').src;
+          rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
+            if (!p[5] || p[5].toString().trim() === "" || p[5].toString().includes("儲存格圖片") || p[5].toString().includes("Preview")) {
+              p.processedImgs = [fallbackLogo];
+            } else {
+              let cleanUrls = p[5].toString().split(/[\s,，、\n\r]+/).map(u => u.trim()).filter(u => u !== "");
+              p.processedImgs = cleanUrls.length > 0 ? cleanUrls : [fallbackLogo];
+            }
+            return p;
+          });
+          products = rawData;
+          
+          // 初始化分頁並列印商品庫存
+          currentPage = 1;
+          renderCatalog(products);
+
+          const urlParams = new URLSearchParams(window.location.search);
+          const skuParam = urlParams.get('sku');
+          if(skuParam) {
+            let foundIdx = products.findIndex(p => p[0].toString().trim().toLowerCase() === skuParam.trim().toLowerCase());
+            if(foundIdx !== -1) { setTimeout(() => openProduct(foundIdx), 500); }
+          }
+        }).catch(err => {
+          myAlert("資料加載失敗，請檢查試算表權限或 API 連結設定是否正確。");
+        });
+    };
 
     function handleSwipe() {
       if (curImgs.length <= 1) return;
@@ -238,18 +287,18 @@
     function filterCategory(cat) {
       document.getElementById('lineNotice').style.display = (cat === '客製花束') ? 'block' : 'none';
       products = (cat === '全部') ? rawData : rawData.filter(p => p[6] && p[6].toString().trim().includes(cat));
-      currentPage = 1; // 切換分類重置第一頁
+      currentPage = 1; // 重置分頁
       renderCatalog(products);
     }
     function searchProducts() {
       let val = document.getElementById('searchInput').value.toLowerCase().trim();
       if(val === "") { products = rawData; currentPage = 1; renderCatalog(products); return; }
       products = rawData.filter(p => p[0].toLowerCase().includes(val) || p[1].toLowerCase().includes(val));
-      currentPage = 1; // 搜尋時重置第一頁
+      currentPage = 1; // 重置分頁
       renderCatalog(products);
     }
 
-    // 🎯 核心重構分頁渲染引擎：一頁20個商品
+    // 🎯 精準分頁控制：每頁完美切片 20 個商品進行前端動態渲染
     function renderCatalog(list) {
       const box = document.getElementById('catalog'); box.innerHTML = "";
       if(list.length === 0) { 
@@ -266,7 +315,7 @@
       let startIdx = (currentPage - 1) * itemsPerPage;
       let endIdx = Math.min(startIdx + itemsPerPage, list.length);
       
-      // 唯獨渲染這 20 個商品
+      // 切割 20 筆
       for(let i = startIdx; i < endIdx; i++) {
         let p = list[i];
         let card = document.createElement('div'); card.className = 'product-card'; card.onclick = () => openProduct(i);
@@ -283,13 +332,14 @@
     function goToPage(targetPage) {
       currentPage = targetPage;
       renderCatalog(products);
-      scrollToTop(); // 切分頁順暢滾回頂端
+      scrollToTop(); // 切換分頁自動平滑回商品頂部
     }
     
     function openProduct(idx) {
       selectedIdx = idx; const p = products[idx];
       document.getElementById('itemModal').style.display = 'flex';
       
+      // 輪播狀態索引精密重置歸零
       imgIdx = 0; 
       curImgs = [...p.processedImgs];
       
@@ -306,17 +356,12 @@
       } else { videoBox.style.display = "none"; playerEl.src = ""; }
 
       buildDots(); showMediaItem();
-      
-      let featureTag = p[8] ? p[8].toString().trim() : "";
-      let badgeEl = document.getElementById('itemFeatureBadge');
-      if(badgeEl) {
-        if(featureTag !== "") { badgeEl.innerText = featureTag; badgeEl.style.display = "inline-block"; } else { badgeEl.style.display = "none"; }
-      }
-
       document.getElementById('itemTitle').innerText = `[${p[0]}] ${p[1]}`;
       document.getElementById('itemDesc').innerText = p[7] || "";
-      setupDropdown('colorSelect', p[3]); setupSizePriceDropdown('sizeSelect', p[4], p[2]);
+      setupDropdown('colorSelect', p[3]); 
+      setupSizePriceDropdown('sizeSelect', p[4], p[2]); // 調用規格價格平行配對
 
+      // 一鍵複製專屬導流網址與提示彈出窗
       document.getElementById('shareProductBtn').onclick = () => {
         let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p[0])}`;
         navigator.clipboard.writeText(shareUrl);
@@ -355,7 +400,7 @@
         imgEl.style.display = "none"; videoBox.style.display = "block"; playerEl.src = currentItem.url; 
       } else {
         videoBox.style.display = "none"; playerEl.src = ""; imgEl.style.display = "block";
-        imgEl.src = (typeof currentItem === "string") ? currentItem : "https://via.placeholder.com/300?text=No+Image";
+        imgEl.src = (typeof currentItem === "string") ? currentItem : document.getElementById('fallbackLogo').src;
       }
       updateDots();
     }
@@ -365,7 +410,7 @@
       str.toString().split(/[,，、]/).forEach(s => { let o = document.createElement('option'); o.value = o.text = s.trim(); el.appendChild(o); });
     }
     
-    // 🎯 核心多維尺寸單價精密一對一配對，完全根除「200230」文字相加 Bug
+    // 🎯 核心多維規格尺寸、價格一對一精密配對引擎，完全杜絕「200230」文字相加 Bug
     function setupSizePriceDropdown(id, szStr, prStr) {
       const el = document.getElementById(id); el.innerHTML = "";
       let szs = szStr.toString().split(/[,，、]/).map(s => s.trim()).filter(s => s !== "");
@@ -401,7 +446,6 @@
       updateCartUI();
     }
     function calculateDynamicShipping() { currentShipping = document.getElementById('shipSelectDropdown').value; setShipping(currentShipping); }
-
     function updateCartUI() {
       const box = document.getElementById('cartList'); box.innerHTML = ""; let subtotal = 0; let hasFlower = false;
       cart.forEach((item, idx) => {
@@ -427,9 +471,9 @@
       updateCartUI();
     }
 
-    // 🎯 智慧自動填報歷史資料
+    // 智慧歷史資料填報
     function autoFillCustomerData() {
-      let ph = document.getElementById('custPhone').value.trim(); 
+      let ph = document.getElementById('custPhone').value.trim(); 
       if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
@@ -452,6 +496,7 @@
         }).catch(e => myAlert("連線出錯，請確認後台 API 狀態。"));
     }
 
+    // 🎯 完美改寫：全量歷史訂單分項條列，解決只跳隨機一筆的 Bug
     function checkOrderHistory() {
       let ph = document.getElementById('queryPhone').value.trim(); if(!ph) return myAlert("請輸入手機號碼");
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
