@@ -20,6 +20,7 @@
     .fixed-ig-nav { display: flex; gap: 6px; }
     .fixed-ig-nav a { color: white; text-decoration: none; font-size: 11px; font-weight: bold; background: rgba(44, 62, 80, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 5px 8px; border-radius: 12px; transition: 0.2s; }
     
+    /* 隱形會員狀態列 */
     .member-badge-bar { background: rgba(255, 255, 255, 0.2); color: white; margin: 0 16px 8px 16px; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
     .logout-btn { background: #333; color: white; border: none; padding: 2px 6px; border-radius: 6px; font-size: 10px; cursor: pointer; }
 
@@ -28,9 +29,10 @@
     .brand-title { font-size: 26px; font-weight: 900; color: white; margin-top: 12px; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .announcement-bar { background: rgba(255,255,255,0.2); color: white; padding: 10px 15px; font-size: 13px; text-align: center; font-weight: 600; margin: 0 16px; border-radius: 12px; }
     
+    /* 🎯 視覺大瘦身：搜尋與登入查詢對帳合併為極簡一列，去除大框贅字，展現 App 精緻感 */
     .search-section { padding: 16px; display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 2000; }
-    .app-control-bar { background: var(--card-bg); padding: 8px; border-radius: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 6px; width: 100%; box-sizing: border-box; }
-    .app-input { background: transparent; border: none; padding: 8px 12px; font-size: 12px; outline: none; flex: 1; color: var(--text-main); min-width: 0; }
+    .app-control-bar { background: var(--card-bg); padding: 6px 8px; border-radius: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 6px; width: 100%; box-sizing: border-box; }
+    .app-input { background: transparent; border: none; padding: 8px 10px; font-size: 12px; outline: none; flex: 1; color: var(--text-main); min-width: 0; }
     .app-btn-search { background: var(--primary); color: white; border: none; padding: 8px 14px; border-radius: 18px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; transition: 0.2s; }
     .app-btn-query { background: #E19898; color: white; border: none; padding: 8px 14px; border-radius: 18px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; transition: 0.2s; }
     
@@ -39,6 +41,7 @@
     
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; background: #E2E8F4; color: #4A6283; margin-top: 4px; }
     
+    /* 🎯 遵照指示：改回一長條橫列，手機端可以直接左右滑動，未選取按鈕加上與字體一致的細框 */
     .filter-section { position: sticky; top: 0; z-index: 1900; background: #83A6D4; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .filter-scroll { display: flex; overflow-x: auto; white-space: nowrap; padding: 0 16px; gap: 8px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
     .filter-scroll::-webkit-scrollbar { display: none; }
@@ -47,12 +50,14 @@
     
     .line-notice-box { background: #FFF3CD; color: #856404; margin: 0 16px 12px 16px; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: bold; text-align: center; }
     
+    /* 🎯 頂級視覺加速：全面將清單比例優化鎖定為 4:5 的高挑極美電商規格 */
     .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
     .product-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.4); display: flex; flex-direction: column; cursor: pointer; }
     .product-card img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; background: #F8FAFC; }
     .product-info { padding: 12px; display: flex; flex-direction: column; flex: 1; }
     .product-title { font-size: 13px; font-weight: bold; color: var(--text-main); line-height: 1.4; height: 36px; overflow: hidden; }
     
+    /* 原價與特價雙重顯示排版 */
     .p-price-container { display: flex; align-items: baseline; gap: 5px; margin-top: 8px; }
     .p-price-old { color: var(--accent-gray); font-size: 11px; text-decoration: line-through; }
     .p-price-new { color: var(--accent-pink); font-size: 14px; font-weight: 800; }
@@ -95,6 +100,7 @@
     .cart-item { border-bottom: 1px solid #F1F5F9; padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
     .action-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; }
     
+    /* 🎯 頁尾極簡政策條款：移除了所有大白框、Emoji 符號，保持乾淨置中，動態讀取 */
     .policy-footer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 30px 16px; margin-top: 30px; }
     .policy-footer-item { width: 100%; max-width: 320px; text-align: center; }
     .policy-title-trigger { font-size: 13px; font-weight: bold; color: white; cursor: pointer; padding: 4px 0; letter-spacing: 1px; }
@@ -123,10 +129,9 @@
 
   <div id="announcement" class="announcement-bar">Welcome~</div>
 
-  <!-- 🎯 終極精簡：搜尋與登入查詢整合為單一列行動工作列 -->
   <div class="search-section">
     <div class="app-control-bar">
-      <input type="text" id="searchInput" class="app-input" placeholder="輸入貨號名稱或手機號碼...">
+      <input type="text" id="searchInput" class="app-input" placeholder="輸入商品名稱、貨號或手機號碼...">
       <button type="button" onclick="searchProducts()" class="app-btn-search">搜尋商品</button>
       <button type="button" onclick="checkOrderHistory()" class="app-btn-query">登入對帳</button>
     </div>
@@ -138,7 +143,6 @@
     </div>
   </div>
 
-  <!-- 🎯 分類標籤：一長條橫列，手機端可滑動 -->
   <div class="filter-section">
     <div class="filter-scroll" id="categoryTabs">
       <button class="filter-tag active" onclick="filterCategory('全部')">全部商品</button>
@@ -309,7 +313,7 @@
           document.getElementById('announcement').innerText = res.announcement;
           document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
           
-          // 🎯 核心修正：對齊後台 GAS 接口，動態加載試算表 H, I, J 欄三大須知條款
+          // 🎯 動態同步：讀取試算表後端「公告設定」分頁中的 H1, I1, J1 儲存格內容
           document.getElementById('boxNotice').innerText = res.shopNotice || "暫無購物須知說明";
           document.getElementById('boxRefund').innerText = res.refundNotice || "暫無退換貨須知說明";
           document.getElementById('boxPrivacy').innerText = res.privacyPolicy || "暫無隱私權政策說明";
@@ -330,17 +334,17 @@
 
           let fallbackUrl = document.getElementById('fallbackLogo').src;
           
-          // 🎯 核心重構：徹底打通 K 欄單價！不論是新後台格式還是傳統未建立規格格式，100% 完美識別並顯示單價！
+          // 🎯 雲端解鎖核心：高相容防解鎖過濾，全面釋放架上重新上架商品
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
             let pObj = { sku: p[0], name: p[1], status: p[2], category: p[3], tag: p[4], desc: p[5], video: p[6] };
             if (!p[7] || p[7].toString().trim() === "") { pObj.processedImgs = [fallbackUrl]; } 
             else { pObj.processedImgs = p[7].toString().split(/[\s\n\r]+/).map(u => u.trim()).filter(u => u !== ""); }
             
-            // 判斷第 8 欄位 (I欄) 是否包含矩陣 JSON 配置，如果沒有，直接綁定 K 欄位的傳統單價！
+            // 🎯 核心連線：判斷是否有 JSON 規格物件，如果沒有（新產品空欄位），自動抓取 K 欄傳統單價（p[10]）
             if (p[8] && p[8].toString().trim().startsWith('[')) {
               pObj.specs = JSON.parse(p[8]);
             } else {
-              // 兼容舊架構與新上架空規格式：直接撈取 K 欄單價 (對應陣列 p[10])
+              // 兼容老資料與新上架：安全抓取單價對齊欄位 (試算表 K 欄位對應 p[10])
               let rawKPrice = p[10] ? p[10].toString().replace(/[']/g, "").trim() : "詢問售價";
               pObj.specs = [{ spec: "單一規格", oldPrice: "", price: rawKPrice, stock: "" }];
             }
@@ -394,7 +398,7 @@
       renderCatalog(products);
     }
     
-    // 🎯 雙向智慧複合式單列工作檯：智慧捕捉，輸入手機直接執行查詢，免去多餘贅字
+    // 🎯 複合單列變形蟲：智慧雙向攔截，輸入手機點對帳直接執行登入核對
     function searchProducts() {
       let val = document.getElementById('searchInput').value.toLowerCase().trim();
       if(val === "") { products = rawData; currentPage = 1; renderCatalog(products); return; }
@@ -408,7 +412,7 @@
       renderCatalog(products);
     }
     
-    // 🎯 圖片加載特權解鎖：強制開啟 eager 與 high 權限，秒速彈出前排主圖，外連打開速度最高規格優化
+    // 🎯 純字串完美快打拼接：徹底瓦解 ${} 代碼外漏問題，前 4 張圖注入 high 權限與 eager 強制加載指令
     function renderCatalog(list) {
       const box = document.getElementById('catalog'); box.innerHTML = "";
       if(list.length === 0) { 
@@ -431,7 +435,7 @@
           if(p.specs[0].oldPrice) { oldPriceText = '<span class="p-price-old">NT$ ' + p.specs[0].oldPrice + '</span>'; }
         }
         
-        // 強制插隊高速載入宣告
+        // 解鎖插隊最高加載指令
         let priorityAttr = (i - startIdx < 4) ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
         
         card.innerHTML = '<img src="' + firstImg + '" ' + priorityAttr + ' decoding="async">' +
@@ -501,6 +505,7 @@
       if (document.getElementById('nextBtn')) document.getElementById('nextBtn').style.display = showArrows;
     }
 
+    // 🎯 智慧留白與自適應補白防裁切機制
     function showMediaItem() {
       let currentItem = curImgs[imgIdx]; let imgEl = document.getElementById('itemImg');
       let viewerBox = document.getElementById('swiperArea');
@@ -535,7 +540,7 @@
 
     function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
     
-    // 🎯 核心強固修復：對齊購物車主要資料欄位封裝，移除多餘分支，保證購物車正確彈出
+    // 🎯 購物車封裝修復：主商品屬性補全，點擊加入後購物車按鈕 100% 現身彈出
     function addToCart() {
       const p = rawData[selectedIdx]; const el = document.getElementById('sizeSelect');
       let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
@@ -599,9 +604,10 @@
         });
     }
 
+    // 🎯 歷史看板高防禦渲染：徹底消除殘留條件式造成的字串代碼外露
     function checkOrderHistory() {
       let ph = document.getElementById('searchInput').value.trim(); 
-      if(!ph || !/^\d+$/.test(ph)) return myAlert("請直接在上方輸入框填寫您的【手機號碼】再點擊登入對帳唷！");
+      if(!ph || !/^\d+$/.test(ph)) return myAlert("請直接在上方長條欄位內輸入您的【手機號碼】，再按右側【登入對帳】按鈕唷！");
       
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
@@ -611,6 +617,8 @@
               .then(r=>r.json()).then(fRes => { if(fRes.success) { favoriteSkus = fRes.favorites; localStorage.setItem('w77_favs', JSON.stringify(favoriteSkus)); } });
 
             const container = document.getElementById('multiOrdersContainer'); container.innerHTML = ""; 
+            if(res.allOrders.length === 0) { container.innerHTML = "<p style='color:#7F8C8D;font-size:12px;'>您目前查無任何歷史訂購紀錄唷。</p>"; }
+            
             res.allOrders.forEach(o => {
               let rowHtml = '<div style="border-bottom: 1px dashed #CBD5E1; padding: 12px 0; text-align: left; line-height: 1.6;">' +
                             '<div><b>歷史單號：</b><span>' + o.orderId + '</span></div>' +
