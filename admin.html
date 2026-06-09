@@ -62,9 +62,24 @@
     .page-nav-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: 0.2s; }
     .page-nav-btn:disabled { background: rgba(255,255,255,0.4); color: rgba(0,0,0,0.3); cursor: not-allowed; }
 
+    .spec-tag-container { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #F1F5F9; border-radius: 8px; min-height: 42px; align-items: center; margin-top: 5px; }
+    .spec-tag { background: #3B82F6; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+    .spec-tag span { cursor: pointer; font-size: 14px; opacity: 0.8; }
+    
+    .memory-btn-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .memory-btn { background: #E2E8F0; color: #475569; border: 1px solid #CBD5E1; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    
+    .matrix-table input { padding: 6px 8px; font-size: 13px; border-radius: 6px; }
     .custom-alert { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
     .alert-content { background:white; padding:24px; border-radius:20px; width:85%; max-width:320px; text-align:center; box-shadow:0 15px 35px rgba(0,0,0,0.2); }
     .alert-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:18px; font-weight:bold; cursor:pointer; }
+
+    @media print {
+      body { background: white; color: black; padding: 0; }
+      .admin-container, .tab-nav, h2, button, select, .top-right-link, .pagination-bar { display: none !important; }
+      .print-invoice-area { display: block !important; width: 100%; }
+      .invoice-box { border: 2px solid black; padding: 24px; border-radius: 12px; margin-bottom: 30px; page-break-after: always; font-size: 15px; line-height: 1.6; }
+    }
     .print-invoice-area { display: none; }
   </style>
 </head>
@@ -85,12 +100,13 @@
       <button class="tab-btn" onclick="switchTab('customTab')">客製專屬通道編輯</button>
     </div>
 
+    <!-- 1. 商品快速上架面板 -->
     <div id="uploadTab" class="tab-content active card">
       <h2 id="formActionTitle">商品快速上架</h2>
       <div class="form-grid">
-        <div><label>商品貨號 (A欄位必填)</label><input type="text" id="pSku" placeholder="例如: B01"></div>
-        <div><label>商品品名 (B欄位必填)</label><input type="text" id="pName" placeholder="例如: 韓系綁帶連身洋裝"></div>
-        <div><label>商品狀態 (C欄位)</label>
+        <div><label>商品貨號 (必填)</label><input type="text" id="pSku" placeholder="例如: B01"></div>
+        <div><label>商品品名 (必填)</label><input type="text" id="pName" placeholder="例如: 韓系綁帶連身洋裝"></div>
+        <div><label>商品狀態</label>
           <select id="pStatusConfig">
             <option value="上架">上架</option>
             <option value="下架">下架</option>
@@ -98,61 +114,122 @@
         </div>
       </div>
       
+      <!-- 🎯 核心重構：主、副分類 1:1 智慧多級連動選單結構 -->
       <div class="form-grid">
         <div>
-          <label>商品主分類 (D欄位)</label>
+          <label>商品主分類</label>
           <select id="pMajorSelect" onchange="performSubCategoryLinkage()"></select>
         </div>
         <div>
-          <label>商品副分類 (E欄位自動過濾)</label>
+          <label>商品副分類 (自動連動過濾)</label>
           <select id="pSubSelect"></select>
         </div>
-        <div><label>特色標籤 (F欄位選填)</label><input type="text" id="pProgress" placeholder="會顯示在商品圖左上方"></div>
+        <div><label>特色標籤 (選填，例如：今夏最特別)</label><input type="text" id="pProgress" placeholder="會顯示在商品圖左上方"></div>
       </div>
       
       <div class="form-grid">
-        <div style="grid-column: span 2;"><label>YouTube / IG 導流播放網址 (H欄位方案C)</label><input type="text" id="pVideo" placeholder="請貼上不公開影音或 Reels 分享網址"></div>
+        <div style="grid-column: span 2;"><label>YouTube / IG 導流播放網址 (方案C)</label><input type="text" id="pVideo" placeholder="請貼上不公開影音或 Reels 分享網址"></div>
       </div>
       
       <div style="margin-bottom:15px;">
-        <label>商品細節敘述短文 (G欄位)</label>
+        <label>商品細節敘述短文</label>
         <textarea id="pDesc" rows="2" placeholder="填寫衣服材質、特點細節描述..."></textarea>
       </div>
 
+      <!-- 智慧規格標籤模組控制面板 -->
       <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
-        <div style="font-size: 14px; font-weight: bold; color: var(--primary); margin-bottom: 12px;">🎨 商品售價與傳統規格設定</div>
-        <div class="form-grid">
-          <div><label>原價字串 (K欄位選填，多售價請用逗號對齊尺寸)</label><input type="text" id="pOldPrice" placeholder="例如: 3500,3200"></div>
-          <div><label>特價字串/單價 (L欄位必填，多售價請用逗號對齊尺寸)</label><input type="text" id="pPrice" placeholder="例如: 2880,2480"></div>
+        <div style="font-size: 14px; font-weight: bold; color: var(--primary); margin-bottom: 12px;">🎨 商品規格與樣式設定</div>
+        
+        <div style="display:flex; gap:15px; align-items:center; margin-bottom:10px;">
+          <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="radio" name="specMode" value="single" checked onchange="toggleSpecMode(this.value)"> <b>單一規格商品</b>
+          </label>
+          <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="radio" name="specMode" value="multi" onchange="toggleSpecMode(this.value)"> <b>多規格商品</b>
+          </label>
         </div>
-        <div class="form-grid">
-          <div><label>可選顏色 (M欄位)</label><input type="text" id="pColor" placeholder="例如: 黑色,白色"></div>
-          <div><label>可選尺碼 (N欄位)</label><input type="text" id="pSize" placeholder="例如: S,M,L"></div>
+
+        <div id="multiSpecEditBlock" style="display:none; border-top: 1px dashed #CBD5E1; padding-top:12px;">
+          <div class="form-grid" style="grid-template-columns: 140px 1fr 100px;">
+            <div>
+              <label>規格類型</label>
+              <select id="specTypeSelect" onchange="handleSpecTypeChange()">
+                <option value="尺寸">尺寸</option>
+                <option value="顏色">顏色</option>
+                <option value="版型">版型</option>
+                <option value="自訂">自訂</option>
+              </select>
+              <input type="text" id="specTypeCustom" placeholder="輸入自訂規格" style="display:none; margin-top:4px;">
+            </div>
+            <div>
+              <label>輸入規格名稱（輸入後按 Enter 鍵或點右側新增產生標籤）</label>
+              <input type="text" id="specValueInput" placeholder="例如：黑色、S、防風款" onkeydown="if(event.key==='Enter') { event.preventDefault(); addSpecTag(); }">
+              <div class="memory-btn-group" id="sizeMemoryGroup"></div>
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+              <button type="button" onclick="addSpecTag()" style="background:var(--primary); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">➕ 新增</button>
+            </div>
+          </div>
+          
+          <div class="spec-tag-container" id="specTagsContainer">
+            <span style="color:#94A3B8; font-size:12px;">暫無規格標籤，請在上方欄位輸入</span>
+          </div>
         </div>
-        <div style="display:none;">
-          <textarea id="pSpecsData">[]</textarea>
-          <textarea id="pAddonsData">[]</textarea>
+
+        <div style="margin-top:15px; overflow-x:auto;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <label style="margin:0;">💰 各款式細部價格、商品編號與庫存配置矩陣</label>
+            <button type="button" id="batchSetBtn" onclick="fireBatchSetMatrix()" style="background:#333; color:white; border:none; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; display:none;">⚡ 統一調動所有價格/庫存</button>
+          </div>
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>款式規格</th>
+                <th style="width:120px;">原價 (選填)</th>
+                <th style="width:120px;">特價 (結帳價)</th>
+                <th style="width:160px;">商品編號 (選填)</th>
+                <th style="width:100px;">庫存 (選填)</th>
+              </tr>
+            </thead>
+            <tbody id="matrixTableBody">
+              <tr data-type="single-row">
+                <td>基本款式單一規格</td>
+                <td><input type="number" class="m-old-price" placeholder="選填"></td>
+                <td><input type="number" class="m-price" placeholder="必填"></td>
+                <td><input type="text" class="m-sku" placeholder="留空同主貨號"></td>
+                <td><input type="number" class="m-stock" placeholder="不限制"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
+
+      <!-- 加購品模組化配置面板 -->
+      <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+        <div style="font-size: 14px; font-weight: bold; color: var(--primary); margin-bottom: 8px;">🛒 本商品專屬「加購優惠」模組設定</div>
+        <div id="addonRowsContainer"></div>
+        <button type="button" onclick="addNewAddonRow()" style="background:none; border:1px dashed var(--primary); color:var(--primary); width:100%; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:8px;">＋ 新增一項加購商品配置</button>
       </div>
 
       <div class="upload-box" onclick="document.getElementById('fileInput').click()">
         <span style="font-size:24px;">➕</span>
-        <p style="margin:5px 0 0 0; font-weight:bold; font-size:14px; color:var(--primary);">點擊選取商品照片（秒速上傳 ImgBB 圖床）</p>
+        <p style="margin:5px 0 0 0; font-weight:bold; font-size:14px; color:var(--primary);">點擊選取照片上傳（秒速上傳 ImgBB 圖床）</p>
         <input type="file" id="fileInput" multiple accept="image/*" style="display:none;" onchange="uploadToImgBB(this.files)">
         <div class="preview-container" id="previewBox"></div>
       </div>
       <div style="margin-bottom:20px;">
-        <label>已上傳的圖片網址紀錄欄 (I欄位，多圖自動換行)</label>
-        <textarea id="pImgs" rows="3" placeholder="照片上傳後，網址會自動生成於此區..."></textarea>
+        <label>已上傳的商品圖片網址（首行即為主圖，多圖請分行）</label>
+        <textarea id="pImgs" rows="3" placeholder="上傳照片後，網址會自動生成於此..."></textarea>
       </div>
       <button class="primary-btn" id="submitProductBtn" onclick="submitProduct()">一鍵同步確認商品網頁上架</button>
       <button class="primary-btn" id="cancelEditBtn" onclick="resetProductForm()" style="background:#64748B; margin-top:8px; display:none;">取消編輯狀態</button>
     </div>
 
+    <!-- 2. 商品清單總覽面板 -->
     <div id="listTab" class="tab-content card">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
         <h2>目前架上所有商品清單</h2>
-        <input type="text" id="inventorySearchInput" placeholder="🔍 輸入貨號或品名搜尋庫存..." oninput="searchInventoryProducts()" style="max-width:300px; padding:10px 14px; border-radius:20px; background: white;">
+        <input type="text" id="inventorySearchInput" placeholder="🔍 輸入貨號或品名搜尋庫存..." oninput="searchInventoryProducts()" style="max-width:300px; padding:10px 14px; border-radius:20px; box-shadow:0 2px 6px rgba(0,0,0,0.05); background: white;">
       </div>
 
       <div class="batch-control-panel">
@@ -172,14 +249,14 @@
               <th>主貨號</th>
               <th>品名</th>
               <th>分類 (主/副)</th>
-              <th>原價/特價區間</th>
-              <th>規格樣式</th>
+              <th>價格區間</th>
+              <th>細部規格與庫存狀態</th>
               <th>狀態</th>
               <th>操作</th>
             </tr>
           </thead>
           <tbody id="productTableBody">
-            <tr><td colspan="8" style="text-align:center; padding:20px; color:#94A3B8;">資料庫載入中...</td></tr>
+            <tr><td colspan="9" style="text-align:center; padding:20px; color:#94A3B8;">資料庫載入中...</td></tr>
           </tbody>
         </table>
       </div>
@@ -191,6 +268,7 @@
       </div>
     </div>
 
+    <!-- 3. 訂單管理看板面板 -->
     <div id="orderTab" class="tab-content card">
       <h2>訂單管理看板</h2>
       <div class="batch-control-panel">
@@ -228,6 +306,7 @@
       </div>
     </div>
 
+    <!-- 4. 客製專屬通道編輯面板 -->
     <div id="customTab" class="tab-content card">
       <h2>客製專屬下單通道編輯器</h2>
       <div class="form-grid" style="margin-top:20px;">
@@ -254,7 +333,9 @@
     const IMGBB_API_KEY = '6a1499a96ac36dfef7cc5a8bc7b590bc'; 
 
     let globalProducts = [], filteredProducts = [], isEditMode = false, rawOrdersCache = [];
-    let subCategoryMapping = {}; 
+    let currentTags = []; 
+    let memorySizes = ['S', 'M', 'L', 'XL', 'XXL', 'F', '單一規格']; 
+    let subCategoryMapping = {}; // 🎯 儲存雲端下載的主副分類對應字典表格
     
     let currentInvPage = 1; const pageInvSize = 20;
     let currentOrderPage = 1; const pageOrderSize = 20;
@@ -273,33 +354,136 @@
     }
 
     window.onload = () => {
+      buildMemorySizeButtons();
       fetch(API_URL).then(r => r.json()).then(res => {
+        // 1. 寫入主分類下拉選單
         if(res.majorCategories) {
           const majEl = document.getElementById('pMajorSelect'); majEl.innerHTML = "";
           res.majorCategories.split(/[,，]/).forEach(c => { let o = document.createElement('option'); o.value = o.text = c.trim(); majEl.appendChild(o); });
         }
+        
+        // 🎯 2. 解析並綁定多級連動副分類對應表 (格式：精選衣物=上衣/下裝)
         if(res.subCategories) {
           res.subCategories.split(/[,，]/).forEach(item => {
             let pts = item.split('=');
-            if(pts.length === 2) { subCategoryMapping[pts[0].trim()] = pts[1].trim().split('/'); }
+            if(pts.length === 2) {
+              subCategoryMapping[pts[0].trim()] = pts[1].trim().split('/');
+            }
           });
         }
+        
+        // 預設執行一次分類連動更新
         performSubCategoryLinkage();
         globalProducts = res.products;
       });
     };
 
+    // 🎯 核心多級連動引擎：主分類改變時，自動刷新副分類下拉選單
     function performSubCategoryLinkage(selectedSubValue = "") {
       const majorValue = document.getElementById('pMajorSelect').value;
-      const subSelect = document.getElementById('pSubSelect'); subSelect.innerHTML = "";
+      const subSelect = document.getElementById('pSubSelect');
+      subSelect.innerHTML = "";
+      
+      // 如果該主分類有設定一對一的副分類
       if(subCategoryMapping[majorValue]) {
         subCategoryMapping[majorValue].forEach(sub => {
-          let o = document.createElement('option'); o.value = o.text = sub.trim(); subSelect.appendChild(o);
+          let o = document.createElement('option');
+          o.value = o.text = sub.trim();
+          subSelect.appendChild(o);
         });
       } else {
-        let o = document.createElement('option'); o.value = o.text = "無副分類"; subSelect.appendChild(o);
+        // 預設防呆無副分類選項
+        let o = document.createElement('option');
+        o.value = o.text = "無副分類";
+        subSelect.appendChild(o);
       }
-      if(selectedSubValue) { subSelect.value = selectedSubValue; }
+      
+      if(selectedSubValue) {
+        subSelect.value = selectedSubValue;
+      }
+    }
+
+    function toggleSpecMode(mode) {
+      const multiBlock = document.getElementById('multiSpecEditBlock');
+      const batchBtn = document.getElementById('batchSetBtn');
+      if (mode === 'single') {
+        multiBlock.style.display = 'none'; batchBtn.style.display = 'none'; currentTags = []; renderMatrixTable();
+      } else {
+        multiBlock.style.display = 'block'; batchBtn.style.display = 'block'; handleSpecTypeChange(); renderMatrixTable();
+      }
+    }
+    function handleSpecTypeChange() {
+      const type = document.getElementById('specTypeSelect').value;
+      document.getElementById('specTypeCustom').style.display = (type === '自訂') ? 'block' : 'none';
+      document.getElementById('sizeMemoryGroup').style.display = (type === '尺寸') ? 'flex' : 'none';
+    }
+    function buildMemorySizeButtons() {
+      const container = document.getElementById('sizeMemoryGroup'); container.innerHTML = "";
+      memorySizes.forEach(sz => {
+        let btn = document.createElement('button'); btn.type = 'button'; btn.className = 'memory-btn'; btn.innerText = sz;
+        btn.onclick = () => { injectMemorySize(sz); }; container.appendChild(btn);
+      });
+    }
+    function injectMemorySize(sz) {
+      if (!currentTags.some(t => t.value === sz)) {
+        currentTags.push({ type: document.getElementById('specTypeSelect').value, value: sz });
+        renderSpecTags(); renderMatrixTable();
+      }
+    }
+    function addSpecTag() {
+      const typeSelect = document.getElementById('specTypeSelect').value;
+      const type = (typeSelect === '自訂') ? document.getElementById('specTypeCustom').value.trim() : typeSelect;
+      const valInput = document.getElementById('specValueInput'); const value = valInput.value.trim();
+      if (!type || !value) return myAlert("請填妥規格資料！");
+      if (currentTags.some(t => t.type === type && t.value === value)) return myAlert("此規格標籤已存在！");
+      currentTags.push({ type: type, value: value }); valInput.value = ""; renderSpecTags(); renderMatrixTable();
+    }
+    function removeSpecTag(index) { currentTags.splice(index, 1); renderSpecTags(); renderMatrixTable(); }
+    function renderSpecTags() {
+      const container = document.getElementById('specTagsContainer'); container.innerHTML = "";
+      if (currentTags.length === 0) { container.innerHTML = `<span style="color:#94A3B8; font-size:12px;">暫無規格標籤</span>`; return; }
+      currentTags.forEach((tag, idx) => {
+        let el = document.createElement('div'); el.className = 'spec-tag';
+        el.innerHTML = `${tag.type}: ${tag.value} <span onclick="removeSpecTag(${idx})">✕</span>`; container.appendChild(el);
+      });
+    }
+
+    function renderMatrixTable() {
+      const tbody = document.getElementById('matrixTableBody'); const oldData = saveCurrentMatrixState(); tbody.innerHTML = "";
+      if (currentTags.length === 0) {
+        tbody.innerHTML = `<tr data-type="single-row"><td>基本款式單一規格</td><td><input type="number" class="m-old-price" placeholder="選填" value="${oldData['single']?.oldPrice || ''}"></td><td><input type="number" class="m-price" placeholder="必填" value="${oldData['single']?.price || ''}"></td><td><input type="text" class="m-sku" placeholder="同主貨號" value="${oldData['single']?.sku || ''}"></td><td><input type="number" class="m-stock" placeholder="不限" value="${oldData['single']?.stock || ''}"></td></tr>`;
+        return;
+      }
+      currentTags.forEach((tag, idx) => {
+        let key = `${tag.type}:${tag.value}`; let matched = oldData[key] || {}; let tr = document.createElement('tr');
+        tr.dataset.type = "multi-row"; tr.dataset.key = key;
+        tr.innerHTML = `<td><b>${tag.type}：${tag.value}</b></td><td><input type="number" class="m-old-price" placeholder="選填" value="${matched.oldPrice || ''}"></td><td><input type="number" class="m-price" placeholder="必填" value="${matched.price || ''}"></td><td><input type="text" class="m-sku" placeholder="選填編號" value="${matched.sku || ''}"></td><td><input type="number" class="m-stock" placeholder="選填庫存" value="${matched.stock || ''}"></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    function saveCurrentMatrixState() {
+      let state = {};
+      document.querySelectorAll('#matrixTableBody tr').forEach(row => {
+        let isSingle = row.dataset.type === 'single-row'; let key = isSingle ? 'single' : row.dataset.key;
+        state[key] = { oldPrice: row.querySelector('.m-old-price').value, price: row.querySelector('.m-price').value, sku: row.querySelector('.m-sku').value, stock: row.querySelector('.m-stock').value };
+      });
+      return state;
+    }
+    function fireBatchSetMatrix() {
+      let op = prompt("統一填入原價(選填):"); let p = prompt("統一填入特價結帳價(必填):"); let st = prompt("統一填入庫存數量(選填):");
+      if(!p || !p.trim()) return;
+      document.querySelectorAll('#matrixTableBody tr').forEach(row => {
+        if(op !== null) row.querySelector('.m-old-price').value = op;
+        row.querySelector('.m-price').value = p;
+        if(st !== null) row.querySelector('.m-stock').value = st;
+      });
+    }
+
+    function addNewAddonRow(name = "", price = "") {
+      const container = document.getElementById('addonRowsContainer'); let div = document.createElement('div');
+      div.className = "form-grid"; div.style.gridTemplateColumns = "1fr 150px 50px"; div.style.marginTop = "8px";
+      div.innerHTML = `<div><input type="text" class="addon-name" placeholder="加購品名稱" value="${name}"></div><div><input type="number" class="addon-price" placeholder="加購價" value="${price}"></div><div><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:var(--accent-red); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold;">✕</button></div>`;
+      container.appendChild(div);
     }
 
     async function uploadToImgBB(files) {
@@ -318,28 +502,33 @@
       if(uploadedUrls.length > 0) { pImgs.value = uploadedUrls.join('\n'); myAlert(`🎉 上傳成功！`); } else { myAlert("❌ 上傳失敗"); }
     }
 
-    // 🎯 鐵壁防錯：嚴格指定 A - O 欄（15欄規格配置）對齊排序，儲存絕不發生互換錯位
     function submitProduct() {
-      const sku = document.getElementById('pSku').value.trim(); 
-      const name = document.getElementById('pName').value.trim();
+      const sku = document.getElementById('pSku').value.trim(); const name = document.getElementById('pName').value.trim();
       if(!sku || !name) return myAlert("請填寫貨號與品名！");
 
+      let specsArray = [];
+      document.querySelectorAll('#matrixTableBody tr').forEach(row => {
+        let oldPrice = row.querySelector('.m-old-price').value; let price = row.querySelector('.m-price').value;
+        let specSku = row.querySelector('.m-sku').value; let stock = row.querySelector('.m-stock').value;
+        let specTitle = (row.dataset.type === 'single-row') ? '單一規格' : row.dataset.key;
+        if(price) specsArray.push({ spec: specTitle, oldPrice: oldPrice ? Number(oldPrice) : "", price: Number(price), sku: specSku || sku, stock: stock ? Number(stock) : "" });
+      });
+      if(specsArray.length === 0) return myAlert("請至少填入一組結帳特價！");
+
+      let addonsArray = [];
+      document.querySelectorAll('#addonRowsContainer .form-grid').forEach(row => {
+        let aName = row.querySelector('.addon-name').value.trim(); let aPrice = row.querySelector('.addon-price').value.trim();
+        if(aName && aPrice) addonsArray.push({ name: aName, price: Number(aPrice) });
+      });
+      
+      // 🎯 結合儲存：將主分類與連動的副分類合併綁定寫入 D 欄 (格式：主分類 / 副分類)
+      let combinedCategory = document.getElementById('pMajorSelect').value + " / " + document.getElementById('pSubSelect').value;
+
       let prodObj = {
-        sku: sku,                                          // A 欄位
-        name: name,                                        // B 欄位
-        status: document.getElementById('pStatusConfig').value, // C 欄位
-        category: document.getElementById('pMajorSelect').value, // D 欄位
-        subCategory: document.getElementById('pSubSelect').value, // E 欄位
-        progress: document.getElementById('pProgress').value.trim(), // F 欄位
-        desc: document.getElementById('pDesc').value.trim(),   // G 欄位
-        video: document.getElementById('pVideo').value.trim(),  // H 欄位
-        imgs: document.getElementById('pImgs').value.trim(),   // I 欄位
-        specsData: "[]",                                   // J 欄位
-        oldPrice: document.getElementById('pOldPrice').value.trim(), // K 欄位 (原價)
-        price: document.getElementById('pPrice').value.trim(),     // L 欄位 (特價)
-        color: document.getElementById('pColor').value.trim(),     // M 欄位 (顏色)
-        size: document.getElementById('pSize').value.trim(),       // N 欄位 (尺碼)
-        addonsData: "[]"                                   // O 欄位
+        sku: sku, name: name, status: document.getElementById('pStatusConfig').value,
+        category: combinedCategory, progress: document.getElementById('pProgress').value.trim(),
+        desc: document.getElementById('pDesc').value.trim(), video: document.getElementById('pVideo').value.trim(), imgs: document.getElementById('pImgs').value.trim(), 
+        specsData: JSON.stringify(specsArray), addonsData: JSON.stringify(addonsArray)
       };
       
       let targetMethod = isEditMode ? "editProduct" : "addNewProduct";
@@ -347,29 +536,68 @@
         .then(r => r.json()).then(res => { myAlert(res.message); resetProductForm(); loadProductInventory(); });
     }
 
-    // 🎯 編輯回填防震精密機制：100% 精準將資料庫內容填回對應輸入格
     function startEditProduct(sku) {
       let p = globalProducts.find(item => item[0].toString().trim() === sku.toString().trim()); if(!p) return;
       isEditMode = true; 
       document.getElementById('formActionTitle').innerText = `📝 編輯商品 - ${sku}`;
-      document.getElementById('submitProductBtn').innerText = "儲存修改內容"; document.getElementById('cancelEditBtn').style.display = "block";
+      document.getElementById('submitProductBtn').innerText = "儲存修改內容"; 
+      document.getElementById('cancelEditBtn').style.display = "block";
       
       document.getElementById('pSku').value = p[0]; document.getElementById('pSku').disabled = true;
       document.getElementById('pName').value = p[1]; 
       document.getElementById('pStatusConfig').value = p[2] || "上架";
-      document.getElementById('pMajorSelect').value = p[3];
-      performSubCategoryLinkage(p[4] ? p[4].toString().trim() : "");
       
-      document.getElementById('pProgress').value = p[5] || "";
-      document.getElementById('pDesc').value = p[6] || ""; 
-      document.getElementById('pVideo').value = p[7] || "";
-      document.getElementById('pImgs').value = p[8] || "";
-      document.getElementById('pOldPrice').value = p[10] || "";
-      document.getElementById('pPrice').value = p[11] || "";
-      document.getElementById('pColor').value = p[12] || "";
-      document.getElementById('pSize').value = p[13] || "";
-      
+      // 🎯 還原編輯多級分類選單
+      let catString = p[3].toString();
+      if(catString.includes(" / ")) {
+        let parts = catString.split(" / ");
+        document.getElementById('pMajorSelect').value = parts[0].trim();
+        performSubCategoryLinkage(parts[1].trim());
+      } else {
+        document.getElementById('pMajorSelect').value = catString.trim();
+        performSubCategoryLinkage();
+      }
+
+      document.getElementById('pProgress').value = p[4];
+      document.getElementById('pDesc').value = p[5]; document.getElementById('pVideo').value = p[6];
+      document.getElementById('pImgs').value = p[7];
+
+      try {
+        let specs = p[8] ? JSON.parse(p[8]) : [];
+        if(specs.length > 0 && specs[0].spec !== '單一規格') {
+          document.querySelector('input[name="specMode"][value="multi"]').checked = true;
+          toggleSpecMode('multi'); currentTags = [];
+          specs.forEach(s => { let pts = s.spec.split(':'); currentTags.push({ type: pts[0], value: pts[1] }); });
+          renderSpecTags(); renderMatrixTable();
+          setTimeout(() => {
+            document.querySelectorAll('#matrixTableBody tr').forEach(row => {
+              let match = specs.find(s => s.spec === row.dataset.key);
+              if(match) { row.querySelector('.m-old-price').value = match.oldPrice || ""; row.querySelector('.m-price').value = match.price || ""; row.querySelector('.m-sku').value = match.sku || ""; row.querySelector('.m-stock').value = match.stock || ""; }
+            });
+          }, 100);
+        } else {
+          document.querySelector('input[name="specMode"][value="single"]').checked = true;
+          toggleSpecMode('single');
+          setTimeout(() => {
+            let row = document.querySelector('#matrixTableBody tr');
+            if(row && specs[0]) { row.querySelector('.m-old-price').value = specs[0].oldPrice || ""; row.querySelector('.m-price').value = specs[0].price || ""; row.querySelector('.m-sku').value = specs[0].sku || ""; row.querySelector('.m-stock').value = specs[0].stock || ""; }
+          }, 100);
+        }
+      } catch(e) {}
+
+      try {
+        document.getElementById('addonRowsContainer').innerHTML = "";
+        let addons = p[9] ? JSON.parse(p[9]) : []; addons.forEach(a => addNewAddonRow(a.name, a.price));
+      } catch(e) {}
       switchTab('uploadTab');
+    }
+
+    function resetProductForm() {
+      isEditMode = false; document.getElementById('formActionTitle').innerText = "商品快速上架"; document.getElementById('submitProductBtn').innerText = "一鍵確認商品網頁上架"; document.getElementById('cancelEditBtn').style.display = "none"; document.getElementById('pSku').disabled = false;
+      document.getElementById('pSku').value = ""; document.getElementById('pName').value = ""; document.getElementById('pProgress').value = ""; document.getElementById('pDesc').value = ""; document.getElementById('pVideo').value = ""; document.getElementById('pImgs').value = ""; document.getElementById('previewBox').innerHTML = "";
+      document.getElementById('addonRowsContainer').innerHTML = "";
+      document.querySelector('input[name="specMode"][value="single"]').checked = true; toggleSpecMode('single');
+      performSubCategoryLinkage();
     }
 
     function searchInventoryProducts() {
@@ -378,18 +606,30 @@
       renderInventoryTable();
     }
     function loadProductInventory() {
+      const tbody = document.getElementById('productTableBody'); tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">載入雲端庫存中...</td></tr>`;
       fetch(API_URL).then(r => r.json()).then(res => { globalProducts = res.products; searchInventoryProducts(); });
     }
     function renderInventoryTable() {
-      const tbody = document.getElementById('productTableBody'); tbody.innerHTML = "";
-      let totalPages = Math.ceil(filteredProducts.length / pageInvSize) || 1;
-      let startIdx = (currentInvPage - 1) * pageInvSize; let endIdx = Math.min(startIdx + pageInvSize, filteredProducts.length);
+      const tbody = document.getElementById('productTableBody'); tbody.innerHTML = ""; document.getElementById('selectAllProductsBox').checked = false;
+      let totalPages = Math.ceil(filteredProducts.length / pageInvSize) || 1; if (currentInvPage > totalPages) currentInvPage = totalPages;
       document.getElementById('pageInfoText').innerText = `第 ${currentInvPage} / ${totalPages} 頁 (共 ${filteredProducts.length} 件)`;
+      document.getElementById('prevPageBtn').disabled = (currentInvPage === 1); document.getElementById('nextPageBtn').disabled = (currentInvPage === totalPages);
+      let startIdx = (currentInvPage - 1) * pageInvSize; let endIdx = Math.min(startIdx + pageInvSize, filteredProducts.length);
+      if(filteredProducts.length === 0) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">無商品。</td></tr>`; return; }
       
       for(let i = startIdx; i < endIdx; i++) {
-        let p = filteredProducts[i];
-        let urls = p[8] ? p[8].toString().split(/[\s\n\r]+/) : [];
-        tbody.innerHTML += `<tr><td><img src="${urls[0]}" style="width:40px;height:50px;object-fit:cover;"></td><td><b>${p[0]}</b></td><td>${p[1]}</td><td>${p[3]} / ${p[4]||''}</td><td style="color:var(--accent-pink);font-weight:bold;">$${p[11]}</td><td><small>${p[13]}</small></td><td>${p[2]}</td><td><button onclick="startEditProduct('${p[0]}')">編輯</button></td></tr>`;
+        let p = filteredProducts[i]; let tr = document.createElement('tr'); 
+        let urls = p[7].toString().split(/[\s\n\r]+/); let img = urls[0] ? urls[0].trim() : "https://via.placeholder.com/100?text=No+Image";
+        let specsText = "", priceRange = "未設定";
+        try {
+          let specs = p[8] ? JSON.parse(p[8]) : [];
+          if(specs.length > 0) {
+            let prices = specs.map(s => s.price); priceRange = prices.length > 1 ? `$${Math.min(...prices)} ~ $${Math.max(...prices)}` : `$${prices[0]}`;
+            specsText = specs.map(s => `• ${s.spec.replace('尺寸:','').replace('顏色:','')}: $${s.price} (${s.stock===''?'無設限':`存:${s.stock}`})`).join('<br>');
+          }
+        } catch(e) {}
+        tr.innerHTML = `<td><input type="checkbox" class="prod-chk" value="${p[0]}"></td><td><img src="${img}" style="width:45px; height:56px; object-fit:cover; border-radius:6px;"></td><td><b>${p[0]}</b></td><td>${p[1]}</td><td><small>${p[3]}</small></td><td><span style="color:var(--accent-pink); font-weight:bold;">${priceRange}</span></td><td><small style="line-height:1.3; display:block;">${specsText}</small></td><td><span class="badge" style="background:${p[2]==='下架'?'#E2E8F0':'#E6F4EA'}; color:${p[2]==='下架'?'#64748B':'#137333'};">${p[2]||'上架'}</span></td><td><button class="page-nav-btn" style="padding:4px 8px; font-size:11px;" onclick="startEditProduct('${p[0]}')">編輯</button></td>`;
+        tbody.appendChild(tr);
       }
     }
     function changeInventoryPage(dir) { currentInvPage += dir; renderInventoryTable(); }
@@ -399,39 +639,71 @@
       let skus = getSelectedProductSkus(); if(skus.length === 0) return myAlert("請先勾選項目！");
       skus.forEach(sku => {
         let p = globalProducts.find(item => item[0].toString().trim() === sku);
-        if(p) { let prodObj = { sku: p[0]+"-COPY", name: p[1]+"(複製)", status: "下架", category: p[3], subCategory: p[4], progress: p[5], desc: p[6], video: p[7], imgs: p[8], specsData: p[9], oldPrice: p[10], price: p[11], color: p[12], size: p[13], addonsData: p[14] }; fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "addNewProduct", product: prodObj }) }); }
+        if(p) { let prodObj = { sku: p[0]+"-COPY", name: p[1]+"(複製)", status: "下架", category: p[3], progress: p[4], desc: p[5], video: p[6], imgs: p[7], specsData: p[8], addonsData: p[9] }; fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "addNewProduct", product: prodObj }) }); }
       });
-      setTimeout(() => { myAlert(`🎉 複製成功！`); loadProductInventory(); }, 1500);
+      setTimeout(() => { myAlert(`🎉 批次複製成功！預設下架。`); loadProductInventory(); }, 1500);
     }
     function fireBatchProductArchive() {
       let skus = getSelectedProductSkus(); if(skus.length === 0) return myAlert("請先勾選項目！");
-      Promise.all(skus.map(sku => fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "deleteProduct", sku: sku }) }))).then(() => { myAlert("🎉 存檔成功！"); loadProductInventory(); });
+      Promise.all(skus.map(sku => fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "deleteProduct", sku: sku }) }))).then(() => { myAlert("🎉 已移轉至歷史商品存檔！"); loadProductInventory(); });
     }
     function fireBatchProductDelete() {
       let skus = getSelectedProductSkus(); if(skus.length === 0) return myAlert("請先勾選項目！");
-      if(!confirm(`⚠️ 確定要徹底刪除？`)) return;
-      Promise.all(skus.map(sku => fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "deleteProduct", sku: sku }) }))).then(() => { myAlert("🎉 已完全清除！"); loadProductInventory(); });
+      if(!confirm(`⚠️ 確定要徹底刪除選定商品？`)) return;
+      Promise.all(skus.map(sku => fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "deleteProduct", sku: sku }) }))).then(() => { myAlert("🎉 商品已完全清除！"); loadProductInventory(); });
     }
+
     function loadOrders() {
       const tbody = document.getElementById('orderTableBody'); tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">讀取實時訂單中...</td></tr>`;
-      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "getAllOrders" }) }).then(r => r.json()).then(res => { rawOrdersCache = res.orders; renderOrderTable(); });
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "getAllOrders" }) }).then(r => r.json()).then(res => {
+        if(!res.success || res.orders.length === 0) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">目前尚無訂單。</td></tr>`; return; }
+        rawOrdersCache = res.orders; renderOrderTable();
+      });
     }
     function renderOrderTable() {
-      const tbody = document.getElementById('orderTableBody'); tbody.innerHTML = "";
+      const tbody = document.getElementById('orderTableBody'); tbody.innerHTML = ""; document.getElementById('selectAllBox').checked = false;
+      let totalPages = Math.ceil(rawOrdersCache.length / pageOrderSize) || 1; if (currentOrderPage > totalPages) currentOrderPage = totalPages;
+      document.getElementById('orderPageInfoText').innerText = `第 ${currentOrderPage} / ${totalPages} 頁 (共 ${rawOrdersCache.length} 筆)`;
       let startIdx = (currentOrderPage - 1) * pageOrderSize; let endIdx = Math.min(startIdx + pageOrderSize, rawOrdersCache.length);
       for(let i = startIdx; i < endIdx; i++) {
-        let o = rawOrdersCache[i];
-        tbody.innerHTML += `<tr><td><input type="checkbox" class="order-chk" value="${o.orderId}"></td><td><small>${o.time}</small></td><td><b>${o.orderId}</b></td><td>[${o.sku}] ${o.prodName}<br><small>${o.specs}</small></td><td style="color:var(--accent-pink);font-weight:bold;">$${o.total}</td><td>${o.custName}<br><small>${o.phone}</small></td><td><small>${o.shipping}<br>${o.address}</small></td><td><span class="badge">${o.payStatus}</span></td><td><span class="badge">${o.status}</span></td></tr>`;
+        let o = rawOrdersCache[i]; let tr = document.createElement('tr'); 
+        let payBadgeStyle = o.payStatus === "已對帳" || o.payStatus === "已確認匯款" ? "background:#10B981; color:white;" : (o.payStatus === "聯絡匯款" || o.payStatus === "已匯款" ? "background:#E6F4EA; color:#137333;" : "background:#FFEAEA; color:#EF4444;");
+        tr.innerHTML = `<td><input type="checkbox" class="order-chk" value="${o.orderId}"></td><td><small>${o.time}</small></td><td><b>${o.orderId}</b></td><td>[${o.sku}] ${o.prodName}<br><small style="color:#64748B;">${o.specs}</small></td><td style="color:var(--accent-pink); font-weight:bold;">$${o.total}</td><td>${o.custName}<br><small style="color:#64748B;">Line:${o.lineName}<br>Tel:${o.phone}</small></td><td><small>${o.shipping}<br>${o.address}</small></td><td><span class="badge" style="${payBadgeStyle}">${o.payStatus} ${o.lastFive?'('+o.lastFive+')':''}</span><br><select style="margin-top:4px; padding:4px;" onchange="updateOrderRow(${o.rowIdx}, null, this.value, null, null)"><option value="">變更...</option><option value="未付款">未付款</option><option value="已匯款">已匯款</option><option value="Ref確認">已確認匯款</option></select></td><td><span class="badge" style="background:#4A6283; color:white;">${o.status}</span>${o.logisticsId ? `<br><small style="color:#10B981; font-weight:bold;">${o.logisticsCompany}: ${o.logisticsId}</small>` : ''}<div style="margin-top:4px; display:flex; gap:2px;"><select id="lc_${o.rowIdx}" style="padding:2px; font-size:11px; width:70px;"><option value="7-11">7-11</option><option value="黑貓">黑貓</option><option value="郵局">郵局</option></select><input type="text" id="li_${o.rowIdx}" placeholder="單號" style="padding:2px; font-size:11px; width:80px;" value="${o.logisticsId}"></div><button class="page-nav-btn" style="padding:3px 6px; font-size:10px; margin-top:4px; width:100%; background:var(--accent-pink);" onclick="triggerLogisticsUpdate(${o.rowIdx})">更新出貨通知</button></td>`;
+        tbody.appendChild(tr);
       }
     }
-    function updateOrderRow(rowIdx, status, payStatus, lCompany, lId) { fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updateOrderStatus", rowIdx: rowIdx, status: status, payStatus: payStatus }) }).then(r => r.json()).then(res => { loadOrders(); }); }
+    function triggerLogisticsUpdate(rowIdx) {
+      let lCompany = document.getElementById('lc_' + rowIdx).value; let lId = document.getElementById('li_' + rowIdx).value.trim();
+      updateOrderRow(rowIdx, lId ? "已出貨" : "已確認訂單", null, lCompany, lId);
+    }
+    function updateOrderRow(rowIdx, status, payStatus, lCompany, lId) { fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updateOrderStatus", rowIdx: rowIdx, status: status, payStatus: payStatus, logisticsCompany: lCompany, logisticsId: lId }) }).then(r => r.json()).then(res => { if(res.success) loadOrders(); }); }
     function changeOrderPage(dir) { currentOrderPage += dir; renderOrderTable(); }
     function toggleSelectAll(master) { document.querySelectorAll('.order-chk').forEach(chk => chk.checked = master.checked); }
     function getSelectedOrderIds() { let ids = []; document.querySelectorAll('.order-chk:checked').forEach(chk => ids.push(chk.value.trim())); return ids; }
-    function fireBatchDelete() { let ids = getSelectedOrderIds(); fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchDeleteOrders", orderIds: ids }) }).then(() => loadOrders()); }
-    function fireBatchComplete() { let ids = getSelectedOrderIds(); fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchCompleteOrders", orderIds: ids }) }).then(() => loadOrders()); }
-    function fireBatchPrint() { window.print(); }
-    function createCustomOrderLink() { myAlert("連結已複製"); }
+    function fireBatchDelete() {
+      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請勾選項目！");
+      if(!confirm(`⚠️ 確定要徹底刪除選定訂單？`)) return;
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchDeleteOrders", orderIds: ids }) }).then(r => r.json()).then(res => { myAlert(res.message); loadOrders(); });
+    }
+    function fireBatchComplete() {
+      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請勾選項目！");
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "batchCompleteOrders", orderIds: ids }) }).then(r => r.json()).then(res => { myAlert(res.message); loadOrders(); });
+    }
+    function fireBatchPrint() {
+      let ids = getSelectedOrderIds(); if(ids.length === 0) return myAlert("請先勾選項目！");
+      const printBox = document.getElementById('printArea'); printBox.innerHTML = "";
+      ids.forEach(id => {
+        let o = rawOrdersCache.find(item => item.orderId === id);
+        if(o) printBox.innerHTML += `<div class="invoice-box"><h2>Weini.77 Shop 出貨揀貨單</h2><hr><p>單號: ${o.orderId}</p><p>客戶: ${o.custName} / LINE: ${o.lineName}</p><p>明細: ${o.prodName} ${o.specs}</p><p>應匯金額: $${o.total}</p><p>配送方式: 【${o.shipping}】 ${o.address}</p></div>`;
+      });
+      window.print(); 
+    }
+    function createCustomOrderLink() {
+      let id = document.getElementById('cOrderId').value.trim(); let price = document.getElementById('cAmount').value.trim();
+      if(!id || !price) return myAlert("請填寫單號與金額！");
+      let finalLink = `${window.location.href.replace('admin.html', 'custom.html')}?id=${id}`; document.getElementById('linkOutput').innerText = finalLink; navigator.clipboard.writeText(finalLink); myAlert("💐 專屬客製連結已生成並複製！");
+    }
   </script>
 </body>
 </html>
+
