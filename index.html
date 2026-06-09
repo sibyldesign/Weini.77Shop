@@ -482,7 +482,6 @@
           }
         }
         
-        // 🎯 核心提速改動：進網頁優先強迫全力載入前六張圖 (優先級拉到最高，阻斷非必要延遲)
         let priorityAttr = (i - startIdx < 6) ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
         
         card.innerHTML = '<img src="' + firstImg + '" ' + priorityAttr + ' decoding="async">' +
@@ -506,7 +505,6 @@
       curImgs = [...p.processedImgs];
       activeProductSpecs = p.specs || [];
       
-      // 🎯 核心體驗修復：徹底分離影片層與相簿層，解決「滑到第六下才出現其他圖」的 Bug
       let videoUrl = p.video ? p.video.toString().trim() : "";
       currentActiveVideoUrl = videoUrl;
 
@@ -523,7 +521,7 @@
 
       updateFavoriteButtonUI(p.sku);
       buildDots(); 
-      showMediaItem(); // 直接展示第一張高解析圖片，影片控制下移到此控制
+      showMediaItem(); 
       document.getElementById('itemTitle').innerText = "[" + p.sku + "] " + p.name;
       document.getElementById('itemDesc').innerText = p.desc || "";
       syncMultiSizePrice();
@@ -553,12 +551,12 @@
       if (document.getElementById('nextBtn')) document.getElementById('nextBtn').style.display = showArrows;
     }
 
+    // 🎯 智慧留白優化演算法：精密鎖定任何橫圖、方圖與尺寸表網址，100% 阻斷邊緣切除
     function showMediaItem() {
       let currentItem = curImgs[imgIdx]; let imgEl = document.getElementById('itemImg');
       let viewerBox = document.getElementById('swiperArea');
       let videoBox = document.getElementById('videoCoverContainer');
 
-      // 🎯 只有當有影音網址，且使用者處在第一張（索引0）時，才精準覆蓋影片啟動層，否則一律隱藏，絕不阻擋後續大圖
       if (currentActiveVideoUrl !== "" && imgIdx === 0) {
         videoBox.style.display = "block";
         document.getElementById('videoCoverImg').src = (typeof currentItem === "string") ? currentItem : document.getElementById('fallbackLogo').src;
@@ -570,10 +568,15 @@
       
       imgEl.onload = function() {
         let ratio = imgEl.naturalWidth / imgEl.naturalHeight;
-        if(ratio < 0.65 || currentItem.includes('尺寸') || currentItem.includes('table')) {
-          imgEl.style.objectFit = "contain"; viewerBox.style.backgroundColor = "#ffffff";
+        let urlStr = currentItem.toString().toLowerCase();
+        
+        // 🎯 核心判定核心升級：寬高比小於 0.65（極窄長圖）、包含尺寸/table關鍵字，或是圖片寬度 >= 高度（橫圖與正方圖）
+        if(ratio < 0.65 || ratio >= 1.0 || urlStr.includes('尺寸') || urlStr.includes('table') || urlStr.includes('size')) {
+          imgEl.style.objectFit = "contain"; 
+          viewerBox.style.backgroundColor = "#ffffff"; // 四周補白
         } else {
-          imgEl.style.objectFit = "cover"; viewerBox.style.backgroundColor = "#F8FAFC";
+          imgEl.style.objectFit = "cover"; 
+          viewerBox.style.backgroundColor = "#F8FAFC";
         }
       };
       updateDots();
