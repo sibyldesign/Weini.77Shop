@@ -54,7 +54,11 @@
     .product-card img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; background: #F8FAFC; }
     .product-info { padding: 12px; display: flex; flex-direction: column; flex: 1; }
     .product-title { font-size: 13px; font-weight: bold; color: var(--text-main); line-height: 1.4; height: 36px; overflow: hidden; }
-    .product-price { color: var(--accent-pink); font-size: 14px; font-weight: 800; margin-top: 8px; }
+    
+    /* 原價與特價雙重顯示排版 */
+    .p-price-container { display: flex; align-items: baseline; gap: 5px; margin-top: 8px; }
+    .p-price-old { color: var(--accent-gray); font-size: 11px; text-decoration: line-through; }
+    .p-price-new { color: var(--accent-pink); font-size: 14px; font-weight: 800; }
     
     .pagination-container { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 20px 16px; padding: 10px; background: rgba(255, 255, 255, 0.15); border-radius: 16px; }
     .page-btn { background: white; color: var(--primary); border: none; padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: 0.2s; }
@@ -266,6 +270,8 @@
   <div id="toast">🛒 商品已成功加入購物車</div>
 
   <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
+
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
     let touchStartX = 0, touchEndX = 0, currentActiveVideoUrl = "", activeProductSpecs = [];
@@ -282,7 +288,7 @@
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function myAlert(msg) { document.getElementById('alertMsg').innerHTML = msg; document.getElementById('customAlert').style.display = 'flex'; }
     function closeAlert() { document.getElementById('customAlert').style.display = 'none'; }
-    function closeQueryPanel() { document.getElementById('queryResultArea').style.display = 'none'; document.getElementById('multiOrdersContainer').innerHTML = ""; document.getElementById('searchInput').value = ""; }
+    function closeQueryPanel() { document.getElementById('queryResultArea').style.display = 'none'; document.getElementById('multiOrdersContainer').innerHTML = ""; }
     
     function togglePolicyContent(id) {
       let body = document.getElementById(id); let arr = document.getElementById('arr_' + id);
@@ -392,7 +398,7 @@
       renderCatalog(products);
     }
     
-    // 🎯 複合單列變形蟲智慧查找列：輸入手機直接點對帳即可執行登入
+    // 🎯 複合單列變形蟲智慧查找列：智慧雙向攔截，輸入手機點對帳直接執行登入
     function searchProducts() {
       let val = document.getElementById('searchInput').value.toLowerCase().trim();
       if(val === "") { products = rawData; currentPage = 1; renderCatalog(products); return; }
@@ -610,7 +616,7 @@
               .then(r=>r.json()).then(fRes => { if(fRes.success) { favoriteSkus = fRes.favorites; localStorage.setItem('w77_favs', JSON.stringify(favoriteSkus)); } });
 
             const container = document.getElementById('multiOrdersContainer'); container.innerHTML = ""; 
-            if(res.allOrders.length === 0) { container.innerHTML = "<p style='color:#7F8C8D;font-size:12px;'>目前尚無任何歷史預訂訂單唷。</p>"; }
+            if(res.allOrders.length === 0) { container.innerHTML = "<p style='color:#7F8C8D;font-size:12px;'>目前尚無任何歷史訂購紀錄唷。</p>"; }
             
             res.allOrders.forEach(o => {
               let rowHtml = '<div style="border-bottom: 1px dashed #CBD5E1; padding: 12px 0; text-align: left; line-height: 1.6;">' +
@@ -658,9 +664,10 @@
 
     function submitLastFive(oid) {
       let ph = currentLoginUser; 
+      let maxOid = oid;
       let five = document.getElementById('payFive_' + oid).value.trim();
       if(five.length !== 5) return myAlert("請輸入精確的匯款後五碼！");
-      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updatePaymentReport", phone: ph, orderId: oid, lastFive: five }) })
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updatePaymentReport", phone: ph, orderId: maxOid, lastFive: five }) })
         .then(r => r.json()).then(res => { myAlert(res.message); checkOrderHistory(); });
     }
     function submitFinalOrder() {
