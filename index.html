@@ -24,7 +24,6 @@
     .logout-btn { background: #333; color: white; border: none; padding: 2px 6px; border-radius: 6px; font-size: 10px; cursor: pointer; }
 
     .brand-hero { padding: 10px 16px 10px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-    /* 點擊 logo 回主頁的手勢與特效 */
     .brand-logo { width: 90px; height: 90px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s; }
     .brand-logo:active { transform: scale(0.95); }
     .brand-title { font-size: 26px; font-weight: 900; color: white; margin-top: 12px; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -41,7 +40,6 @@
     
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; background: #E2E8F4; color: #4A6283; margin-top: 4px; }
     
-    /* 網頁版置中、手機版仍可滑動的複合設定 */
     .filter-section { position: sticky; top: 0; z-index: 1900; background: #83A6D4; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .filter-scroll { display: flex; overflow-x: auto; white-space: nowrap; padding: 0 16px; gap: 8px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; justify-content: center; }
     @media (max-width: 768px) {
@@ -106,7 +104,6 @@
     .policy-title-trigger { font-size: 13px; font-weight: bold; color: white; cursor: pointer; padding: 4px 0; letter-spacing: 1px; }
     .policy-content-panel { font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.6; text-align: center; max-height: 0; overflow: hidden; transition: max-height 0.25s ease-out; white-space: pre-line; padding: 0 10px; }
     
-    /* 頁尾美化超連結樣式 */
     .designer-link { color: rgba(255,255,255,0.8); text-decoration: none; border-bottom: 1px dashed rgba(255,255,255,0.5); padding-bottom: 2px; transition: color 0.2s; }
     .designer-link:hover { color: #FFFFFF; border-bottom-style: solid; }
   </style>
@@ -237,11 +234,11 @@
       <button type="button" onclick="applyPromo()" style="background:#333; color:white; border:none; padding:0 14px; border-radius:12px; font-weight:bold; font-size:13px; cursor:pointer;">套用</button>
     </div>
     <div style="text-align:right; margin:15px 0; font-size:13px; line-height:1.5;">
-      商品小計：$<span id="subTotal">0</span><br>
-      折扣：-$<span id="discountAmt">0</span><br>
-      <span id="txtMarketingLabel" style="font-size:12px; color:#27AE60; font-weight:bold;"></span>
-      運費：$<span id="shipFee">0</span><br>
-      <span style="font-size:16px; font-weight:800; color:var(--accent-pink);">應匯款總額：NT$ <span id="grandTotal">0</span></span>
+      <div>商品小計：$<span id="subTotal">0</span></div>
+      <div>折扣：-$<span id="discountAmt">0</span></div>
+      <div id="txtMarketingLabel" style="font-size:12px; color:#27AE60; font-weight:bold;"></div>
+      <div>運費：$<span id="shipFee">0</span></div>
+      <div style="font-size:16px; font-weight:800; color:var(--accent-pink); margin-top: 5px;" id="grandTotalBlock">應匯款總額：NT$ <span id="grandTotal">0</span></div>
     </div>
     <div style="border-top:1px dashed #DDD; padding-top:12px;">
       <label style="font-size:12px; font-weight:bold; color:#666;">填寫訂購資訊</label>
@@ -278,7 +275,6 @@
   <div id="customAlert" class="custom-alert"><div class="alert-content"><div id="alertMsg" style="text-align:left; font-size:14px; color:var(--text-main); line-height:1.5;"></div><button class="alert-btn" onclick="closeAlert()">我知道了</button></div></div>
 
   <script>
-    // 🎯 貼上您的後端新網址連線
     const API_URL = "https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec";
 
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0, marketingRules = [];
@@ -308,7 +304,6 @@
       }
     }
 
-    // 🎯 LOGO點擊回首頁的處理機制
     function backToHome() {
       document.getElementById('searchInput').value = "";
       document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
@@ -357,31 +352,27 @@
 
           let fallbackUrl = document.getElementById('fallbackLogo').src;
           
-          // 🎯 核心陣列精確重調：對應 GAS 最新 15 欄 [A~O] 架構！
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
             let pObj = { 
-              sku: p[0],      // A
-              name: p[1],     // B
-              status: p[2],   // C
-              category: p[3], // D
-              tag: p[4],      // E
-              progress: p[5], // F
-              desc: p[6],     // G 商品敘述
-              video: p[7]     // H YouTube/IG網址
+              sku: p[0],      
+              name: p[1],     
+              status: p[2],   
+              category: p[3], 
+              tag: p[4],      
+              progress: p[5], 
+              desc: p[6],     
+              video: p[7]     
             };
             
-            // 圖片紀錄在 Ｉ 欄 (索引 p[8])
             if (!p[8] || p[8].toString().trim() === "") { 
               pObj.processedImgs = [fallbackUrl]; 
             } else { 
               pObj.processedImgs = p[8].toString().split(/[\s\n\r]+/).map(u => u.trim()).filter(u => u !== ""); 
             }
             
-            // 規格矩陣 JSON 紀錄在 Ｊ 欄 (索引 p[9])
             if (p[9] && p[9].toString().trim().startsWith('[')) {
               pObj.specs = JSON.parse(p[9]);
             } else {
-              // 無規格時，原價在 Ｋ 欄 (p[10])，特價在 Ｌ 欄 (p[11])
               let rawKPrice = p[10] ? p[10].toString().replace(/[']/g, "").trim() : "";
               let rawLPrice = p[11] ? p[11].toString().replace(/[']/g, "").trim() : "詢問售價";
               
@@ -473,12 +464,20 @@
         
         let minPrice = "詢問售價", oldPriceText = "";
         if(p.specs && p.specs.length > 0) {
-          let prices = p.specs.map(s => {
-            let cleanP = s.price.toString().split(/[,，]/)[0];
-            return Number(cleanP) || 0;
-          });
-          minPrice = "NT$ " + Math.min(...prices);
-          if(p.specs[0].oldPrice) { 
+          let firstPrice = p.specs[0].price.toString().trim();
+          
+          // 🎯 判斷如果是客製討論，直接在前台卡片上顯示文字
+          if (firstPrice.includes("客製討論")) {
+            minPrice = "客製討論";
+          } else {
+            let prices = p.specs.map(s => {
+              let cleanP = s.price.toString().split(/[,，]/)[0];
+              return Number(cleanP) || 0;
+            });
+            minPrice = "NT$ " + Math.min(...prices);
+          }
+
+          if(p.specs[0].oldPrice && !firstPrice.includes("客製討論")) { 
             let cleanOld = p.specs[0].oldPrice.toString().split(/[,，]/)[0];
             oldPriceText = '<span class="p-price-old">NT$ ' + cleanOld + '</span>'; 
           }
@@ -577,11 +576,19 @@
       let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
       
       if(matched) {
-        let displayPrice = matched.price.toString().split(/[,，]/)[0];
+        let rawPrice = matched.price.toString().trim();
         let displayOldPrice = matched.oldPrice ? matched.oldPrice.toString().split(/[,，]/)[0] : "";
         
-        document.getElementById('itemPrice').innerText = "NT$ " + displayPrice;
-        document.getElementById('itemOldPrice').innerText = displayOldPrice ? "NT$ " + displayOldPrice : "";
+        // 🎯 判斷內頁彈窗若是客製討論，則不加上 NT$ 符號並清空原價
+        if (rawPrice.includes("客製討論")) {
+          document.getElementById('itemPrice').innerText = "客製討論";
+          document.getElementById('itemOldPrice').innerText = "";
+        } else {
+          let displayPrice = rawPrice.split(/[,，]/)[0];
+          document.getElementById('itemPrice').innerText = "NT$ " + displayPrice;
+          document.getElementById('itemOldPrice').innerText = displayOldPrice ? "NT$ " + displayOldPrice : "";
+        }
+
         let stockLabel = document.getElementById('txtStockLabel');
         if(matched.stock !== "" && Number(matched.stock) <= 0) { stockLabel.innerText = "❌ 已售罄斷貨"; } 
         else { stockLabel.innerText = (matched.stock === "") ? "" : `⚡ 剩餘 ${matched.stock} 件`; }
@@ -595,7 +602,9 @@
       let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
       let specTitle = (el.value === 'single') ? '單一規格' : activeProductSpecs[Number(el.value)].spec.replace('尺寸:','').replace('顏色:','');
       
-      let finalPrice = Number(matched.price.toString().split(/[,，]/)[0]) || 0;
+      // 🎯 提取特價欄位，字串包含客製討論則維持字串形式傳入購物車陣列
+      let rawPriceStr = matched.price.toString().trim();
+      let finalPrice = rawPriceStr.includes("客製討論") ? "客製討論" : (Number(rawPriceStr.split(/[,，]/)[0]) || 0);
       
       cart.push({ sku: p.sku, prodName: p.name, color: "款式", size: specTitle, price: finalPrice, qty: Number(document.getElementById('qtyInput').value), category: p.category || "" });
       closeModal(); updateCartUI();
@@ -612,10 +621,19 @@
     
     function updateCartUI() {
       const box = document.getElementById('cartList'); box.innerHTML = ""; let subtotal = 0; let hasFlower = false;
+      
       cart.forEach((item, idx) => {
-        let total = item.price * item.qty; subtotal += total; if(item.category.includes("花束")) hasFlower = true;
-        box.innerHTML += `<div class="cart-item"><div><b>[${item.sku}] ${item.prodName}</b><br><small>${item.size} x${item.qty}</small></div><span>$${total} <button onclick="removeCart(${idx})" style="border:none;background:none;color:#94A3B8;cursor:pointer;">✕</button></span></div>`;
+        // 🎯 判斷此項目是否為客製討論項目
+        let isCustom = (item.price === "客製討論");
+        let totalText = isCustom ? "客製討論" : `$${item.price * item.qty}`;
+        
+        if (!isCustom) {
+          subtotal += item.price * item.qty;
+        }
+        if(item.category.includes("花束")) hasFlower = true;
+        box.innerHTML += `<div class="cart-item"><div><b>[${item.sku}] ${item.prodName}</b><br><small>${item.size} x${item.qty}</small></div><span>${totalText} <button onclick="removeCart(${idx})" style="border:none;background:none;color:#94A3B8;cursor:pointer;">✕</button></span></div>`;
       });
+
       if(hasFlower && !currentShipping.includes("花束")) {
         let dropdown = document.getElementById('shipSelectDropdown');
         for (let option of dropdown.options) { if (option.value.includes("花束")) { dropdown.value = option.value; currentShipping = option.value; setShipping(currentShipping); break; } }
@@ -623,7 +641,7 @@
       
       // 動態行銷滿額規則計算
       let marketingText = "";
-      let marketingDiscount = 0;
+      let marketingDiscount = 0; 
       if (marketingRules && marketingRules.length > 0) {
         marketingRules.forEach(rule => {
           if (subtotal >= rule.threshold) {
@@ -634,13 +652,29 @@
       document.getElementById('txtMarketingLabel').innerText = marketingText;
 
       let shipFee = cart.length > 0 ? (dynamicShippingMap[currentShipping] || 0) : 0;
-      document.getElementById('subTotal').innerText = subtotal; document.getElementById('discountAmt').innerText = discountValue; document.getElementById('shipFee').innerText = shipFee;
+      
+      // 填入基礎數值
+      document.getElementById('subTotal').innerText = subtotal; 
+      document.getElementById('discountAmt').innerText = discountValue; 
+      document.getElementById('shipFee').innerText = shipFee;
+      
+      // 🎯 核心拔除控制：任何數據只要為 0，便直接隱藏其行容器，不對用戶顯示「0元」
+      document.getElementById('subTotal').parentElement.style.display = (subtotal === 0) ? 'none' : 'block';
+      document.getElementById('discountAmt').parentElement.style.display = (discountValue === 0) ? 'none' : 'block';
+      document.getElementById('shipFee').parentElement.style.display = (shipFee === 0) ? 'none' : 'block';
       
       let finalGrand = subtotal - discountValue - marketingDiscount + shipFee;
-      document.getElementById('grandTotal').innerText = (finalGrand < 0) ? 0 : finalGrand;
+      
+      // 🎯 最終總匯款金額控制
+      if (finalGrand <= 0) {
+        document.getElementById('grandTotalBlock').innerHTML = "應匯款總額：確認後通知";
+      } else {
+        document.getElementById('grandTotalBlock').innerHTML = `應匯款總額：NT$ <span id="grandTotal">${finalGrand}</span>`;
+      }
       
       const cartBtn = document.getElementById('viewCartBtn'); cartBtn.style.display = cart.length > 0 ? 'block' : 'none'; cartBtn.innerText = `購物車 (${cart.length})`;
     }
+
     function removeCart(idx) { cart.splice(idx,1); updateCartUI(); }
     function toggleCart(show) { document.getElementById('cartDrawer').classList.toggle('open', show); }
     function applyPromo() {
@@ -742,8 +776,10 @@
       if(!addr) return myAlert((currentShipping.includes('宅配')) ? "請填寫完整收件地址" : "請填寫超商門市名稱");
       let finalAddr = (currentShipping.includes('宅配')) ? `(${document.getElementById('custZip').value}) ${addr}` : `7-11超商：${addr}`;
       
+      let grandTotalText = document.getElementById('grandTotal') ? document.getElementById('grandTotal').innerText : "確認後通知";
       let checkoutCart = cart.map(c => ({ sku: c.sku, prodName: c.prodName, color: "規格", size: c.size, qty: c.qty, price: c.price, category: c.category }));
-      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: checkoutCart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: document.getElementById('grandTotal').innerText } }) })
+      
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: checkoutCart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: grandTotalText } }) })
         .then(r => r.json()).then(res => {
           myAlert("🎉 預訂成功！明細已發送至您的 Mail 副本。\n您的單號為：<b>" + res.orderId + "</b>");
           cart = []; updateCartUI(); toggleCart(false);
