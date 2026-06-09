@@ -39,11 +39,11 @@
     
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; background: #E2E8F4; color: #4A6283; margin-top: 4px; }
     
-    /* 🎯 網頁版置中優化 */
+    /* 網頁版置中、手機版仍可滑動的複合設定 */
     .filter-section { position: sticky; top: 0; z-index: 1900; background: #83A6D4; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .filter-scroll { display: flex; overflow-x: auto; white-space: nowrap; padding: 0 16px; gap: 8px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-    @media (min-width: 769px) {
-      .filter-scroll { justify-content: center; overflow-x: visible; }
+    .filter-scroll { display: flex; overflow-x: auto; white-space: nowrap; padding: 0 16px; gap: 8px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; justify-content: center; }
+    @media (max-width: 768px) {
+      .filter-scroll { justify-content: flex-start; }
     }
     .filter-scroll::-webkit-scrollbar { display: none; }
     .filter-tag { background: transparent; color: var(--text-main); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid var(--text-main); transition: 0.2s; display: inline-block; flex-shrink: 0; }
@@ -263,7 +263,9 @@
       <div class="policy-title-trigger" onclick="togglePolicyContent('boxPrivacy')">隱私權政策 <span id="arr_boxPrivacy">▼</span></div>
       <div id="boxPrivacy" class="policy-content-panel">讀取中...</div>
     </div>
-    <div style="text-align:center; color:rgba(255,255,255,0.6); font-size:11px; margin-top:10px;">&copy; 2026 Weini.77 Shop. All Rights Reserved.</div>
+    <div style="text-align:center; color:rgba(255,255,255,0.7); font-size:11px; margin-top:15px; letter-spacing: 0.5px;">
+      &copy; 2026 Weini.77 Shop | Designed by <a href="https://heysibyl.com/" target="_blank" class="policy-link">Sibyl數位管家</a>
+    </div>
   </div>
 
   <div id="customAlert" class="custom-alert"><div class="alert-content"><div id="alertMsg" style="text-align:left; font-size:14px; color:var(--text-main); line-height:1.5;"></div><button class="alert-btn" onclick="closeAlert()">我知道了</button></div></div>
@@ -330,34 +332,39 @@
 
           let fallbackUrl = document.getElementById('fallbackLogo').src;
           
-          /* 🎯 核心修正：對齊後端 p[0] 到 p[14] 索引 */
+          // 🎯 核心重構：精準映射 I 欄 (p[8]) 多圖、J 欄 (p[9]) 規格 JSON、K 欄 (p[10]) 原價、L 欄 (p[11]) 特價
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
             let pObj = { 
               sku: p[0], 
               name: p[1], 
               status: p[2], 
               category: p[3], 
-              tag: p[4],        // 對應副分類 F 欄 (p[5]為標籤)
-              desc: p[6],       // 對應商品敘述短文 G 欄
-              video: p[7]       // 對應網址 H 欄
+              tag: p[4], 
+              desc: p[5], 
+              video: p[6] 
             };
             
-            // 圖片網址紀錄欄在 I 欄 -> 陣列索引應為 p[8]
+            // I 欄 (p[8]) 為圖片網址紀錄欄，支援換行或空格隔開多張網址
             if (!p[8] || p[8].toString().trim() === "") { 
               pObj.processedImgs = [fallbackUrl]; 
             } else { 
               pObj.processedImgs = p[8].toString().split(/[\s\n\r]+/).map(u => u.trim()).filter(u => u !== ""); 
             }
             
-            // 規格 JSON 數據在 J 欄 -> 陣列索引應為 p[9]
+            // J 欄 (p[9]) 規格矩陣數據 JSON。如果沒有 JSON 配置，則綁定 K 欄原價與 L 欄特價的傳統無規格售價
             if (p[9] && p[9].toString().trim().startsWith('[')) {
               pObj.specs = JSON.parse(p[9]);
             } else {
-              // 舊規格/全新無規格空規格式：直接撈取 特價 (單價) L 欄 -> 陣列索引應為 p[11]
-              // 原價在 K 欄 -> 陣列索引應為 p[10]
-              let rawLPrice = p[11] ? p[11].toString().replace(/[']/g, "").trim() : "詢問售價";
+              // 撈取 K 欄傳統原價 (p[10])、L 欄傳統特價 (p[11])
               let rawKPrice = p[10] ? p[10].toString().replace(/[']/g, "").trim() : "";
-              pObj.specs = [{ spec: "單一規格", oldPrice: rawKPrice, price: rawLPrice, stock: "" }];
+              let rawLPrice = p[11] ? p[11].toString().replace(/[']/g, "").trim() : "詢問售價";
+              
+              pObj.specs = [{ 
+                spec: "單一規格", 
+                oldPrice: rawKPrice, 
+                price: rawLPrice, 
+                stock: "" 
+              }];
             }
             return pObj;
           });
@@ -440,8 +447,16 @@
         
         let minPrice = "詢問售價", oldPriceText = "";
         if(p.specs && p.specs.length > 0) {
-          let prices = p.specs.map(s => Number(s.price) || 0); minPrice = "NT$ " + Math.min(...prices);
-          if(p.specs[0].oldPrice) { oldPriceText = '<span class="p-price-old">NT$ ' + p.specs[0].oldPrice + '</span>'; }
+          // 支援多售價時取最小值，或是只有單一特價的情境
+          let prices = p.specs.map(s => {
+            let cleanP = s.price.toString().split(/[,，]/)[0];
+            return Number(cleanP) || 0;
+          });
+          minPrice = "NT$ " + Math.min(...prices);
+          if(p.specs[0].oldPrice) { 
+            let cleanOld = p.specs[0].oldPrice.toString().split(/[,，]/)[0];
+            oldPriceText = '<span class="p-price-old">NT$ ' + cleanOld + '</span>'; 
+          }
         }
         
         let priorityAttr = (i - startIdx < 4) ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
@@ -537,8 +552,11 @@
       let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
       
       if(matched) {
-        document.getElementById('itemPrice').innerText = "NT$ " + matched.price;
-        document.getElementById('itemOldPrice').innerText = matched.oldPrice ? "NT$ " + matched.oldPrice : "";
+        let displayPrice = matched.price.toString().split(/[,，]/)[0];
+        let displayOldPrice = matched.oldPrice ? matched.oldPrice.toString().split(/[,，]/)[0] : "";
+        
+        document.getElementById('itemPrice').innerText = "NT$ " + displayPrice;
+        document.getElementById('itemOldPrice').innerText = displayOldPrice ? "NT$ " + displayOldPrice : "";
         let stockLabel = document.getElementById('txtStockLabel');
         if(matched.stock !== "" && Number(matched.stock) <= 0) { stockLabel.innerText = "❌ 已售罄斷貨"; } 
         else { stockLabel.innerText = (matched.stock === "") ? "" : `⚡ 剩餘 ${matched.stock} 件`; }
@@ -547,14 +565,16 @@
 
     function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
     
-    /* 🎯 移除 Toast DOM 元素與相關控制 */
     function addToCart() {
       const p = rawData[selectedIdx]; const el = document.getElementById('sizeSelect');
       let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
       let specTitle = (el.value === 'single') ? '單一規格' : activeProductSpecs[Number(el.value)].spec.replace('尺寸:','').replace('顏色:','');
       
-      cart.push({ sku: p.sku, prodName: p.name, color: "款式", size: specTitle, price: Number(matched.price) || 0, qty: Number(document.getElementById('qtyInput').value), category: p.category || "" });
+      let finalPrice = Number(matched.price.toString().split(/[,，]/)[0]) || 0;
+      
+      cart.push({ sku: p.sku, prodName: p.name, color: "款式", size: specTitle, price: finalPrice, qty: Number(document.getElementById('qtyInput').value), category: p.category || "" });
       closeModal(); updateCartUI();
+      myAlert("🛒 商品已成功加入購物車");
     }
     
     function setShipping(mode) {
@@ -690,3 +710,4 @@
   </script>
 </body>
 </html>
+
