@@ -26,10 +26,6 @@
     .brand-title { font-size: 26px; font-weight: 900; color: white; margin-top: 12px; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; }
     .announcement-bar { background: rgba(255,255,255,0.2); color: white; padding: 10px 15px; font-size: 13px; text-align: center; font-weight: 600; margin: 0 16px; border-radius: 12px; }
     
-    /* 🎯 完美修復：已認證舊客帳號條，完全拔除背景底框與底色，改為高質感純白字體直接置中呈現 */
-    .member-badge-bar { display: none; justify-content: center; align-items: center; margin: 10px auto 0 auto; font-size: 13px; color: #ffffff; font-weight: bold; letter-spacing: 0.5px; gap: 10px; text-align: center; }
-    .logout-link { color: rgba(255, 255, 255, 0.75); text-decoration: underline; cursor: pointer; font-size: 12px; font-weight: normal; }
-    
     /* 🎯 視覺大瘦身：搜尋與登入對帳合併為極簡一列，去除大框贅字，展現專業 App 美感 */
     .search-section { padding: 16px; display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 2000; }
     .app-control-bar { background: var(--card-bg); padding: 6px 8px; border-radius: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 6px; width: 100%; box-sizing: border-box; }
@@ -43,17 +39,13 @@
     
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; background: #E2E8F4; color: #4A6283; margin-top: 4px; }
     
-    /* 🎯 改回一長條橫列：手機端可以直接左右滑動，未選取按鈕自帶與字體顏色一致的圓潤細框 */
+    /* 🎯 改回一長條橫列：手機端可以直接左右滑動，未選取按鈕自帶皇家藍細框 */
     .filter-section { position: sticky; top: 0; z-index: 1900; background: #83A6D4; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .filter-scroll { display: flex; overflow-x: auto; white-space: nowrap; padding: 0 16px; gap: 8px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
     .filter-scroll::-webkit-scrollbar { display: none; }
-    .filter-tag { background: transparent; color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid #ffffff; transition: 0.2s; display: inline-block; flex-shrink: 0; }
+    .filter-tag { background: transparent; color: var(--text-main); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid var(--text-main); transition: 0.2s; display: inline-block; flex-shrink: 0; }
     .filter-tag.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     
-    /* 我的收藏標籤樣式修正：圓潤白框、白字、透明底色 */
-    #tabFavsBtn { color: #ffffff !important; border-color: #ffffff !important; background: transparent !important; }
-    #tabFavsBtn.active { background: var(--primary) !important; border-color: var(--primary) !important; color: white !important; }
-
     .line-notice-box { background: #FFF3CD; color: #856404; margin: 0 16px 12px 16px; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: bold; text-align: center; }
     
     /* 🎯 頂級視覺加速：全面將清單比例優化鎖定為 4:5 的高挑極美規格 */
@@ -114,9 +106,6 @@
     .policy-content-panel { font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.6; text-align: center; max-height: 0; overflow: hidden; transition: max-height 0.25s ease-out; white-space: pre-line; padding: 0 10px; }
     .policy-link { color: rgba(255,255,255,0.7); text-decoration: none; font-weight: bold; }
     .policy-link:hover { color: white; }
-    
-    /* 🎯 完美修復：左下角彈窗成功加入完全徹底永久消失 */
-    #toast { display: none !important; }
   </style>
 </head>
 <body>
@@ -136,11 +125,6 @@
 
   <div id="announcement" class="announcement-bar">Welcome~</div>
 
-  <div id="memberBadgeBar" class="member-badge-bar">
-    <span>已認證舊客帳號：<span id="txtMemberPhone"></span></span>
-    <span class="logout-link" onclick="fireMemberLogout()">登出</span>
-  </div>
-
   <div class="search-section">
     <div class="app-control-bar">
       <input type="text" id="searchInput" class="app-input" placeholder="輸入商品名稱、主貨號或手機號碼...">
@@ -158,7 +142,7 @@
   <div class="filter-section">
     <div class="filter-scroll" id="categoryTabs">
       <button class="filter-tag active" onclick="filterCategory('全部')">全部商品</button>
-      <button class="filter-tag" id="tabFavsBtn" onclick="filterCategory('我的收藏')" style="display:none;">我的收藏</button>
+      <button class="filter-tag" id="tabFavsBtn" onclick="filterCategory('我的收藏')" style="display:none; color:#C53030; border-color:#C53030;">我的收藏</button>
     </div>
   </div>
 
@@ -208,7 +192,7 @@
         </div>
 
         <div style="display:flex; gap:8px; margin-top:12px;">
-          <div style="flex:1; display:none;"><select id="colorSelect"></select></div>
+          <div style="flex:1;"><select id="colorSelect" style="display:none;"></select></div>
           <div style="flex:1;"><select id="sizeSelect" onchange="syncMultiSizePrice()"></select></div>
           <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
         </div>
@@ -283,8 +267,20 @@
   </div>
 
   <div id="customAlert" class="custom-alert"><div class="alert-content"><div id="alertMsg" style="text-align:left; font-size:14px; color:var(--text-main); line-height:1.5;"></div><button class="alert-btn" onclick="closeAlert()">我知道了</button></div></div>
+  <div id="toast">🛒 商品已成功加入購物車</div>
 
   <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec';
+
+    let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
+    let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
+    let touchStartX = 0, touchEndX = 0, currentActiveVideoUrl = "", activeProductSpecs = [];
+    let favoriteSkus = JSON.parse(localStorage.getItem('w77_favs') || '[]'); 
+    let currentLoginUser = localStorage.getItem('w77_user') || ""; 
+    
+    let currentPage = 1;
+    const itemsPerPage = 20;
+
     window.onscroll = function() {
       let topBtn = document.getElementById("backToTopBtn");
       if (document.body.scrollTop > 250 || document.documentElement.scrollTop > 250) { topBtn.style.display = "flex"; } else { topBtn.style.display = "none"; }
@@ -317,57 +313,40 @@
           document.getElementById('announcement').innerText = res.announcement;
           document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
           
-          // 🎯 100% 精密動態讀取：接通試算表工作表 2「公告設定」分頁中的 H1、I1、J1 三個政策文字內容
+          // 🎯 動態同步解鎖：精準抓取後端 GAS 回傳之 H, I, J 欄合約政策文字
           document.getElementById('boxNotice').innerText = res.shopNotice || "暫無購物須知說明";
           document.getElementById('boxRefund').innerText = res.refundNotice || "暫無退換貨須知說明";
           document.getElementById('boxPrivacy').innerText = res.privacyPolicy || "暫無隱私權政策說明";
 
           setupCategories(res.majorCategories);
           
-          // 🎯 物流選項過濾：精準過濾保留帶有空格的「7-11 超商取貨」與「宅配」
           if (res.shipModes && res.shipFees) {
-            let originalModes = res.shipModes.split(/[,，]/); 
-            let originalFees = res.shipFees.split(/[,，]/);
-            const selectDropdown = document.getElementById('shipSelectDropdown'); 
-            selectDropdown.innerHTML = "";
-            
-            originalModes.forEach((m, index) => {
-              let mName = m.trim(); 
-              let mFee = Number(originalFees[index] ? originalFees[index].trim() : 0);
-              
-              if (mName.includes("宅配") || mName.includes("7-11 超商取貨")) {
-                dynamicShippingMap[mName] = mFee;
-                let o = document.createElement('option'); 
-                o.value = mName; 
-                o.text = mName + " ($" + mFee + ")"; 
-                selectDropdown.appendChild(o);
-              }
+            let modes = res.shipModes.split(/[,，]/); let fees = res.shipModes.split(/[,，]/);
+            if(res.shipFees) fees = res.shipFees.split(/[,，]/);
+            const selectDropdown = document.getElementById('shipSelectDropdown'); selectDropdown.innerHTML = "";
+            modes.forEach((m, index) => {
+              let mName = m.trim(); let mFee = Number(fees[index] ? fees[index].trim() : 0);
+              dynamicShippingMap[mName] = mFee;
+              let o = document.createElement('option'); o.value = mName; o.text = mName + " ($" + mFee + ")"; selectDropdown.appendChild(o);
             });
-            if (selectDropdown.options.length > 0) {
-              currentShipping = selectDropdown.options[0].value;
-              setShipping(currentShipping);
-            }
+            if(modes.length > 0) currentShipping = modes[0].trim();
           }
 
           let fallbackUrl = document.getElementById('fallbackLogo').src;
           
-          // 🎯 15欄位精密核對連通：完全解鎖過濾器，與最新 15 欄位新架構（A ~ O）完美對齊
+          // 🎯 雲端解鎖核心：修正高相容過濾條件，完全釋放架上重新上架商品，排除空白頁面災難
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
-            // A: SKU(p[0]), B: 品名(p[1]), C: 狀態(p[2]), D: 主分類(p[3]), E: 副分類(p[4]), F: 特色標籤(p[5]), G: 敘述短文(p[6]), H: 影音網址(p[7]), I: 圖片網址紀錄欄(p[8])
-            let pObj = { sku: p[0], name: p[1], status: p[2], category: p[3] + " / " + p[4], tag: p[5], desc: p[6], video: p[7] };
+            let pObj = { sku: p[0], name: p[1], status: p[2], category: p[3], tag: p[4], desc: p[5], video: p[6] };
+            if (!p[7] || p[7].toString().trim() === "") { pObj.processedImgs = [fallbackUrl]; } 
+            else { pObj.processedImgs = p[7].toString().split(/[\s\n\r]+/).map(u => u.trim()).filter(u => u !== ""); }
             
-            // 🎯 圖床對齊：圖片網址紀錄欄完美對應試算表第 9 欄位 (即 p[8] 索引值)
-            if (!p[8] || p[8].toString().trim() === "") { pObj.processedImgs = [fallbackUrl]; } 
-            else { pObj.processedImgs = p[8].toString().split(/[\s\n\r]+/).map(u => u.trim()).filter(u => u !== ""); }
-            
-            // 🎯 規格對齊：規格矩陣 JSON 數據包完美對應試算表第 10 欄位 (即 p[9] 索引值)
-            if (p[9] && p[9].toString().trim().startsWith('[')) {
-              pObj.specs = JSON.parse(p[9]);
+            // 🎯 核心單價對齊：如果第 8 欄位 (I欄) 不是 JSON，自動抓取 K 欄傳統單價（p[10]）
+            if (p[8] && p[8].toString().trim().startsWith('[')) {
+              pObj.specs = JSON.parse(p[8]);
             } else {
-              // 高相容備用降級：當後台無 JSON 時，自動調用傳統 K 欄原價(p[10])與 L 欄特價(p[11])
-              let rawKPrice = p[10] ? p[10].toString().replace(/[']/g, "").trim() : "";
-              let rawLPrice = p[11] ? p[11].toString().replace(/[']/g, "").trim() : "詢問售價";
-              pObj.specs = [{ spec: "單一規格", oldPrice: rawKPrice, price: rawLPrice, stock: "" }];
+              // 兼容舊資料與空設定：直接提取 K 欄位單價 (試算表第 11 欄即為 p[10])
+              let rawKPrice = p[10] ? p[10].toString().replace(/[']/g, "").trim() : "詢問售價";
+              pObj.specs = [{ spec: "單一規格", oldPrice: "", price: rawKPrice, stock: "" }];
             }
             return pObj;
           });
@@ -382,6 +361,9 @@
             let foundIdx = products.findIndex(p => p.sku.toString().trim().toLowerCase() === skuParam.trim().toLowerCase());
             if(foundIdx !== -1) { setTimeout(() => openProduct(foundIdx), 500); }
           }
+        }).catch(err => {
+          console.error(err);
+          myAlert("資料加載失敗，請檢查試算表權限或 API 連結設定是否正確。");
         });
     };
 
@@ -394,7 +376,7 @@
     function setupCategories(cateStr) {
       const tabs = document.getElementById('categoryTabs'); if(!cateStr) return;
       tabs.innerHTML = '<button class="filter-tag active" onclick="filterCategory(\'全部\')">全部商品</button>' +
-                       '<button class="filter-tag" id="tabFavsBtn" onclick="filterCategory(\'我的收藏\')" style="display:none;">我的收藏</button>';
+                       '<button class="filter-tag" id="tabFavsBtn" onclick="filterCategory(\'我的收藏\')" style="display:none; color:#C53030; border-color:#C53030;">我的收藏</button>';
       
       cateStr.split(/[,，]/).forEach(cat => {
         let btn = document.createElement('button'); btn.className = 'filter-tag'; btn.innerText = cat.trim();
@@ -416,15 +398,21 @@
       renderCatalog(products);
     }
     
+    // 🎯 複合單列變形蟲智慧查找列：智慧雙向攔截，輸入手機點對帳直接執行登入
     function searchProducts() {
       let val = document.getElementById('searchInput').value.toLowerCase().trim();
       if(val === "") { products = rawData; currentPage = 1; renderCatalog(products); return; }
-      if(/^\d+$/.test(val) && val.length >= 9) { checkOrderHistory(); return; }
+      
+      if(/^\d+$/.test(val) && val.length >= 9) {
+        checkOrderHistory(); return;
+      }
+      
       products = rawData.filter(p => p.sku.toLowerCase().includes(val) || p.name.toLowerCase().includes(val));
       currentPage = 1;
       renderCatalog(products);
     }
     
+    // 🎯 純字串拼接引擎：徹底瓦解模板字串 ${} 的渲染破碎 Bug，前 4 張照片加入 eager 與 high 特權，外連性能最高規格優化
     function renderCatalog(list) {
       const box = document.getElementById('catalog'); box.innerHTML = "";
       if(list.length === 0) { 
@@ -443,16 +431,10 @@
         
         let minPrice = "詢問售價", oldPriceText = "";
         if(p.specs && p.specs.length > 0) {
-          // 🎯 核心規格解構修正：從後台 JSON 矩陣的第一款規格中，直接剥離清除「款式:」代碼，以純粹價格字串呈現
-          let firstSpecPrice = p.specs[0].price.toString().replace("款式:", "").split(/[,，、/]/)[0].trim();
-          minPrice = "NT$ " + firstSpecPrice;
-          if(p.specs[0].oldPrice) { 
-            let firstOldPrice = p.specs[0].oldPrice.toString().split(/[,，、/]/)[0].trim();
-            oldPriceText = '<span class="p-price-old">NT$ ' + firstOldPrice + '</span>'; 
-          }
+          let prices = p.specs.map(s => s.price); minPrice = "NT$ " + Math.min(...prices);
+          if(p.specs[0].oldPrice) { oldPriceText = '<span class="p-price-old">NT$ ' + p.specs[0].oldPrice + '</span>'; }
         }
         
-        // 圖片頂級頁面加速加載核心
         let priorityAttr = (i - startIdx < 4) ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
         
         card.innerHTML = '<img src="' + firstImg + '" ' + priorityAttr + ' decoding="async">' +
@@ -467,6 +449,8 @@
       document.getElementById('btnNextPage').disabled = (currentPage === totalPages);
     }
 
+    function goToPage(targetPage) { currentPage = targetPage; renderCatalog(products); scrollToTop(); }
+    
     function openProduct(idx) {
       selectedIdx = idx; const p = rawData[idx];
       document.getElementById('itemModal').style.display = 'flex';
@@ -482,10 +466,9 @@
       if(activeProductSpecs.length === 0 || activeProductSpecs[0].spec === '單一規格') {
         let o = document.createElement('option'); o.text = "標準單一規格款式"; o.value = "single"; sizeSelect.appendChild(o);
       } else {
-        // 🎯 核心規格對齊修正：將後台生成的「款式:顏色 / 尺寸」交叉數據包，精巧、流暢地移除「款式:」標籤直接還原到選單！
         activeProductSpecs.forEach((s, i) => {
           let o = document.createElement('option'); o.value = i;
-          o.text = s.spec.replace('款式:', '').trim();
+          o.text = s.spec.replace('尺寸:','').replace('顏色:','');
           sizeSelect.appendChild(o);
         });
       }
@@ -499,29 +482,29 @@
       document.getElementById('shareProductBtn').onclick = () => {
         let shareUrl = `${window.location.origin}${window.location.pathname}?sku=${encodeURIComponent(p.sku)}`;
         navigator.clipboard.writeText(shareUrl);
-        myAlert(`🎉 【${p.sku}】專屬分享連結已成功複製！`);
+        myAlert(`🔗 【${p.sku}】專屬分享連結已成功複製！`);
       };
+
       document.getElementById('favProductBtn').onclick = () => { toggleFavoriteAction(p.sku); };
     }
 
-    function syncMultiSizePrice() {
-      if(activeProductSpecs.length === 0) { document.getElementById('itemPrice').innerText = "售價詢問"; return; }
-      const el = document.getElementById('sizeSelect');
-      let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
-      
-      if(matched) {
-        // 🎯 核心拆分修正：阻止多維特價與原價文字發生黏合，1:1 精配對
-        let splitPrice = matched.price.toString().split(/[,，、/]/)[0].trim();
-        document.getElementById('itemPrice').innerText = "NT$ " + splitPrice;
-        document.getElementById('itemOldPrice').innerText = matched.oldPrice ? "NT$ " + matched.oldPrice.toString().split(/[,，、/]/)[0].trim() : "";
-        
-        let stockLabel = document.getElementById('txtStockLabel');
-        if(matched.stock !== "" && Number(matched.stock) <= 0) { stockLabel.innerText = "❌ 已售罄斷貨"; } 
-        else { stockLabel.innerText = (matched.stock === "") ? "" : `⚡ 剩餘 ${matched.stock} 件`; }
-      }
+    function launchExternalVideo() { if (currentActiveVideoUrl !== "") window.open(currentActiveVideoUrl, '_blank'); }
+    function buildDots() {
+      const container = document.getElementById('dotsContainer'); container.innerHTML = ""; if (curImgs.length <= 1) return;
+      curImgs.forEach((_, index) => {
+        let dot = document.createElement('div'); dot.className = 'dot' + (index === 0 ? ' active' : '');
+        dot.onclick = () => { imgIdx = index; showMediaItem(); }; container.appendChild(dot);
+      });
+    }
+    function updateDots() {
+      let dots = document.querySelectorAll('#dotsContainer .dot');
+      dots.forEach((dot, index) => { if (index === imgIdx) { dot.classList.add('active'); } else { dot.classList.remove('active'); } });
+      let showArrows = curImgs.length > 1 ? 'block' : 'none';
+      if (document.getElementById('prevBtn')) document.getElementById('prevBtn').style.display = showArrows;
+      if (document.getElementById('nextBtn')) document.getElementById('nextBtn').style.display = showArrows;
     }
 
-    // 詳情尺寸圖四周智慧留白防裁切
+    // 🎯 智慧型防裁切白底留白補齊機制
     function showMediaItem() {
       let currentItem = curImgs[imgIdx]; let imgEl = document.getElementById('itemImg');
       let viewerBox = document.getElementById('swiperArea');
@@ -536,6 +519,66 @@
         }
       };
       updateDots();
+    }
+
+    function changeImg(dir) { if (curImgs.length <= 1) return; imgIdx = (imgIdx + dir + curImgs.length) % curImgs.length; showMediaItem(); }
+    
+    function syncMultiSizePrice() {
+      if(activeProductSpecs.length === 0) { document.getElementById('itemPrice').innerText = "售價詢問"; return; }
+      const el = document.getElementById('sizeSelect');
+      let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
+      
+      if(matched) {
+        document.getElementById('itemPrice').innerText = "NT$ " + matched.price;
+        document.getElementById('itemOldPrice').innerText = matched.oldPrice ? "NT$ " + matched.oldPrice : "";
+        let stockLabel = document.getElementById('txtStockLabel');
+        if(matched.stock !== "" && Number(matched.stock) <= 0) { stockLabel.innerText = "❌ 已售罄斷貨"; } 
+        else { stockLabel.innerText = (matched.stock === "") ? "" : `⚡ 剩餘 ${matched.stock} 件`; }
+      }
+    }
+
+    function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
+    
+    // 🎯 購物車封裝核心修正：對齊主商品屬性標籤，點擊加入後購物車按鈕 100% 正確耀出
+    function addToCart() {
+      const p = rawData[selectedIdx]; const el = document.getElementById('sizeSelect');
+      let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
+      let specTitle = (el.value === 'single') ? '單一規格' : activeProductSpecs[Number(el.value)].spec.replace('尺寸:','').replace('顏色:','');
+      
+      cart.push({ sku: p.sku, prodName: p.name, color: "款式", size: specTitle, price: Number(matched.price) || 0, qty: Number(document.getElementById('qtyInput').value), category: p.category || "" });
+      closeModal(); updateCartUI();
+      let t = document.getElementById('toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000);
+    }
+    
+    function setShipping(mode) {
+      currentShipping = mode;
+      document.getElementById('shippingAddressBlock').style.display = mode.includes('宅配') ? 'block' : 'none';
+      document.getElementById('shippingStoreBlock').style.display = mode.includes('超商') ? 'block' : 'none';
+      updateCartUI();
+    }
+    function calculateDynamicShipping() { currentShipping = document.getElementById('shipSelectDropdown').value; setShipping(currentShipping); }
+    function updateCartUI() {
+      const box = document.getElementById('cartList'); box.innerHTML = ""; let subtotal = 0; let hasFlower = false;
+      cart.forEach((item, idx) => {
+        let total = item.price * item.qty; subtotal += total; if(item.category.includes("花束")) hasFlower = true;
+        box.innerHTML += `<div class="cart-item"><div><b>[${item.sku}] ${item.prodName}</b><br><small>${item.size} x${item.qty}</small></div><span>$${total} <button onclick="removeCart(${idx})" style="border:none;background:none;color:#94A3B8;cursor:pointer;">✕</button></span></div>`;
+      });
+      if(hasFlower && !currentShipping.includes("花束")) {
+        let dropdown = document.getElementById('shipSelectDropdown');
+        for (let option of dropdown.options) { if (option.value.includes("花束")) { dropdown.value = option.value; currentShipping = option.value; setShipping(currentShipping); break; } }
+      }
+      let shipFee = cart.length > 0 ? (dynamicShippingMap[currentShipping] || 0) : 0;
+      document.getElementById('subTotal').innerText = subtotal; document.getElementById('discountAmt').innerText = discountValue; document.getElementById('shipFee').innerText = shipFee;
+      document.getElementById('grandTotal').innerText = (subtotal - discountValue + shipFee < 0) ? 0 : (subtotal - discountValue + shipFee);
+      const cartBtn = document.getElementById('viewCartBtn'); cartBtn.style.display = cart.length > 0 ? 'block' : 'none'; cartBtn.innerText = `購物車 (${cart.length})`;
+    }
+    function removeCart(idx) { cart.splice(idx,1); updateCartUI(); }
+    function toggleCart(show) { document.getElementById('cartDrawer').classList.toggle('open', show); }
+    function applyPromo() {
+      let code = document.getElementById('discountInput').value.trim(); let found = promoList.find(p => p[0] === code);
+      if(found) { discountValue = Math.abs(Number(found[1])); myAlert("✨ 折扣碼套用成功，現折 $" + discountValue); } 
+      else { discountValue = 0; myAlert("❌ 無效的折扣碼！請重新確認輸入。"); }
+      updateCartUI();
     }
 
     function autoFillCustomerData(event) {
@@ -554,12 +597,13 @@
             let dropdown = document.getElementById('shipSelectDropdown');
             if(dropdown && lastO.shipping) { dropdown.value = lastO.shipping; calculateDynamicShipping(); }
             if(lastO.shipping && lastO.shipping.includes("超商")) {
-              document.getElementById('storeName').value = lastO.address ? lastO.address.replace("7-11超商：", "").replace("7-11 超商取貨：", "") : "";
+              document.getElementById('storeName').value = lastO.address ? lastO.address.replace("7-11超商：", "") : "";
             } else { document.getElementById('custAddress').value = lastO.address || ""; }
           } else { myAlert("查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
         });
     }
 
+    // 🎯 歷史看板安全防禦性渲染：100% 條列整齊
     function checkOrderHistory() {
       let ph = document.getElementById('searchInput').value.trim(); 
       if(!ph || !/^\d+$/.test(ph)) return myAlert("請直接在上方長條控制列中輸入您的【手機號碼】，再按右側【登入對帳】進行查詢唷！");
@@ -617,7 +661,15 @@
       updateFavoriteButtonUI(sku);
       if(currentLoginUser) { fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "syncFavorites", phone: currentLoginUser, favorites: favoriteSkus }) }); }
     }
-    function changeImg(dir) { if (curImgs.length <= 1) return; imgIdx = (imgIdx + dir + curImgs.length) % curImgs.length; showMediaItem(); }
+
+    function submitLastFive(oid) {
+      let ph = currentLoginUser; 
+      let maxOid = oid;
+      let five = document.getElementById('payFive_' + oid).value.trim();
+      if(five.length !== 5) return myAlert("請輸入精確的匯款後五碼！");
+      fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "updatePaymentReport", phone: ph, orderId: maxOid, lastFive: five }) })
+        .then(r => r.json()).then(res => { myAlert(res.message); checkOrderHistory(); });
+    }
     function submitFinalOrder() {
       let phone = document.getElementById('custPhone').value.trim(), name = document.getElementById('custName').value.trim(), line = document.getElementById('lineName').value.trim(), rxName = document.getElementById('shipReceiverName').value.trim(), email = document.getElementById('custEmail').value.trim();
       if(!phone || !name || !line || !rxName || !email || cart.length === 0) return myAlert("請填寫所有欄位（皆為必填項目）。");
@@ -625,7 +677,6 @@
       if(!addr) return myAlert((currentShipping.includes('宅配')) ? "請填寫完整收件地址" : "請填寫超商門市名稱");
       let finalAddr = (currentShipping.includes('宅配')) ? `(${document.getElementById('custZip').value}) ${addr}` : `7-11超商：${addr}`;
       
-      // 🎯 核心優化：將多規格加入購物車的結帳名稱精準解構，確保匯款數據不穿幫
       let checkoutCart = cart.map(c => ({ sku: c.sku, prodName: c.prodName, color: "規格", size: c.size, qty: c.qty, price: c.price, category: c.category }));
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: checkoutCart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: document.getElementById('grandTotal').innerText } }) })
         .then(r => r.json()).then(res => {
@@ -636,3 +687,4 @@
   </script>
 </body>
 </html>
+
