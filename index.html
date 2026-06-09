@@ -39,8 +39,12 @@
     
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; background: #E2E8F4; color: #4A6283; margin-top: 4px; }
     
+    /* 🎯 網頁版置中優化 */
     .filter-section { position: sticky; top: 0; z-index: 1900; background: #83A6D4; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .filter-scroll { display: flex; overflow-x: auto; white-space: nowrap; padding: 0 16px; gap: 8px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+    @media (min-width: 769px) {
+      .filter-scroll { justify-content: center; overflow-x: visible; }
+    }
     .filter-scroll::-webkit-scrollbar { display: none; }
     .filter-tag { background: transparent; color: var(--text-main); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid var(--text-main); transition: 0.2s; display: inline-block; flex-shrink: 0; }
     .filter-tag.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
@@ -123,7 +127,6 @@
 
   <div id="announcement" class="announcement-bar">Welcome~</div>
 
-  <!-- 🎯 終極精簡：搜尋與登入查詢整合為單一列行動工作列 -->
   <div class="search-section">
     <div class="app-control-bar">
       <input type="text" id="searchInput" class="app-input" placeholder="輸入貨號名稱或手機號碼...">
@@ -138,7 +141,6 @@
     </div>
   </div>
 
-  <!-- 🎯 分類標籤：一長條橫列，手機端可滑動 -->
   <div class="filter-section">
     <div class="filter-scroll" id="categoryTabs">
       <button class="filter-tag active" onclick="filterCategory('全部')">全部商品</button>
@@ -265,7 +267,6 @@
   </div>
 
   <div id="customAlert" class="custom-alert"><div class="alert-content"><div id="alertMsg" style="text-align:left; font-size:14px; color:var(--text-main); line-height:1.5;"></div><button class="alert-btn" onclick="closeAlert()">我知道了</button></div></div>
-  <div id="toast">🛒 商品已成功加入購物車</div>
 
   <script>
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
@@ -309,7 +310,6 @@
           document.getElementById('announcement').innerText = res.announcement;
           document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
           
-          // 🎯 核心修正：對齊後台 GAS 接口，動態加載試算表 H, I, J 欄三大須知條款
           document.getElementById('boxNotice').innerText = res.shopNotice || "暫無購物須知說明";
           document.getElementById('boxRefund').innerText = res.refundNotice || "暫無退換貨須知說明";
           document.getElementById('boxPrivacy').innerText = res.privacyPolicy || "暫無隱私權政策說明";
@@ -330,19 +330,34 @@
 
           let fallbackUrl = document.getElementById('fallbackLogo').src;
           
-          // 🎯 核心重構：徹底打通 K 欄單價！不論是新後台格式還是傳統未建立規格格式，100% 完美識別並顯示單價！
+          /* 🎯 核心修正：對齊後端 p[0] 到 p[14] 索引 */
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
-            let pObj = { sku: p[0], name: p[1], status: p[2], category: p[3], tag: p[4], desc: p[5], video: p[6] };
-            if (!p[7] || p[7].toString().trim() === "") { pObj.processedImgs = [fallbackUrl]; } 
-            else { pObj.processedImgs = p[7].toString().split(/[\s\n\r]+/).map(u => u.trim()).filter(u => u !== ""); }
+            let pObj = { 
+              sku: p[0], 
+              name: p[1], 
+              status: p[2], 
+              category: p[3], 
+              tag: p[4],        // 對應副分類 F 欄 (p[5]為標籤)
+              desc: p[6],       // 對應商品敘述短文 G 欄
+              video: p[7]       // 對應網址 H 欄
+            };
             
-            // 判斷第 8 欄位 (I欄) 是否包含矩陣 JSON 配置，如果沒有，直接綁定 K 欄位的傳統單價！
-            if (p[8] && p[8].toString().trim().startsWith('[')) {
-              pObj.specs = JSON.parse(p[8]);
+            // 圖片網址紀錄欄在 I 欄 -> 陣列索引應為 p[8]
+            if (!p[8] || p[8].toString().trim() === "") { 
+              pObj.processedImgs = [fallbackUrl]; 
+            } else { 
+              pObj.processedImgs = p[8].toString().split(/[\s\n\r]+/).map(u => u.trim()).filter(u => u !== ""); 
+            }
+            
+            // 規格 JSON 數據在 J 欄 -> 陣列索引應為 p[9]
+            if (p[9] && p[9].toString().trim().startsWith('[')) {
+              pObj.specs = JSON.parse(p[9]);
             } else {
-              // 兼容舊架構與新上架空規格式：直接撈取 K 欄單價 (對應陣列 p[10])
-              let rawKPrice = p[10] ? p[10].toString().replace(/[']/g, "").trim() : "詢問售價";
-              pObj.specs = [{ spec: "單一規格", oldPrice: "", price: rawKPrice, stock: "" }];
+              // 舊規格/全新無規格空規格式：直接撈取 特價 (單價) L 欄 -> 陣列索引應為 p[11]
+              // 原價在 K 欄 -> 陣列索引應為 p[10]
+              let rawLPrice = p[11] ? p[11].toString().replace(/[']/g, "").trim() : "詢問售價";
+              let rawKPrice = p[10] ? p[10].toString().replace(/[']/g, "").trim() : "";
+              pObj.specs = [{ spec: "單一規格", oldPrice: rawKPrice, price: rawLPrice, stock: "" }];
             }
             return pObj;
           });
@@ -394,7 +409,6 @@
       renderCatalog(products);
     }
     
-    // 🎯 雙向智慧複合式單列工作檯：智慧捕捉，輸入手機直接執行查詢，免去多餘贅字
     function searchProducts() {
       let val = document.getElementById('searchInput').value.toLowerCase().trim();
       if(val === "") { products = rawData; currentPage = 1; renderCatalog(products); return; }
@@ -408,7 +422,6 @@
       renderCatalog(products);
     }
     
-    // 🎯 圖片加載特權解鎖：強制開啟 eager 與 high 權限，秒速彈出前排主圖，外連打開速度最高規格優化
     function renderCatalog(list) {
       const box = document.getElementById('catalog'); box.innerHTML = "";
       if(list.length === 0) { 
@@ -427,11 +440,10 @@
         
         let minPrice = "詢問售價", oldPriceText = "";
         if(p.specs && p.specs.length > 0) {
-          let prices = p.specs.map(s => s.price); minPrice = "NT$ " + Math.min(...prices);
+          let prices = p.specs.map(s => Number(s.price) || 0); minPrice = "NT$ " + Math.min(...prices);
           if(p.specs[0].oldPrice) { oldPriceText = '<span class="p-price-old">NT$ ' + p.specs[0].oldPrice + '</span>'; }
         }
         
-        // 強制插隊高速載入宣告
         let priorityAttr = (i - startIdx < 4) ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
         
         card.innerHTML = '<img src="' + firstImg + '" ' + priorityAttr + ' decoding="async">' +
@@ -535,7 +547,7 @@
 
     function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
     
-    // 🎯 核心強固修復：對齊購物車主要資料欄位封裝，移除多餘分支，保證購物車正確彈出
+    /* 🎯 移除 Toast DOM 元素與相關控制 */
     function addToCart() {
       const p = rawData[selectedIdx]; const el = document.getElementById('sizeSelect');
       let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
@@ -543,7 +555,6 @@
       
       cart.push({ sku: p.sku, prodName: p.name, color: "款式", size: specTitle, price: Number(matched.price) || 0, qty: Number(document.getElementById('qtyInput').value), category: p.category || "" });
       closeModal(); updateCartUI();
-      let t = document.getElementById('toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000);
     }
     
     function setShipping(mode) {
@@ -679,4 +690,3 @@
   </script>
 </body>
 </html>
-
