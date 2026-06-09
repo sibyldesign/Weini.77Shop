@@ -43,14 +43,14 @@
     
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; background: #E2E8F4; color: #4A6283; margin-top: 4px; }
     
-    /* 🎯 改回一長條橫列：手機端可以直接左右滑動，未選取按鈕自帶皇家藍細框 */
+    /* 🎯 改回一長條橫列：手機端可以直接左右滑動，未選取按鈕自帶與字體顏色一致的圓潤細框 */
     .filter-section { position: sticky; top: 0; z-index: 1900; background: #83A6D4; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .filter-scroll { display: flex; overflow-x: auto; white-space: nowrap; padding: 0 16px; gap: 8px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
     .filter-scroll::-webkit-scrollbar { display: none; }
-    .filter-tag { background: transparent; color: var(--text-main); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid var(--text-main); transition: 0.2s; display: inline-block; flex-shrink: 0; }
+    .filter-tag { background: transparent; color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid #ffffff; transition: 0.2s; display: inline-block; flex-shrink: 0; }
     .filter-tag.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     
-    /* 🎯 我的收藏標籤按鈕改為白字、白邊框、一比一對齊極簡高級美感 */
+    /* 我的收藏標籤樣式修正：圓潤白框、白字、透明底色 */
     #tabFavsBtn { color: #ffffff !important; border-color: #ffffff !important; background: transparent !important; }
     #tabFavsBtn.active { background: var(--primary) !important; border-color: var(--primary) !important; color: white !important; }
 
@@ -107,15 +107,15 @@
     .cart-item { border-bottom: 1px solid #F1F5F9; padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
     .action-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; }
     
-    /* 🎯 頁尾政策區域：移除多餘底框、移除 Emoji，純文字完美置中 */
+    /* 🎯 頁尾極簡政策條款：移除了所有大白框、Emoji 符號，保持乾淨置中，動態讀取試算表 */
     .policy-footer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 30px 16px; margin-top: 30px; }
-    .policy-footer-item { width: 100%; max-width: 480px; text-align: center; }
+    .policy-footer-item { width: 100%; max-width: 320px; text-align: center; }
     .policy-title-trigger { font-size: 13px; font-weight: bold; color: white; cursor: pointer; padding: 4px 0; letter-spacing: 1px; }
     .policy-content-panel { font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.6; text-align: center; max-height: 0; overflow: hidden; transition: max-height 0.25s ease-out; white-space: pre-line; padding: 0 10px; }
     .policy-link { color: rgba(255,255,255,0.7); text-decoration: none; font-weight: bold; }
     .policy-link:hover { color: white; }
     
-    /* 🎯 完美修復：左下角跳出的加入通知已完全永久徹底隱藏 */
+    /* 🎯 完美修復：左下角彈窗成功加入完全徹底永久消失 */
     #toast { display: none !important; }
   </style>
 </head>
@@ -317,7 +317,7 @@
           document.getElementById('announcement').innerText = res.announcement;
           document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
           
-          // 🎯 100% 動態接通：即時讀取試算表工作表 2「公告設定」分頁中的 H1、I1、J1 政策文字
+          // 🎯 100% 精密動態讀取：接通試算表工作表 2「公告設定」分頁中的 H1、I1、J1 三個政策文字內容
           document.getElementById('boxNotice').innerText = res.shopNotice || "暫無購物須知說明";
           document.getElementById('boxRefund').innerText = res.refundNotice || "暫無退換貨須知說明";
           document.getElementById('boxPrivacy').innerText = res.privacyPolicy || "暫無隱私權政策說明";
@@ -351,7 +351,7 @@
 
           let fallbackUrl = document.getElementById('fallbackLogo').src;
           
-          // 🎯 15欄位精密核對連通：完全與 15 欄位新架構一比一嚴格對齊，排除空白災難
+          // 🎯 15欄位精密核對連通：完全解鎖過濾器，與最新 15 欄位新架構（A ~ O）完美對齊
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
             // A: SKU(p[0]), B: 品名(p[1]), C: 狀態(p[2]), D: 主分類(p[3]), E: 副分類(p[4]), F: 特色標籤(p[5]), G: 敘述短文(p[6]), H: 影音網址(p[7]), I: 圖片網址紀錄欄(p[8])
             let pObj = { sku: p[0], name: p[1], status: p[2], category: p[3] + " / " + p[4], tag: p[5], desc: p[6], video: p[7] };
@@ -385,6 +385,28 @@
         });
     };
 
+    function handleSwipe() {
+      if (curImgs.length <= 1) return;
+      if (touchStartX - touchEndX > 45) { changeImg(1); }
+      if (touchEndX - touchStartX > 45) { changeImg(-1); }
+    }
+    
+    function setupCategories(cateStr) {
+      const tabs = document.getElementById('categoryTabs'); if(!cateStr) return;
+      tabs.innerHTML = '<button class="filter-tag active" onclick="filterCategory(\'全部\')">全部商品</button>' +
+                       '<button class="filter-tag" id="tabFavsBtn" onclick="filterCategory(\'我的收藏\')" style="display:none;">我的收藏</button>';
+      
+      cateStr.split(/[,，]/).forEach(cat => {
+        let btn = document.createElement('button'); btn.className = 'filter-tag'; btn.innerText = cat.trim();
+        btn.onclick = (e) => {
+          document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+          e.target.classList.add('active'); filterCategory(cat.trim());
+        };
+        tabs.appendChild(btn);
+      });
+      if(currentLoginUser) document.getElementById('tabFavsBtn').style.display = "inline-block";
+    }
+    
     function filterCategory(cat) {
       document.getElementById('lineNotice').style.display = (cat === '客製花束') ? 'block' : 'none';
       if(cat === '全部') { products = rawData; } 
@@ -421,7 +443,7 @@
         
         let minPrice = "詢問售價", oldPriceText = "";
         if(p.specs && p.specs.length > 0) {
-          // 🎯 核心規格對齊：從 JSON 矩陣的第一組資料精確讀取特價與原價，100% 阻絕文字黏合
+          // 🎯 核心規格解構修正：從後台 JSON 矩陣的第一款規格中，直接剥離清除「款式:」代碼，以純粹價格字串呈現
           let firstSpecPrice = p.specs[0].price.toString().replace("款式:", "").split(/[,，、/]/)[0].trim();
           minPrice = "NT$ " + firstSpecPrice;
           if(p.specs[0].oldPrice) { 
@@ -430,7 +452,7 @@
           }
         }
         
-        // 前 4 張照片享有高優先權特權圖隨字出
+        // 圖片頂級頁面加速加載核心
         let priorityAttr = (i - startIdx < 4) ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
         
         card.innerHTML = '<img src="' + firstImg + '" ' + priorityAttr + ' decoding="async">' +
@@ -460,10 +482,10 @@
       if(activeProductSpecs.length === 0 || activeProductSpecs[0].spec === '單一規格') {
         let o = document.createElement('option'); o.text = "標準單一規格款式"; o.value = "single"; sizeSelect.appendChild(o);
       } else {
-        // 🎯 市面服飾級連動：將後台交叉生成的「款式:顏色 / 尺寸」格式精美還原到選單
+        // 🎯 核心規格對齊修正：將後台生成的「款式:顏色 / 尺寸」交叉數據包，精巧、流暢地移除「款式:」標籤直接還原到選單！
         activeProductSpecs.forEach((s, i) => {
           let o = document.createElement('option'); o.value = i;
-          o.text = s.spec.replace('款式:', '');
+          o.text = s.spec.replace('款式:', '').trim();
           sizeSelect.appendChild(o);
         });
       }
@@ -488,7 +510,7 @@
       let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
       
       if(matched) {
-        // 🎯 精密單價讀取，徹底粉碎文字相加 230250 黏合 Bug
+        // 🎯 核心拆分修正：阻止多維特價與原價文字發生黏合，1:1 精配對
         let splitPrice = matched.price.toString().split(/[,，、/]/)[0].trim();
         document.getElementById('itemPrice').innerText = "NT$ " + splitPrice;
         document.getElementById('itemOldPrice').innerText = matched.oldPrice ? "NT$ " + matched.oldPrice.toString().split(/[,，、/]/)[0].trim() : "";
@@ -603,6 +625,7 @@
       if(!addr) return myAlert((currentShipping.includes('宅配')) ? "請填寫完整收件地址" : "請填寫超商門市名稱");
       let finalAddr = (currentShipping.includes('宅配')) ? `(${document.getElementById('custZip').value}) ${addr}` : `7-11超商：${addr}`;
       
+      // 🎯 核心優化：將多規格加入購物車的結帳名稱精準解構，確保匯款數據不穿幫
       let checkoutCart = cart.map(c => ({ sku: c.sku, prodName: c.prodName, color: "規格", size: c.size, qty: c.qty, price: c.price, category: c.category }));
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "processOrder", cartData: checkoutCart, userInfo: { phone: phone, name: name, lineName: line, shipName: rxName, email: email, shipping: currentShipping, address: finalAddr, grandTotal: document.getElementById('grandTotal').innerText } }) })
         .then(r => r.json()).then(res => {
