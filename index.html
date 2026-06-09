@@ -24,7 +24,9 @@
     .logout-btn { background: #333; color: white; border: none; padding: 2px 6px; border-radius: 6px; font-size: 10px; cursor: pointer; }
 
     .brand-hero { padding: 10px 16px 10px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-    .brand-logo { width: 90px; height: 90px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    /* 點擊 logo 回主頁的手勢與特效 */
+    .brand-logo { width: 90px; height: 90px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s; }
+    .brand-logo:active { transform: scale(0.95); }
     .brand-title { font-size: 26px; font-weight: 900; color: white; margin-top: 12px; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .announcement-bar { background: rgba(255,255,255,0.2); color: white; padding: 10px 15px; font-size: 13px; text-align: center; font-weight: 600; margin: 0 16px; border-radius: 12px; }
     
@@ -103,6 +105,10 @@
     .policy-footer-item { width: 100%; max-width: 320px; text-align: center; }
     .policy-title-trigger { font-size: 13px; font-weight: bold; color: white; cursor: pointer; padding: 4px 0; letter-spacing: 1px; }
     .policy-content-panel { font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.6; text-align: center; max-height: 0; overflow: hidden; transition: max-height 0.25s ease-out; white-space: pre-line; padding: 0 10px; }
+    
+    /* 頁尾美化超連結樣式 */
+    .designer-link { color: rgba(255,255,255,0.8); text-decoration: none; border-bottom: 1px dashed rgba(255,255,255,0.5); padding-bottom: 2px; transition: color 0.2s; }
+    .designer-link:hover { color: #FFFFFF; border-bottom-style: solid; }
   </style>
 </head>
 <body>
@@ -121,7 +127,7 @@
   </div>
 
   <div class="brand-hero">
-    <img src="https://i.postimg.cc/qBskp62d/6500d65a-71fe-4827-a080-e9b8534bbecd.jpg" class="brand-logo" id="fallbackLogo">
+    <img src="https://i.postimg.cc/qBskp62d/6500d65a-71fe-4827-a080-e9b8534bbecd.jpg" class="brand-logo" id="fallbackLogo" onclick="backToHome()">
     <div class="brand-title">Weini.77 Shop</div>
   </div>
 
@@ -233,6 +239,7 @@
     <div style="text-align:right; margin:15px 0; font-size:13px; line-height:1.5;">
       商品小計：$<span id="subTotal">0</span><br>
       折扣：-$<span id="discountAmt">0</span><br>
+      <span id="txtMarketingLabel" style="font-size:12px; color:#27AE60; font-weight:bold;"></span>
       運費：$<span id="shipFee">0</span><br>
       <span style="font-size:16px; font-weight:800; color:var(--accent-pink);">應匯款總額：NT$ <span id="grandTotal">0</span></span>
     </div>
@@ -263,15 +270,18 @@
       <div class="policy-title-trigger" onclick="togglePolicyContent('boxPrivacy')">隱私權政策 <span id="arr_boxPrivacy">▼</span></div>
       <div id="boxPrivacy" class="policy-content-panel">讀取中...</div>
     </div>
-    <div style="text-align:center; color:rgba(255,255,255,0.7); font-size:11px; margin-top:15px; letter-spacing: 0.5px;">
-      &copy; 2026 Weini.77 Shop | Designed by <a href="https://heysibyl.com/" target="_blank" class="policy-link">Sibyl數位管家</a>
+    <div style="text-align:center; color:rgba(255,255,255,0.6); font-size:11px; margin-top:10px;">
+      &copy; 2026 Weini.77 Shop | Designed by <a href="https://heysibyl.com/" target="_blank" class="designer-link">Sibyl數位管家</a>
     </div>
   </div>
 
   <div id="customAlert" class="custom-alert"><div class="alert-content"><div id="alertMsg" style="text-align:left; font-size:14px; color:var(--text-main); line-height:1.5;"></div><button class="alert-btn" onclick="closeAlert()">我知道了</button></div></div>
 
   <script>
-    let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
+    // 🎯 貼上您的後端新網址連線
+    const API_URL = "https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec";
+
+    let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0, marketingRules = [];
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
     let touchStartX = 0, touchEndX = 0, currentActiveVideoUrl = "", activeProductSpecs = [];
     let favoriteSkus = JSON.parse(localStorage.getItem('w77_favs') || '[]'); 
@@ -298,6 +308,19 @@
       }
     }
 
+    // 🎯 LOGO點擊回首頁的處理機制
+    function backToHome() {
+      document.getElementById('searchInput').value = "";
+      document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+      const firstTab = document.querySelector("#categoryTabs button:nth-child(1)");
+      if(firstTab) firstTab.classList.add('active');
+      
+      products = rawData;
+      currentPage = 1;
+      renderCatalog(products);
+      scrollToTop();
+    }
+
     window.onload = () => {
       if(currentLoginUser) { refreshMemberStatusUI(currentLoginUser); }
 
@@ -308,8 +331,10 @@
       fetch(API_URL)
         .then(r => r.json())
         .then(res => {
-          promoList = res.promos;
-          document.getElementById('announcement').innerText = res.announcement;
+          if (!res.success) return myAlert("系統通知: " + res.message);
+          promoList = res.promos || [];
+          marketingRules = res.marketingRules || [];
+          document.getElementById('announcement').innerText = res.announcement || "Welcome~";
           document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
           
           document.getElementById('boxNotice').innerText = res.shopNotice || "暫無購物須知說明";
@@ -332,30 +357,31 @@
 
           let fallbackUrl = document.getElementById('fallbackLogo').src;
           
-          // 🎯 核心重構：精準映射 I 欄 (p[8]) 多圖、J 欄 (p[9]) 規格 JSON、K 欄 (p[10]) 原價、L 欄 (p[11]) 特價
+          // 🎯 核心陣列精確重調：對應 GAS 最新 15 欄 [A~O] 架構！
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
             let pObj = { 
-              sku: p[0], 
-              name: p[1], 
-              status: p[2], 
-              category: p[3], 
-              tag: p[4], 
-              desc: p[5], 
-              video: p[6] 
+              sku: p[0],      // A
+              name: p[1],     // B
+              status: p[2],   // C
+              category: p[3], // D
+              tag: p[4],      // E
+              progress: p[5], // F
+              desc: p[6],     // G 商品敘述
+              video: p[7]     // H YouTube/IG網址
             };
             
-            // I 欄 (p[8]) 為圖片網址紀錄欄，支援換行或空格隔開多張網址
+            // 圖片紀錄在 Ｉ 欄 (索引 p[8])
             if (!p[8] || p[8].toString().trim() === "") { 
               pObj.processedImgs = [fallbackUrl]; 
             } else { 
               pObj.processedImgs = p[8].toString().split(/[\s\n\r]+/).map(u => u.trim()).filter(u => u !== ""); 
             }
             
-            // J 欄 (p[9]) 規格矩陣數據 JSON。如果沒有 JSON 配置，則綁定 K 欄原價與 L 欄特價的傳統無規格售價
+            // 規格矩陣 JSON 紀錄在 Ｊ 欄 (索引 p[9])
             if (p[9] && p[9].toString().trim().startsWith('[')) {
               pObj.specs = JSON.parse(p[9]);
             } else {
-              // 撈取 K 欄傳統原價 (p[10])、L 欄傳統特價 (p[11])
+              // 無規格時，原價在 Ｋ 欄 (p[10])，特價在 Ｌ 欄 (p[11])
               let rawKPrice = p[10] ? p[10].toString().replace(/[']/g, "").trim() : "";
               let rawLPrice = p[11] ? p[11].toString().replace(/[']/g, "").trim() : "詢問售價";
               
@@ -381,7 +407,7 @@
           }
         }).catch(err => {
           console.error(err);
-          myAlert("資料加載失敗，請檢查試算表權限或 API 連結設定是否正確。");
+          myAlert("資料加載失敗，請檢查試算表權限、GAS部署設定是否選擇「任何人」。");
         });
     };
 
@@ -447,7 +473,6 @@
         
         let minPrice = "詢問售價", oldPriceText = "";
         if(p.specs && p.specs.length > 0) {
-          // 支援多售價時取最小值，或是只有單一特價的情境
           let prices = p.specs.map(s => {
             let cleanP = s.price.toString().split(/[,，]/)[0];
             return Number(cleanP) || 0;
@@ -584,6 +609,7 @@
       updateCartUI();
     }
     function calculateDynamicShipping() { currentShipping = document.getElementById('shipSelectDropdown').value; setShipping(currentShipping); }
+    
     function updateCartUI() {
       const box = document.getElementById('cartList'); box.innerHTML = ""; let subtotal = 0; let hasFlower = false;
       cart.forEach((item, idx) => {
@@ -594,9 +620,25 @@
         let dropdown = document.getElementById('shipSelectDropdown');
         for (let option of dropdown.options) { if (option.value.includes("花束")) { dropdown.value = option.value; currentShipping = option.value; setShipping(currentShipping); break; } }
       }
+      
+      // 動態行銷滿額規則計算
+      let marketingText = "";
+      let marketingDiscount = 0;
+      if (marketingRules && marketingRules.length > 0) {
+        marketingRules.forEach(rule => {
+          if (subtotal >= rule.threshold) {
+            marketingText = `✨ 已達成滿額活動: ${rule.text}`;
+          }
+        });
+      }
+      document.getElementById('txtMarketingLabel').innerText = marketingText;
+
       let shipFee = cart.length > 0 ? (dynamicShippingMap[currentShipping] || 0) : 0;
       document.getElementById('subTotal').innerText = subtotal; document.getElementById('discountAmt').innerText = discountValue; document.getElementById('shipFee').innerText = shipFee;
-      document.getElementById('grandTotal').innerText = (subtotal - discountValue + shipFee < 0) ? 0 : (subtotal - discountValue + shipFee);
+      
+      let finalGrand = subtotal - discountValue - marketingDiscount + shipFee;
+      document.getElementById('grandTotal').innerText = (finalGrand < 0) ? 0 : finalGrand;
+      
       const cartBtn = document.getElementById('viewCartBtn'); cartBtn.style.display = cart.length > 0 ? 'block' : 'none'; cartBtn.innerText = `購物車 (${cart.length})`;
     }
     function removeCart(idx) { cart.splice(idx,1); updateCartUI(); }
@@ -639,7 +681,7 @@
           if(res.success && res.allOrders) {
             currentLoginUser = ph; localStorage.setItem('w77_user', ph); refreshMemberStatusUI(ph);
             fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "getFavorites", phone: ph }) })
-              .then(r=>r.json()).then(fRes => { if(fRes.success) { favoriteSkus = fRes.favorites; localStorage.setItem('w77_favs', JSON.stringify(favoriteSkus)); } });
+              .then(r=>r.json()).then(fRes => { if(fRes.success) { favoriteSkus = fRes.favorites || []; localStorage.setItem('w77_favs', JSON.stringify(favoriteSkus)); } });
 
             const container = document.getElementById('multiOrdersContainer'); container.innerHTML = ""; 
             res.allOrders.forEach(o => {
@@ -710,4 +752,3 @@
   </script>
 </body>
 </html>
-
