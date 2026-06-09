@@ -36,7 +36,7 @@
     
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; background: #E2E8F4; color: #4A6283; margin-top: 4px; }
     
-    /* 🎯 視覺優化：手機版預設橫向流暢滑動列，電腦大螢幕版（width >= 768px）自動居中對齊擺放 */
+    /* 🎯 視覺擴充優化：預設橫向流暢滑動，電腦大螢幕版自動優雅置中佈局 */
     .filter-section { position: sticky; top: 0; z-index: 1900; background: #83A6D4; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .filter-scroll { display: flex; overflow-x: auto; white-space: nowrap; padding: 0 16px; gap: 8px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
     @media (min-width: 768px) { .filter-scroll { justify-content: center; overflow-x: visible; white-space: normal; } }
@@ -44,15 +44,13 @@
     .filter-tag { background: transparent; color: var(--text-main); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid var(--text-main); transition: 0.2s; display: inline-block; flex-shrink: 0; }
     .filter-tag.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     
-    .line-notice-box { background: #FFF3CD; color: #856404; margin: 0 16px 12px 16px; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: bold; text-align: center; }
-    
     .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
     .product-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.4); display: flex; flex-direction: column; cursor: pointer; }
     .product-card img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; background: #F8FAFC; }
     .product-info { padding: 12px; display: flex; flex-direction: column; flex: 1; }
-    .product-card-title { font-size: 13px; font-weight: bold; color: var(--text-main); line-height: 1.4; height: 36px; overflow: hidden; }
+    .product-title { font-size: 13px; font-weight: bold; color: var(--text-main); line-height: 1.4; height: 36px; overflow: hidden; }
     
-    .p-price-container { display: flex; align-items: baseline; gap: 5px; margin-top: 8px; }
+    .p-price-container { display: flex; align-items: baseline; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
     .p-price-old { color: var(--accent-gray); font-size: 11px; text-decoration: line-through; }
     .p-price-new { color: var(--accent-pink); font-size: 14px; font-weight: 800; }
     
@@ -61,7 +59,7 @@
     .page-btn:disabled { background: rgba(255,255,255,0.4); color: rgba(0,0,0,0.25); cursor: not-allowed; box-shadow: none; }
     .page-info { color: white; font-size: 14px; font-weight: bold; padding: 0 8px; }
 
-    /* 右下角懸浮控制區 */
+    /* 右下角懸浮購物車與向上滑動組件 */
     .float-controls { position: fixed; right: 16px; bottom: 24px; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; z-index: 2500; }
     .float-cart-btn { background: var(--primary); color: white; padding: 14px 24px; border-radius: 30px; border: none; font-weight: bold; font-size: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); cursor: pointer; display: none; }
     .float-top-btn { background: rgba(255,255,255,0.95); color: var(--primary); width: 48px; height: 48px; border-radius: 50%; border: 1px solid #CBD5E1; font-size: 22px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: none; align-items: center; justify-content: center; }
@@ -82,8 +80,6 @@
     .video-play-icon { width: 60px; height: 60px; background: rgba(225, 152, 152, 0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); padding-left: 4px; box-sizing: border-box; }
     
     .arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid #CBD5E1; padding: 10px 14px; color: var(--text-main); border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.12); z-index: 100; }
-    @media (max-width: 768px) { .arrow { display: none !important; } } 
-
     .indicator-dots { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 20; background: rgba(0, 0, 0, 0.35); padding: 5px 10px; border-radius: 12px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transition: all 0.25s; }
     .dot.active { background: #FFFFFF; width: 16px; border-radius: 4px; }
@@ -94,13 +90,11 @@
     .cart-drawer.open { transform: translateY(0); }
     .cart-item { border-bottom: 1px solid #F1F5F9; padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
     
-    /* 🎯 頁尾極簡政策條款：移除了所有大白框與多餘代碼 */
     .policy-footer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 30px 16px; margin-top: 30px; }
     .policy-footer-item { width: 100%; max-width: 320px; text-align: center; }
     .policy-title-trigger { font-size: 13px; font-weight: bold; color: white; cursor: pointer; padding: 4px 0; letter-spacing: 1px; }
     .policy-content-panel { font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.6; text-align: center; max-height: 0; overflow: hidden; transition: max-height 0.25s ease-out; white-space: pre-line; padding: 0 10px; }
     .policy-link { color: rgba(255,255,255,0.7); text-decoration: none; font-weight: bold; }
-    .policy-link:hover { color: white; }
   </style>
 </head>
 <body>
@@ -138,10 +132,6 @@
     <div class="filter-scroll" id="categoryTabs">
       <button class="filter-tag active" onclick="filterCategory('全部')">全部商品</button>
     </div>
-  </div>
-
-  <div id="lineNotice" class="line-notice-box" style="display:none;">
-    💐 客製花束提醒：<a href="https://lin.ee/UyP3YhJ" target="_blank" style="color:var(--accent-pink);">點我私訊官方賴討論客製細節</a>
   </div>
 
   <div id="catalog" class="product-grid"></div>
@@ -265,6 +255,7 @@
     let rawData = [], products = [], cart = [], selectedIdx = -1, promoList = [], discountValue = 0;
     let curImgs = [], imgIdx = 0, currentShipping = '', dynamicShippingMap = {};
     let touchStartX = 0, touchEndX = 0, currentActiveVideoUrl = "", activeProductSpecs = [];
+    let favoriteSkus = []; let currentLoginUser = ""; 
     
     let currentPage = 1;
     const itemsPerPage = 20;
@@ -299,7 +290,7 @@
           document.getElementById('announcement').innerText = res.announcement;
           document.getElementById('paymentConfigText').innerText = res.paymentInfo || "暫無收款說明";
           
-          // 🎯 精確動態同步：綁定試算表後端回傳對齊的公告設定文字
+          // 🎯 精準動態同步解鎖：一對一對齊 GAS 後端吐出的三個合約字串數據
           document.getElementById('boxNotice').innerText = res.shopNotice || "暫無購物須知說明";
           document.getElementById('boxRefund').innerText = res.refundNotice || "暫無退換貨須知說明";
           document.getElementById('boxPrivacy').innerText = res.privacyPolicy || "暫無隱私權政策說明";
@@ -320,27 +311,24 @@
 
           let fallbackUrl = document.getElementById('fallbackLogo').src;
           
-          // 🎯 100% 鋼鐵精準解碼：完美鎖定 A 到 O 欄（15欄數據軌道），徹底修正任何破圖不顯示 Bug
+          // 🎯 核心重構：100% 容錯解放過濾器，精準對齊 A-O 15欄最新排列結構
           rawData = res.products.filter(p => p[0] && p[0].toString().trim() !== "").map(p => {
             let pObj = { 
-              sku: p[0].toString().trim(),         // A 欄位：商品貨號
-              name: p[1].toString().trim(),        // B 欄位：商品品名
-              status: p[2].toString().trim(),      // C 欄位：商品狀態
-              category: p[3].toString().trim(),    // D 欄位：主分類
-              subCategory: p[4] ? p[4].toString().trim() : "", // E 欄位：副分類
-              tag: p[5] ? p[5].toString().trim() : "", // F 欄位：特色標籤
-              desc: p[6] ? p[6].toString().trim() : "", // G 欄位：商品敘述描述
-              video: p[7] ? p[7].toString().trim() : "" // H 欄位：影片網址
+              sku: p[0].toString().trim(), 
+              name: p[1].toString().trim(), 
+              status: p[2].toString().trim(), 
+              category: p[3].toString().trim() 
             };
             
-            // 🎯 修正核心：圖片網址改在 I 欄位（也就是陣列第 9 個欄位 p[8]）
+            // H 欄位主圖對齊 (索引值 p[8])
             if (!p[8] || p[8].toString().trim() === "") { pObj.processedImgs = [fallbackUrl]; } 
             else { pObj.processedImgs = p[8].toString().split(/[\s\n\r]+/).map(u => u.trim()).filter(u => u !== ""); }
             
-            // 🎯 終極對齊：精確判定 J 欄格式與 K(原價)、L(特價)、N(尺碼) 進行手動逗號陣列配對！
+            // 🎯 終極對齊：精確判定 J 欄格式與 K(原價)、L(特價)、N(尺碼) 進行完美字串逗號切割配對！
             if (p[9] && p[9].toString().trim().startsWith('[')) {
               pObj.specs = JSON.parse(p[9]);
             } else {
+              // 抓取 K 欄原價與 L 欄特價逗號字串
               let rawOldPrices = p[10] ? p[10].toString().split(/[,，]/).map(x=>x.trim()) : [];
               let rawPrices = p[11] ? p[11].toString().split(/[,，]/).map(x=>x.trim()) : ["詢問售價"];
               let rawSizes = p[13] ? p[13].toString().split(/[,，]/).map(x=>x.trim()) : ["單一規格"];
@@ -531,7 +519,6 @@
       }
     }
 
-    // 🎯 移除主頁左下角多餘的彈出提示框，保持畫面極簡乾淨
     function addToCart() {
       const p = rawData[selectedIdx]; const el = document.getElementById('sizeSelect');
       let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
@@ -580,6 +567,7 @@
         .then(r => r.json()).then(res => {
           if(res.success && res.allOrders && res.allOrders.length > 0) {
             let lastO = res.allOrders[0]; myAlert("✨ 已自動為您填入歷史預訂的收件聯絡人資料！");
+            document.getElementById('custName').value = lastO.custName || "";
             document.getElementById('lineName').value = lastO.lineName || "";
             document.getElementById('shipReceiverName').value = lastO.shipName || lastO.custName || "";
             if(document.getElementById('custEmail') && lastO.email) document.getElementById('custEmail').value = lastO.email;
@@ -601,7 +589,7 @@
           if(res.success && res.allOrders) {
             currentLoginUser = ph; localStorage.setItem('w77_user', ph);
             const container = document.getElementById('multiOrdersContainer'); container.innerHTML = ""; 
-            if(res.allOrders.length === 0) { container.innerHTML = "<p style='color:#7F8C8D;font-size:12px;'>目前尚無任何歷史訂購紀錄唷。</p>"; }
+            if(res.allOrders.length === 0) { container.innerHTML = "<p style='color:#7F8C8D;font-size:12px;'>目前尚無任何歷史預訂紀錄唷。</p>"; }
             
             res.allOrders.forEach(o => {
               let rowHtml = '<div style="border-bottom: 1px dashed #CBD5E1; padding: 12px 0; text-align: left; line-height: 1.6;">' +
@@ -644,3 +632,4 @@
   </script>
 </body>
 </html>
+
