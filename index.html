@@ -234,10 +234,10 @@
       <button type="button" onclick="applyPromo()" style="background:#333; color:white; border:none; padding:0 14px; border-radius:12px; font-weight:bold; font-size:13px; cursor:pointer;">套用</button>
     </div>
     <div style="text-align:right; margin:15px 0; font-size:13px; line-height:1.5;">
-      <div>商品小計：$<span id="subTotal">0</span></div>
-      <div>折扣：-$<span id="discountAmt">0</span></div>
+      <div style="display:none;">商品小計：$<span id="subTotal">0</span></div>
+      <div style="display:none;">折扣：-$<span id="discountAmt">0</span></div>
       <div id="txtMarketingLabel" style="font-size:12px; color:#27AE60; font-weight:bold;"></div>
-      <div>運費：$<span id="shipFee">0</span></div>
+      <div style="display:none;">運費：$<span id="shipFee">0</span></div>
       <div style="font-size:16px; font-weight:800; color:var(--accent-pink); margin-top: 5px;" id="grandTotalBlock">應匯款總額：NT$ <span id="grandTotal">0</span></div>
     </div>
     <div style="border-top:1px dashed #DDD; padding-top:12px;">
@@ -398,7 +398,7 @@
           }
         }).catch(err => {
           console.error(err);
-          myAlert("資料加載失敗，請檢查試算表權限、GAS部署設定是否選擇「任何人」。");
+          myAlert("資料加載失敗，請檢查試算表權限、GAS部署設定是否選擇「任何人。」");
         });
     };
 
@@ -466,7 +466,6 @@
         if(p.specs && p.specs.length > 0) {
           let firstPrice = p.specs[0].price.toString().trim();
           
-          // 🎯 判斷如果是客製討論，直接在前台卡片上顯示文字
           if (firstPrice.includes("客製討論")) {
             minPrice = "客製討論";
           } else {
@@ -483,7 +482,8 @@
           }
         }
         
-        let priorityAttr = (i - startIdx < 4) ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
+        // 🎯 核心提速改動：進網頁優先強迫全力載入前六張圖 (優先級拉到最高，阻斷非必要延遲)
+        let priorityAttr = (i - startIdx < 6) ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
         
         card.innerHTML = '<img src="' + firstImg + '" ' + priorityAttr + ' decoding="async">' +
                          '<div class="product-info">' +
@@ -502,13 +502,13 @@
     function openProduct(idx) {
       selectedIdx = idx; const p = rawData[idx];
       document.getElementById('itemModal').style.display = 'flex';
-      imgIdx = 0; curImgs = [...p.processedImgs];
+      imgIdx = 0; 
+      curImgs = [...p.processedImgs];
       activeProductSpecs = p.specs || [];
       
+      // 🎯 核心體驗修復：徹底分離影片層與相簿層，解決「滑到第六下才出現其他圖」的 Bug
       let videoUrl = p.video ? p.video.toString().trim() : "";
-      let videoBox = document.getElementById('videoCoverContainer');
-      if (videoUrl !== "") { currentActiveVideoUrl = videoUrl; videoBox.style.display = "block"; document.getElementById('videoCoverImg').src = curImgs[0]; } 
-      else { currentActiveVideoUrl = ""; videoBox.style.display = "none"; }
+      currentActiveVideoUrl = videoUrl;
 
       const sizeSelect = document.getElementById('sizeSelect'); sizeSelect.innerHTML = "";
       if(activeProductSpecs.length === 0 || activeProductSpecs[0].spec === '單一規格') {
@@ -522,7 +522,8 @@
       }
 
       updateFavoriteButtonUI(p.sku);
-      buildDots(); showMediaItem();
+      buildDots(); 
+      showMediaItem(); // 直接展示第一張高解析圖片，影片控制下移到此控制
       document.getElementById('itemTitle').innerText = "[" + p.sku + "] " + p.name;
       document.getElementById('itemDesc').innerText = p.desc || "";
       syncMultiSizePrice();
@@ -555,6 +556,16 @@
     function showMediaItem() {
       let currentItem = curImgs[imgIdx]; let imgEl = document.getElementById('itemImg');
       let viewerBox = document.getElementById('swiperArea');
+      let videoBox = document.getElementById('videoCoverContainer');
+
+      // 🎯 只有當有影音網址，且使用者處在第一張（索引0）時，才精準覆蓋影片啟動層，否則一律隱藏，絕不阻擋後續大圖
+      if (currentActiveVideoUrl !== "" && imgIdx === 0) {
+        videoBox.style.display = "block";
+        document.getElementById('videoCoverImg').src = (typeof currentItem === "string") ? currentItem : document.getElementById('fallbackLogo').src;
+      } else {
+        videoBox.style.display = "none";
+      }
+
       imgEl.src = (typeof currentItem === "string") ? currentItem : document.getElementById('fallbackLogo').src;
       
       imgEl.onload = function() {
@@ -579,7 +590,6 @@
         let rawPrice = matched.price.toString().trim();
         let displayOldPrice = matched.oldPrice ? matched.oldPrice.toString().split(/[,，]/)[0] : "";
         
-        // 🎯 判斷內頁彈窗若是客製討論，則不加上 NT$ 符號並清空原價
         if (rawPrice.includes("客製討論")) {
           document.getElementById('itemPrice').innerText = "客製討論";
           document.getElementById('itemOldPrice').innerText = "";
@@ -602,7 +612,6 @@
       let matched = (el.value === 'single') ? activeProductSpecs[0] : activeProductSpecs[Number(el.value)];
       let specTitle = (el.value === 'single') ? '單一規格' : activeProductSpecs[Number(el.value)].spec.replace('尺寸:','').replace('顏色:','');
       
-      // 🎯 提取特價欄位，字串包含客製討論則維持字串形式傳入購物車陣列
       let rawPriceStr = matched.price.toString().trim();
       let finalPrice = rawPriceStr.includes("客製討論") ? "客製討論" : (Number(rawPriceStr.split(/[,，]/)[0]) || 0);
       
@@ -623,7 +632,6 @@
       const box = document.getElementById('cartList'); box.innerHTML = ""; let subtotal = 0; let hasFlower = false;
       
       cart.forEach((item, idx) => {
-        // 🎯 判斷此項目是否為客製討論項目
         let isCustom = (item.price === "客製討論");
         let totalText = isCustom ? "客製討論" : `$${item.price * item.qty}`;
         
@@ -639,7 +647,6 @@
         for (let option of dropdown.options) { if (option.value.includes("花束")) { dropdown.value = option.value; currentShipping = option.value; setShipping(currentShipping); break; } }
       }
       
-      // 動態行銷滿額規則計算
       let marketingText = "";
       let marketingDiscount = 0; 
       if (marketingRules && marketingRules.length > 0) {
@@ -653,19 +660,16 @@
 
       let shipFee = cart.length > 0 ? (dynamicShippingMap[currentShipping] || 0) : 0;
       
-      // 填入基礎數值
       document.getElementById('subTotal').innerText = subtotal; 
       document.getElementById('discountAmt').innerText = discountValue; 
       document.getElementById('shipFee').innerText = shipFee;
       
-      // 🎯 核心拔除控制：任何數據只要為 0，便直接隱藏其行容器，不對用戶顯示「0元」
       document.getElementById('subTotal').parentElement.style.display = (subtotal === 0) ? 'none' : 'block';
       document.getElementById('discountAmt').parentElement.style.display = (discountValue === 0) ? 'none' : 'block';
       document.getElementById('shipFee').parentElement.style.display = (shipFee === 0) ? 'none' : 'block';
       
       let finalGrand = subtotal - discountValue - marketingDiscount + shipFee;
       
-      // 🎯 最終總匯款金額控制
       if (finalGrand <= 0) {
         document.getElementById('grandTotalBlock').innerHTML = "應匯款總額：確認後通知";
       } else {
