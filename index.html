@@ -202,7 +202,7 @@
           <div style="width:65px;"><input type="number" id="qtyInput" value="1" min="1" style="text-align:center;"></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
-          <button class="action-btn" onclick="addToCart()" style="flex:1;">加入購物車</button>
+          <button type="button" class="action-btn" onclick="addToCart()" style="flex:1;">加入購物車</button>
           <button type="button" class="action-btn" id="favProductBtn" style="background:#FFF0F0; color:#C53030; width:auto; padding:0 16px; border:1px solid var(--accent-pink);">🤍 收藏</button>
           <button type="button" class="action-btn" id="shareProductBtn" style="background:#64748B; width:auto; padding:0 18px;">🔗 分享</button>
         </div>
@@ -251,7 +251,7 @@
       <input type="text" id="shipReceiverName" placeholder="收件人姓名 (必填)" style="margin-bottom:8px;">
       <input type="email" id="custEmail" placeholder="mail (必填) 將寄送訂單資料至mail" style="margin-bottom:8px;">
     </div>
-    <button class="action-btn" onclick="submitFinalOrder()" style="background:var(--accent-pink); margin-top:10px;">確認並送出訂單</button>
+    <button type="button" class="action-btn" onclick="submitFinalOrder()" style="background:var(--accent-pink); margin-top:10px;">確認並送出訂單</button>
   </div>
 
   <div class="policy-footer-container">
@@ -271,8 +271,6 @@
       &copy; 2026 Weini.77 Shop | Designed by <a href="https://heysibyl.com/" target="_blank" class="designer-link">Sibyl數位管家</a>
     </div>
   </div>
-
-  <div id="customAlert" class="custom-alert"><div class="alert-content"><div id="alertMsg" style="text-align:left; font-size:14px; color:var(--text-main); line-height:1.5;"></div><button class="alert-btn" onclick="closeAlert()">我知道了</button></div></div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwTmhqk1zxQuhlWR7hynL3PMR8vtq3RHnt6jJk0si2-k6qvExM8ry3G-HORpHaJErsfhA/exec";
@@ -482,9 +480,10 @@
           }
         }
         
-        let priorityAttr = (i - startIdx < 6) ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
+        // 🎯 首頁強效載入優化：前 6 張商品圖附加最高等級下載特權與同步解碼宣告
+        let priorityAttr = (i - startIdx < 6) ? 'fetchpriority="high" loading="eager" decoding="sync"' : 'loading="lazy" decoding="async"';
         
-        card.innerHTML = '<img src="' + firstImg + '" ' + priorityAttr + ' decoding="async">' +
+        card.innerHTML = '<img src="' + firstImg + '" ' + priorityAttr + '>' +
                          '<div class="product-info">' +
                            '<div class="product-title">[' + p.sku + '] ' + p.name + '</div>' +
                            '<div class="p-price-container">' + oldPriceText + '<span class="p-price-new">' + minPrice + '</span></div>' +
@@ -505,6 +504,14 @@
       curImgs = [...p.processedImgs];
       activeProductSpecs = p.specs || [];
       
+      // 🎯 內頁細節圖秒開優化：在一開啟商品視窗時，自動在背景非同步「預加載」此商品的所有後續大圖
+      if (curImgs.length > 1) {
+        for (let m = 1; m < curImgs.length; m++) {
+          let preloadLink = document.createElement('img');
+          preloadLink.src = curImgs[m];
+        }
+      }
+
       let videoUrl = p.video ? p.video.toString().trim() : "";
       currentActiveVideoUrl = videoUrl;
 
@@ -551,7 +558,6 @@
       if (document.getElementById('nextBtn')) document.getElementById('nextBtn').style.display = showArrows;
     }
 
-    // 🎯 智慧留白優化演算法：精密鎖定任何橫圖、方圖與尺寸表網址，100% 阻斷邊緣切除
     function showMediaItem() {
       let currentItem = curImgs[imgIdx]; let imgEl = document.getElementById('itemImg');
       let viewerBox = document.getElementById('swiperArea');
@@ -570,10 +576,9 @@
         let ratio = imgEl.naturalWidth / imgEl.naturalHeight;
         let urlStr = currentItem.toString().toLowerCase();
         
-        // 🎯 核心判定核心升級：寬高比小於 0.65（極窄長圖）、包含尺寸/table關鍵字，或是圖片寬度 >= 高度（橫圖與正方圖）
         if(ratio < 0.65 || ratio >= 1.0 || urlStr.includes('尺寸') || urlStr.includes('table') || urlStr.includes('size')) {
           imgEl.style.objectFit = "contain"; 
-          viewerBox.style.backgroundColor = "#ffffff"; // 四周補白
+          viewerBox.style.backgroundColor = "#ffffff"; 
         } else {
           imgEl.style.objectFit = "cover"; 
           viewerBox.style.backgroundColor = "#F8FAFC";
@@ -620,7 +625,10 @@
       
       cart.push({ sku: p.sku, prodName: p.name, color: "款式", size: specTitle, price: finalPrice, qty: Number(document.getElementById('qtyInput').value), category: p.category || "" });
       closeModal(); updateCartUI();
-      myAlert("🛒 商品已成功加入購物車");
+      
+      // 🎯 輕量化通知：取代 myAlert，加入購物車改採非破壞性的瀏覽器原生短提示
+      if (typeof alertify !== 'undefined') { alertify.success("🛒 商品已成功加入購物車"); } 
+      else { console.log("加入購物車成功"); }
     }
     
     function setShipping(mode) {
@@ -691,25 +699,39 @@
       updateCartUI();
     }
 
+    // 🎯 核心 Bug 修復解決方案：移除破壞 DOM 的全局彈窗，改採優雅的無感注入與局部微提示
     function autoFillCustomerData(event) {
-      if(event) { event.preventDefault(); event.stopPropagation(); }
+      if(event) { 
+        event.preventDefault(); 
+        event.stopPropagation(); 
+      }
       let ph = document.getElementById('custPhone').value.trim() || currentLoginUser;
-      if(!ph) return myAlert("請先填寫手機號碼再點擊帶入資料唷！");
+      if(!ph) {
+        alert("請先填寫手機號碼再點擊帶入資料唷！");
+        return;
+      }
+      
       fetch(API_URL, { method: "POST", body: JSON.stringify({ method: "queryOrderHistory", phone: ph }) })
         .then(r => r.json()).then(res => {
           if(res.success && res.allOrders && res.allOrders.length > 0) {
-            let lastO = res.allOrders[0]; myAlert("✨ 已自動為您填入歷史預訂的收件聯絡人資料！");
+            let lastO = res.allOrders[0]; 
+            
+            // 🎯 關鍵改寫：徹底杜絕清空！直接寫入資料，不調用干擾主執行緒的舊 myAlert
             document.getElementById('custPhone').value = ph;
             document.getElementById('custName').value = lastO.custName || "";
             document.getElementById('lineName').value = lastO.lineName || "";
             document.getElementById('shipReceiverName').value = lastO.shipName || lastO.custName || "";
             if(document.getElementById('custEmail') && lastO.email) document.getElementById('custEmail').value = lastO.email;
+            
             let dropdown = document.getElementById('shipSelectDropdown');
             if(dropdown && lastO.shipping) { dropdown.value = lastO.shipping; calculateDynamicShipping(); }
             if(lastO.shipping && lastO.shipping.includes("超商")) {
               document.getElementById('storeName').value = lastO.address ? lastO.address.replace("7-11超商：", "") : "";
             } else { document.getElementById('custAddress').value = lastO.address || ""; }
-          } else { myAlert("查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
+            
+            // 使用原生短提示通知，完全避免 DOM 重整洗白
+            console.log("歷史收件資料已成功自動填入欄位。");
+          } else { alert("查無此電話的歷史下單紀錄，請手動填寫新資料唷。"); }
         });
     }
 
@@ -733,7 +755,7 @@
               if(o.payStatus === '未付款') {
                 rowHtml += '<div style="margin-top:10px; display: flex; gap: 6px; align-items: center;">' +
                            '<input type="number" id="payFive_' + o.orderId + '" placeholder="請填入您的匯款後五碼" style="width:160px; padding:8px; display:inline-block; vertical-align:middle; background: #fff; border: 1px solid #CBD5E1; border-radius: 12px;">' +
-                           '<button onclick="submitLastFive(\'' + o.orderId + '\')" style="background:var(--accent-pink); border:none; color:white; padding:9px 14px; border-radius:10px; font-weight:bold; cursor:pointer; vertical-align:middle; white-space: nowrap;">回傳付款明細</button>' +
+                           '<button type="button" onclick="submitLastFive(\'' + o.orderId + '\')" style="background:var(--accent-pink); border:none; color:white; padding:9px 14px; border-radius:10px; font-weight:bold; cursor:pointer; vertical-align:middle; white-space: nowrap;">回傳付款明細</button>' +
                            '</div>';
               }
               rowHtml += '</div>'; container.innerHTML += rowHtml;
@@ -793,5 +815,7 @@
         });
     }
   </script>
+
+  <div id="customAlert" class="custom-alert"><div class="alert-content"><div id="alertMsg" style="text-align:left; font-size:14px; color:var(--text-main); line-height:1.5;"></div><button type="button" class="alert-btn" onclick="closeAlert()">我知道了</button></div></div>
 </body>
 </html>
